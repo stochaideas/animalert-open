@@ -1,9 +1,9 @@
 import SVG from "~/lib/svg";
 import type { SVGProps } from "~/lib/svg";
 
-const SVGHeart: React.FC<SVGProps> = (props) => {
+export default function SVGHeart(props: SVGProps) {
   return (
-    <SVG {...props}>
+    <SVG {...props} viewBox="0 0 16 16">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -12,6 +12,4 @@ const SVGHeart: React.FC<SVGProps> = (props) => {
       ></path>
     </SVG>
   );
-};
-
-export default SVGHeart;
+}

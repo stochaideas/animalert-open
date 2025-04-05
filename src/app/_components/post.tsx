@@ -5,7 +5,20 @@ import { Button } from "~/components/ui/button";
 
 import { api } from "~/trpc/react";
 
-import SVGHeart from "~/components/icons/heart";
+import {
+  SVGHeart,
+  SVGInstagram,
+  SVGYoutube,
+  SVGFacebook,
+  SVGInstagramFilled,
+  SVGYoutubeFilled,
+  SVGFacebookFilled,
+  SVGLogo,
+  SVGPaperPage,
+  SVGVideoCamera,
+  SVGStar,
+  SVGMessageBubble,
+} from "~/components/icons";
 
 export function LatestPost() {
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
@@ -21,6 +34,19 @@ export function LatestPost() {
 
   return (
     <div className="w-full max-w-xs">
+      <div className="text-secondary flex items-center justify-between">
+        <SVGInstagram width="32" height="32" />
+        <SVGInstagramFilled width="32" height="32" />
+        <SVGYoutube width="32" height="32" />
+        <SVGYoutubeFilled width="32" height="32" />
+        <SVGFacebook width="32" height="32" />
+        <SVGFacebookFilled width="32" height="32" />
+        <SVGLogo className="text-neutral" width="44" height="44" />
+        <SVGMessageBubble width="20" height="20" />
+        <SVGPaperPage width="20" height="20" />
+        <SVGVideoCamera width="20" height="20" />
+        <SVGStar width="20" height="20" />
+      </div>
       {latestPost ? (
         <p className="truncate">Your most recent post: {latestPost.name}</p>
       ) : (

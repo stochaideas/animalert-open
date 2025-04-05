@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Poppins } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import Footer from "./_components/footer";
 
 export const metadata: Metadata = {
   title: "Animalert",
@@ -21,7 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.className}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <main className="bg-neutral flex min-h-screen flex-col items-stretch justify-between">
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+          <Footer />
+        </main>
       </body>
     </html>
   );
