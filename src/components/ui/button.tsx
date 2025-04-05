@@ -11,7 +11,7 @@ const poppins = Poppins({
 });
 
 const buttonVariants = cva(
-  `${poppins.className} m-auto hover:cursor-pointer border-1 rounded-lg inline-flex items-center justify-center gap-[8px] whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground`,
+  `${poppins.className} m-auto hover:cursor-pointer border-1 rounded-lg inline-flex items-center justify-center gap-[8px] whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground disabled:has-[>svg]:stroke-disabled-foreground`,
   {
     variants: {
       variant: {
