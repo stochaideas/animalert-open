@@ -15,7 +15,7 @@ export function GoogleMap() {
   >();
 
   const apiKey = env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const mapId = env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID as string;
+  const mapId = env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
   useEffect(() => {
     if ("geolocation" in navigator) {
