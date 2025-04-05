@@ -19,7 +19,7 @@ export default function Footer() {
     <footer className="bg-secondary text-secondary-foreground w-full p-[2rem] lg:px-[15.625rem] lg:py-[3rem]">
       <div className="flex flex-col items-start justify-center gap-[3.75rem] lg:gap-[2rem]">
         <div className="flex w-full flex-col items-start justify-between gap-[3.75rem] lg:flex-row lg:gap-[2rem]">
-          <section className="flex w-full flex-row items-center justify-between gap-[1.5rem] lg:flex-col lg:justify-start">
+          <section className="flex w-full flex-row items-center justify-between gap-[1.5rem] sm:w-auto lg:flex-col lg:justify-start">
             <div className="flex flex-row items-center justify-center gap-[0.75rem]">
               <SVGLogo width="44" height="44" />
               <span
