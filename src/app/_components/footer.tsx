@@ -1,9 +1,12 @@
 import { Roboto } from "next/font/google";
 import {
   SVGFacebook,
+  SVGFacebookFilled,
   SVGInstagram,
+  SVGInstagramFilled,
   SVGLogo,
   SVGYoutube,
+  SVGYoutubeFilled,
 } from "~/components/icons";
 
 const roboto = Roboto({
@@ -13,10 +16,10 @@ const roboto = Roboto({
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary text-secondary-foreground w-full px-[15.625rem] py-[3rem]">
-      <div className="flex flex-col items-start justify-center gap-[2rem]">
-        <div className="flex w-full flex-row items-start justify-between gap-[2rem]">
-          <section className="flex flex-col gap-[1.5rem]">
+    <footer className="bg-secondary text-secondary-foreground w-full p-[2rem] lg:px-[15.625rem] lg:py-[3rem]">
+      <div className="flex flex-col items-start justify-center gap-[3.75rem] lg:gap-[2rem]">
+        <div className="flex w-full flex-col items-start justify-between gap-[3.75rem] lg:flex-row lg:gap-[2rem]">
+          <section className="flex w-full flex-row items-center justify-between gap-[1.5rem] lg:flex-col lg:justify-start">
             <div className="flex flex-row items-center justify-center gap-[0.75rem]">
               <SVGLogo width="44" height="44" />
               <span
@@ -26,9 +29,24 @@ export default function Footer() {
               </span>
             </div>
             <div className="flex flex-row gap-[1rem]">
-              <SVGInstagram width="32" height="32" />
-              <SVGFacebook width="32" height="32" />
-              <SVGYoutube width="32" height="32" />
+              <SVGInstagram
+                className="hidden sm:inline"
+                width="32"
+                height="32"
+              />
+              <SVGInstagramFilled
+                className="sm:hidden"
+                width="32"
+                height="32"
+              />
+              <SVGFacebook
+                className="hidden sm:inline"
+                width="32"
+                height="32"
+              />
+              <SVGFacebookFilled className="sm:hidden" width="32" height="32" />
+              <SVGYoutube className="hidden sm:inline" width="32" height="32" />
+              <SVGYoutubeFilled className="sm:hidden" width="32" height="32" />
             </div>
           </section>
           <section className="flex flex-col gap-[0.75rem]">
@@ -64,8 +82,9 @@ export default function Footer() {
             <span className="text-single-line-body-base">x</span>
           </section>
         </div>
-        <span className="w-full text-center">
-          © 2024 AnimAlert. Toate drepturile rezervate.
+        <span className="text-body-small flex w-full flex-col items-start lg:flex-row lg:justify-center lg:gap-[0.5rem] lg:text-center">
+          <span>© 2024 AnimAlert.</span>
+          <span>Toate drepturile rezervate.</span>
         </span>
       </div>
     </footer>
