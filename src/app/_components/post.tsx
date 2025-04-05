@@ -6,7 +6,6 @@ import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 
 import SVGHeart from "~/components/icons/heart";
-import SVGPin from "~/components/icons/pin";
 
 export function LatestPost() {
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
@@ -41,12 +40,8 @@ export function LatestPost() {
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white"
         />
-        <Button
-          type="submit"
-          variant="tertiary"
-          disabled={createPost.isPending}
-        >
-          <SVGPin />
+        <Button type="submit" variant="neutral" disabled={createPost.isPending}>
+          <SVGHeart />
           {createPost.isPending ? "Submitting..." : "Donează"}
         </Button>
       </form>
