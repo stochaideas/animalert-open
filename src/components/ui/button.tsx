@@ -19,6 +19,10 @@ const buttonVariants = cva(
           "bg-neutral text-neutral-foreground border-neutral-stroke hover:bg-neutral-hover active:bg-neutral-active",
         primary:
           "bg-primary text-primary-foreground border-primary-stroke hover:bg-primary-hover active:bg-primary-active",
+        secondary:
+          "bg-secondary text-secondary-foreground border-secondary-stroke hover:bg-secondary-hover active:bg-secondary-active",
+        tertiary:
+          "bg-tertiary text-tertiary-foreground border-tertiary-stroke hover:bg-tertiary-hover hover:text-tertiary-hover-foreground active:bg-tertiary-active",
       },
       size: {
         sm: "p-[12px]",
