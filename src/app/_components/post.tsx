@@ -40,7 +40,7 @@ export function LatestPost() {
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white"
         />
-        <Button type="submit" variant="neutral" disabled={createPost.isPending}>
+        <Button type="submit" variant="primary" disabled={createPost.isPending}>
           <SVGHeart />
           {createPost.isPending ? "Submitting..." : "Donează"}
         </Button>

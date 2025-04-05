@@ -7,13 +7,23 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Neutral */
   --neutral: oklch(96.42% 0 0);
   --neutral-foreground: oklch(22.64% 0 0);
   --neutral-stroke: oklch(88.53% 0 0);
   --neutral-hover: oklch(76.36% 0 0);
   --neutral-active: oklch(87.3% 0 0);
-  --neutral-disabled: oklch(59.99% 0 0);
-  --neutral-disabled-foreground: oklch(34.85% 0 0);
+
+  /* Primary */
+  --primary: oklch(84.42% 0.172 84.93);
+  --primary-foreground: oklch(22.64% 0 0);
+  --primary-stroke: oklch(71.4% 0.145 85.03);
+  --primary-hover: oklch(81.79% 0.171 77.95);
+  --primary-active: oklch(78.39% 0.172 68.09);
+
+  /* Disabled */
+  --disabled: oklch(59.99% 0 0);
+  --disabled-foreground: oklch(34.85% 0 0);
 }
 
 @theme {
@@ -22,13 +32,23 @@
 }
 
 @theme inline {
+  /* Neutral */
   --color-neutral: var(--neutral);
   --color-neutral-foreground: var(--neutral-foreground);
   --color-neutral-stroke: var(--neutral-stroke);
   --color-neutral-hover: var(--neutral-hover);
   --color-neutral-active: var(--neutral-active);
-  --color-neutral-disabled: var(--neutral-disabled);
-  --color-neutral-disabled-foreground: var(--neutral-disabled-foreground);
+
+  /* Primary */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-stroke: var(--primary-stroke);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+
+  /* Disabled */
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
 }
 
 .text-heading-1 {

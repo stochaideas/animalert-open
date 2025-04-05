@@ -11,12 +11,14 @@ const poppins = Poppins({
 });
 
 const buttonVariants = cva(
-  `${poppins.className} m-auto hover:cursor-pointer border-1 rounded-lg inline-flex items-center justify-center gap-[8px] whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none`,
+  `${poppins.className} m-auto hover:cursor-pointer border-1 rounded-lg inline-flex items-center justify-center gap-[8px] whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground`,
   {
     variants: {
       variant: {
         neutral:
-          "bg-neutral text-neutral-foreground border-neutral-stroke hover:bg-neutral-hover active:bg-neutral-active disabled:bg-neutral-disabled disabled:text-neutral-disabled-foreground",
+          "bg-neutral text-neutral-foreground border-neutral-stroke hover:bg-neutral-hover active:bg-neutral-active",
+        primary:
+          "bg-primary text-primary-foreground border-primary-stroke hover:bg-primary-hover active:bg-primary-active",
       },
       size: {
         sm: "p-[12px]",
