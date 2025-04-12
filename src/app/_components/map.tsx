@@ -1,5 +1,8 @@
 "use client";
 
+// TODO: Default location: Cluj-Napoca, Romania
+// -> map should be blurred until location is accepted
+
 import {
   AdvancedMarker,
   APIProvider,
