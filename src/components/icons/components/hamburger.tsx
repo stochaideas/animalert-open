@@ -14,7 +14,7 @@ export default function SVGHamburger(props: HamburgerProps) {
     <button onClick={toggleMenu} className="flex items-center justify-center">
       <SVG {...svgProps} viewBox="0 0 24 24">
         <rect
-          className={`origin-[7px] ${isOpen ? "rotate-45" : ""} transition-transform duration-300`}
+          className={`origin-[7px] ${isOpen ? "rotate-45" : ""} fill-current transition-transform duration-300`}
           x="4"
           rx="1"
           y="6"
@@ -23,7 +23,7 @@ export default function SVGHamburger(props: HamburgerProps) {
           height="2"
         ></rect>
         <rect
-          className={`${isOpen ? "w-0" : ""} transition-all duration-150`}
+          className={`${isOpen ? "w-0" : ""} fill-current transition-all duration-150`}
           x="4"
           rx="1"
           y="11"
@@ -32,7 +32,7 @@ export default function SVGHamburger(props: HamburgerProps) {
           height="2"
         ></rect>
         <rect
-          className={`origin-[7px] ${isOpen ? "-rotate-45" : ""} transition-transform duration-300`}
+          className={`origin-[7px] ${isOpen ? "-rotate-45" : ""} fill-current transition-transform duration-300`}
           x="4"
           rx="1"
           y="16"
