@@ -68,12 +68,16 @@ export default async function Home() {
       </section>
       <div className="container mx-auto mb-[12.5rem] px-8">
         <section className="border-tertiary-border mb-[6.25rem] flex flex-row items-center gap-[3rem] rounded-md border-[1px] border-solid bg-white p-[3rem]">
-          <Image
-            src="/images/homepage-section-1.png"
-            alt="Imagine cu o vulpe"
-            width={600}
-            height={300}
-          />
+          <video
+            className="h-[300px] w-[600px] rounded-lg border border-gray-200 object-cover"
+            controls={false}
+            autoPlay={true}
+            loop={true}
+            muted={true}
+          >
+            <source src="/videos/homepage-video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
           <article>
             <h2 className="text-heading-2">
               Observare Prezență Animale & Raportări
