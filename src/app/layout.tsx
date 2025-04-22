@@ -25,7 +25,9 @@ export default function RootLayout({
       <body>
         <main className="bg-neutral flex min-h-screen flex-col items-stretch justify-between">
           <Navbar />
-          <TRPCReactProvider>{children}</TRPCReactProvider>
+          <TRPCReactProvider>
+            <div className="mb-[12.5rem]">{children}</div>
+          </TRPCReactProvider>
           <Footer />
         </main>
       </body>

@@ -66,7 +66,7 @@ export default async function Home() {
           </Link>
         </div>
       </section>
-      <div className="container mx-auto mb-[12.5rem] px-8">
+      <div className="container mx-auto px-8">
         <section className="border-tertiary-border mb-[6.25rem] flex flex-row items-center gap-[3rem] rounded-md border-[1px] border-solid bg-white p-[3rem]">
           <video
             className="h-[300px] w-[600px] rounded-lg border border-gray-200 object-cover"

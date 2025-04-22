@@ -20,6 +20,7 @@
   --primary-stroke: oklch(71.4% 0.145 85.03);
   --primary-hover: oklch(81.79% 0.171 77.95);
   --primary-active: oklch(78.39% 0.172 68.09);
+  --primary-disclaimer: oklch(96.4% 0.051 92.55);
 
   /* Secondary */
   --secondary: oklch(42.58% 0.113 130.14);
@@ -61,6 +62,7 @@
   --color-primary-stroke: var(--primary-stroke);
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--primary-active);
+  --color-primary-disclaimer: var(--primary-disclaimer);
 
   /* Secondary */
   --color-secondary: var(--secondary);
@@ -126,7 +128,7 @@
 .text-body-strong {
   font-family: var(--font-poppins);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.4;
   letter-spacing: 0;
 }

@@ -46,7 +46,7 @@ export default function Navbar() {
   };
 
   return (
-    <div className="sticky top-0 flex w-full flex-col gap-0">
+    <div className="sticky top-0 z-20 flex w-full flex-col gap-0">
       <nav
         className={`${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-[1.5rem] md:flex-row lg:px-[15.625rem] lg:py-[1.5rem]`}
       >
@@ -119,7 +119,7 @@ export default function Navbar() {
           </div>
         </ul>
       </nav>
-      <section className="text-neutral-foreground w-full bg-[#FFFFFF80] py-[0.875rem]">
+      <section className="text-neutral-foreground w-full bg-[#ADABA8] py-[0.875rem]">
         <div className="m-auto w-max">
           <SVGPhone className="mr-[0.75rem] inline" width="20" height="20" />{" "}
           Sună imediat la <b>112</b>, dacă ești în pericol sau vezi un animal
