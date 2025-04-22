@@ -22,7 +22,7 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground border-secondary-stroke hover:bg-secondary-hover active:bg-secondary-active",
         tertiary:
-          "bg-tertiary text-tertiary-foreground border-tertiary-stroke hover:bg-tertiary-hover hover:text-tertiary-hover-foreground active:bg-tertiary-active",
+          "bg-transparent text-tertiary-foreground border-tertiary-stroke hover:bg-tertiary-hover hover:text-tertiary-hover-foreground active:bg-tertiary-active",
       },
       size: {
         sm: "p-[12px]",

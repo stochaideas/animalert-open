@@ -29,12 +29,13 @@
   --secondary-active: oklch(37.25% 0.099 130.18);
 
   /* Tertiary */
-  --tertiary: oklch(100% 0 0/0); /* Transparent */
+  --tertiary: oklch(94.66% 0.013 126.37);
   --tertiary-foreground: oklch(42.58% 0.113 130.14);
   --tertiary-stroke: oklch(42.58% 0.113 130.14);
   --tertiary-hover: oklch(52.92% 0.143 130.92);
   --tertiary-hover-foreground: oklch(96.42% 0 0);
   --tertiary-active: oklch(37.25% 0.099 130.18);
+  --tertiary-border: oklch(83.64% 0.038 123.79);
 
   /* Disabled */
   --disabled: oklch(59.99% 0 0);
@@ -75,6 +76,7 @@
   --color-tertiary-hover: var(--tertiary-hover);
   --color-tertiary-hover-foreground: var(--tertiary-hover-foreground);
   --color-tertiary-active: var(--tertiary-active);
+  --color-tertiary-border: var(--tertiary-border);
 
   /* Disabled */
   --color-disabled: var(--disabled);
@@ -92,7 +94,7 @@
 .text-heading-2 {
   font-family: var(--font-baloo-2);
   font-size: 2rem;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.2;
   letter-spacing: -3%;
 }
@@ -100,7 +102,7 @@
 .text-heading-3 {
   font-family: var(--font-baloo-2);
   font-size: 1.5rem;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.2;
   letter-spacing: 0;
 }
