@@ -6,6 +6,7 @@ import SVGMessageBubble from "./components/message-bubble";
 import SVGPaperPage from "./components/paper-page";
 import SVGVideoCamera from "./components/video-camera";
 import SVGStar from "./components/star";
+import SVGPhone from "./components/phone";
 
 // Social media icons
 import SVGInstagram from "./components/instagram";
@@ -27,6 +28,7 @@ export {
   SVGPaperPage,
   SVGVideoCamera,
   SVGStar,
+  SVGPhone,
 
   // Social media
   SVGInstagram,
