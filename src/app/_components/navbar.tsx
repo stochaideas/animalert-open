@@ -1,30 +1,38 @@
 "use client";
 
 import { Roboto } from "next/font/google";
-import { useState } from "react";
+import Link from "next/link";
+import { useState, type JSX } from "react";
 import { SVGAlert, SVGHeart, SVGLogo } from "~/components/icons";
 import Hamburger from "~/components/icons/components/hamburger";
 import { Button } from "~/components/ui/button";
-
-// TODO: Refactor and fix typescript warnings
-// TODO: Change links hrefs; change from a to next Link
 
 const roboto = Roboto({
   subsets: ["latin"],
   weight: ["900"],
 });
 
-const navItems = [
-  { title: "Acasă", href: "#" },
-  { title: "Acțiuni & Info", href: "#" },
-  { title: "Despre noi", href: "#" },
-  { title: "Contact", href: "#" },
+const navItems: { title: string; href: string }[] = [
+  { title: "Acasă", href: "/" },
+  { title: "Acțiuni & Info", href: "/actiuni-info" },
+  { title: "Despre noi", href: "/despre-noi" },
+  { title: "Contact", href: "/contact" },
 ];
-const actionItems = [
-  { title: "Donează", href: "#", variant: "neutral", icon: <SVGHeart /> },
+const actionItems: {
+  title: string;
+  href: string;
+  variant: "neutral" | "primary" | "secondary" | "tertiary" | undefined;
+  icon: JSX.Element;
+}[] = [
+  {
+    title: "Donează",
+    href: "/doneaza",
+    variant: "neutral",
+    icon: <SVGHeart />,
+  },
   {
     title: "Raportează incident",
-    href: "#",
+    href: "/raporteaza-incident",
     variant: "primary",
     icon: <SVGAlert />,
   },
@@ -43,14 +51,14 @@ export default function Navbar() {
     >
       <div className="flex w-full flex-row items-center justify-between">
         <div className="flex flex-row items-center gap-[0.75rem]">
-          <a href="#">
+          <Link href="/">
             <SVGLogo width="44" height="44" />
-          </a>
-          <a href="#">
+          </Link>
+          <Link href="/">
             <span className={`${roboto.className} text-[1.25rem]`}>
               AnimAlert
             </span>
-          </a>
+          </Link>
         </div>
         <Hamburger
           className="cursor-pointer md:hidden"
@@ -70,16 +78,16 @@ export default function Navbar() {
               key={item.title}
               className="text-single-line-body-base px-[0.5rem]"
             >
-              <a href={item.href}>{item.title}</a>
+              <Link href={item.href}>{item.title}</Link>
             </li>
           ))}
           {actionItems.map((item) => (
             <li key={item.title}>
-              <a href={item.href}>
+              <Link href={item.href}>
                 <Button size="sm" variant={item.variant}>
                   {item.icon} {item.title}
                 </Button>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -93,18 +101,18 @@ export default function Navbar() {
               key={item.title}
               className="text-single-line-body-base py-[0.5rem]"
             >
-              <a href={item.href}>{item.title}</a>
+              <Link href={item.href}>{item.title}</Link>
             </li>
           ))}
         </div>
         <div className="flex flex-col items-center gap-[0.75rem]">
           {actionItems.map((item) => (
             <li key={item.title}>
-              <a href={item.href}>
+              <Link href={item.href}>
                 <Button size="sm" variant={item.variant}>
                   {item.icon} {item.title}
                 </Button>
-              </a>
+              </Link>
             </li>
           ))}
         </div>
