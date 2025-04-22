@@ -15,6 +15,8 @@ import SVGFacebook from "./components/facebook";
 import SVGInstagramFilled from "./components/instagram-filled";
 import SVGYoutubeFilled from "./components/youtube-filled";
 import SVGFacebookFilled from "./components/facebook-filled";
+import SVGArrowRight from "./components/arrow-right";
+import SVGArrowLeft from "./components/arrow-left";
 
 // Logo icon
 import SVGLogo from "./components/logo";
@@ -29,6 +31,8 @@ export {
   SVGVideoCamera,
   SVGStar,
   SVGPhone,
+  SVGArrowRight,
+  SVGArrowLeft,
 
   // Social media
   SVGInstagram,
