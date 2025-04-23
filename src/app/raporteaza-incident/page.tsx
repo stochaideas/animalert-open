@@ -9,10 +9,8 @@ import Page2 from "./_components/page2";
 import Page3 from "./_components/page3";
 import Page4 from "./_components/page4";
 
-// TODO: Schimba newsletter mail si whatsapp
-
 export default function IncidentReport() {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(3);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleNextPage = () => {
@@ -64,13 +62,17 @@ export default function IncidentReport() {
       case 2:
         return (
           <Page2
-            setTermsAccepted={setTermsAccepted}
             handleNextPage={handleNextPage}
             handlePreviousPage={handlePreviousPage}
           />
         );
       case 3:
-        return <Page3 />;
+        return (
+          <Page3
+            handlePreviousPage={handlePreviousPage}
+            handleNextPage={handleNextPage}
+          />
+        );
       case 4:
         return <Page4 />;
       default:

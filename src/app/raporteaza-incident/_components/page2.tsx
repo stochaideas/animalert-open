@@ -127,6 +127,8 @@ export default function Page2({
       image3: undefined,
       image4: undefined,
     },
+    mode: "onChange",
+    reValidateMode: "onChange",
   });
 
   const [imagePreviews, setImagePreviews] = useState({
@@ -394,7 +396,8 @@ export default function Page2({
               variant="primary"
               size="md"
               type="submit"
-              onClick={() => {
+              onClick={async () => {
+                await form.trigger();
                 if (form.formState.isValid) {
                   handleNextPage();
                 }
