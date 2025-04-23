@@ -305,7 +305,10 @@ export default function Page2({
                       </FormControl>
                       <Label
                         htmlFor="confidentiality"
-                        className="text-body-small"
+                        className={`text-body-small ${
+                          form.formState.errors.confidentiality &&
+                          "text-red-500"
+                        }`}
                       >
                         Prin trimiterea acestei solicitări, confirm că am citit
                         Politica de confidențialitate și sunt de acord ca
