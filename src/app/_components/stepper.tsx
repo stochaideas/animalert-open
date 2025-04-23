@@ -26,7 +26,7 @@ export function Stepper({ currentStep }: { currentStep: number }) {
           </span>
           {/* Horizontal line (except last step) */}
           {idx < steps.length - 1 && (
-            <div className="bg-neutral-stroke relative top-[-49px] left-20 z-0 h-[1px] w-full"></div>
+            <div className="bg-neutral-stroke relative top-[-53px] left-30 z-0 h-[1px] w-full"></div>
           )}
         </div>
       ))}

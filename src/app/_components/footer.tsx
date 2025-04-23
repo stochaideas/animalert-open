@@ -51,11 +51,10 @@ export default function Footer() {
           </section>
           <section className="flex flex-col gap-[0.75rem]">
             <h3 className="text-body-strong mb-[1rem]">Contact</h3>
-            <span className="text-single-line-body-base">Adresa</span>
             <span className="text-single-line-body-base">
-              Cluj-Napoca, România
+              Adresa: Cluj-Napoca, România
             </span>
-            <span className="text-single-line-body-base">Email</span>
+            <span className="text-single-line-body-base">Facebook: </span>
           </section>
           <section className="flex flex-col gap-[0.75rem]">
             <h3 className="text-body-strong mb-[1rem]">

@@ -38,7 +38,7 @@
   --tertiary-active: oklch(37.25% 0.099 130.18);
   --tertiary-border: oklch(83.64% 0.038 123.79);
 
-  --destructive: oklch(59.99% 0.172 0);
+  --destructive: var(--color-red-500);
 
   /* Disabled */
   --disabled: oklch(59.99% 0 0);

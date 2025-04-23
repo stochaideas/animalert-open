@@ -9,6 +9,8 @@ import Page2 from "./_components/page2";
 import Page3 from "./_components/page3";
 import Page4 from "./_components/page4";
 
+// TODO: Schimba newsletter mail si whatsapp
+
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(1);
   const [termsAccepted, setTermsAccepted] = useState(false);

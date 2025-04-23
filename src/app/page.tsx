@@ -47,7 +47,7 @@ const cards = [
 
 export default async function Home() {
   return (
-    <main className="bg-tertiary flex flex-col items-center justify-center gap-[6.25rem]">
+    <main className="bg-tertiary flex flex-col items-center justify-center gap-[6.25rem] pb-[6.25rem]">
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero.png)] bg-left bg-no-repeat">
         <div className="flex flex-col items-start gap-[2rem] pt-[10.25rem] pl-[20.625rem]">
           <span className="text-heading-1 text-neutral">

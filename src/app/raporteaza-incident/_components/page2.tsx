@@ -340,18 +340,7 @@ export default function Page2({
             >
               <SVGArrowLeft /> Înapoi
             </Button>
-            <Button
-              className="m-0"
-              variant="primary"
-              size="md"
-              type="submit"
-              disabled={!form.formState.isValid}
-              onClick={() => {
-                if (form.formState.isValid) {
-                  handleNextPage();
-                }
-              }}
-            >
+            <Button className="m-0" variant="primary" size="md" type="submit">
               Salvează și continuă <SVGArrowRight />
             </Button>
           </section>
@@ -360,3 +349,10 @@ export default function Page2({
     </>
   );
 }
+
+// disabled={!form.formState.isValid}
+// onClick={() => {
+//   if (form.formState.isValid) {
+//     handleNextPage();
+//   }
+// }}
