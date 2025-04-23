@@ -52,10 +52,56 @@ const formSchema = z.object({
           "image/gif",
         ].includes(file.type),
       { message: "Fișierul trebuie să fie o imagine" },
-    ),
-  image2: z.any().optional(),
-  image4: z.any().optional(),
-  image3: z.any().optional(),
+    )
+    .optional(),
+  image2: z
+    .instanceof(File, {
+      message: "Fișierul trebuie să fie o imagine",
+    })
+    .refine(
+      (file) =>
+        [
+          "image/png",
+          "image/jpeg",
+          "image/jpg",
+          "image/svg+xml",
+          "image/gif",
+        ].includes(file.type),
+      { message: "Fișierul trebuie să fie o imagine" },
+    )
+    .optional(),
+  image4: z
+    .instanceof(File, {
+      message: "Fișierul trebuie să fie o imagine",
+    })
+    .refine(
+      (file) =>
+        [
+          "image/png",
+          "image/jpeg",
+          "image/jpg",
+          "image/svg+xml",
+          "image/gif",
+        ].includes(file.type),
+      { message: "Fișierul trebuie să fie o imagine" },
+    )
+    .optional(),
+  image3: z
+    .instanceof(File, {
+      message: "Fișierul trebuie să fie o imagine",
+    })
+    .refine(
+      (file) =>
+        [
+          "image/png",
+          "image/jpeg",
+          "image/jpg",
+          "image/svg+xml",
+          "image/gif",
+        ].includes(file.type),
+      { message: "Fișierul trebuie să fie o imagine" },
+    )
+    .optional(),
 });
 
 export default function Page2({
@@ -72,7 +118,7 @@ export default function Page2({
       lastName: "",
       firstName: "",
       phone: "",
-      email: "",
+      email: undefined,
       confidentiality: false,
       receiveCaseUpdates: false,
       receiveOtherCaseUpdates: false,
@@ -271,27 +317,6 @@ export default function Page2({
                 />
                 <FormField
                   control={form.control}
-                  name="receiveCaseUpdates"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-1">
-                      <FormControl>
-                        <Checkbox
-                          id="receiveCaseUpdates"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <Label
-                        htmlFor="receiveCaseUpdates"
-                        className="text-body-small"
-                      >
-                        Vreau să primesc update pe email despre caz
-                      </Label>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="receiveOtherCaseUpdates"
                   render={({ field }) => (
                     <FormItem className="flex items-center space-x-1">
@@ -308,6 +333,27 @@ export default function Page2({
                       >
                         Vreau să fiu contactat pe WhatsApp despre alte cazuri și
                         activitățile organizației
+                      </Label>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="receiveCaseUpdates"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-1">
+                      <FormControl>
+                        <Checkbox
+                          id="receiveCaseUpdates"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <Label
+                        htmlFor="receiveCaseUpdates"
+                        className="text-body-small"
+                      >
+                        Vreau să primesc update pe email despre caz
                       </Label>
                     </FormItem>
                   )}
@@ -340,7 +386,17 @@ export default function Page2({
             >
               <SVGArrowLeft /> Înapoi
             </Button>
-            <Button className="m-0" variant="primary" size="md" type="submit">
+            <Button
+              className="m-0"
+              variant="primary"
+              size="md"
+              type="submit"
+              onClick={() => {
+                if (form.formState.isValid) {
+                  handleNextPage();
+                }
+              }}
+            >
               Salvează și continuă <SVGArrowRight />
             </Button>
           </section>
@@ -349,10 +405,3 @@ export default function Page2({
     </>
   );
 }
-
-// disabled={!form.formState.isValid}
-// onClick={() => {
-//   if (form.formState.isValid) {
-//     handleNextPage();
-//   }
-// }}
