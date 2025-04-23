@@ -38,9 +38,12 @@
   --tertiary-active: oklch(37.25% 0.099 130.18);
   --tertiary-border: oklch(83.64% 0.038 123.79);
 
+  --destructive: oklch(59.99% 0.172 0);
+
   /* Disabled */
   --disabled: oklch(59.99% 0 0);
   --disabled-foreground: oklch(34.85% 0 0);
+  --disabled-stroke: oklch(59.99% 0 0);
 }
 
 @theme {
@@ -80,9 +83,13 @@
   --color-tertiary-active: var(--tertiary-active);
   --color-tertiary-border: var(--tertiary-border);
 
+  /* Destructive */
+  --color-destructive: var(--destructive);
+
   /* Disabled */
   --color-disabled: var(--disabled);
   --color-disabled-foreground: var(--disabled-foreground);
+  --color-disabled-stroke: var(--disabled-stroke);
 }
 
 .text-heading-1 {

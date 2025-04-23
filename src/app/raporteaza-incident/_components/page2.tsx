@@ -16,7 +16,8 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import Image from "next/image";
+import { phoneNumberSchema } from "~/lib/mobile-validator";
+import { useState, type ChangeEvent } from "react";
 
 const formSchema = z.object({
   lastName: z.string().min(1, {
@@ -25,9 +26,7 @@ const formSchema = z.object({
   firstName: z.string().min(1, {
     message: "Prenumele este necesar",
   }),
-  phone: z.string().min(1, {
-    message: "Numărul de telefon este necesar",
-  }),
+  phone: phoneNumberSchema,
   email: z
     .string()
     .email({
@@ -35,15 +34,31 @@ const formSchema = z.object({
     })
     .optional(),
   confidentiality: z.boolean().refine((val) => val === true, {
-    message: "Trebuie să accepți termenii și condițiile",
+    message: "Trebuie să accepți Politica de confidențialitate",
   }),
   receiveCaseUpdates: z.boolean().optional(),
   receiveOtherCaseUpdates: z.boolean().optional(),
+  image1: z
+    .instanceof(File, {
+      message: "Fișierul trebuie să fie o imagine",
+    })
+    .refine(
+      (file) =>
+        [
+          "image/png",
+          "image/jpeg",
+          "image/jpg",
+          "image/svg+xml",
+          "image/gif",
+        ].includes(file.type),
+      { message: "Fișierul trebuie să fie o imagine" },
+    ),
+  image2: z.any().optional(),
+  image4: z.any().optional(),
+  image3: z.any().optional(),
 });
 
 export default function Page2({
-  setTermsAccepted,
-  handleNextPage,
   handlePreviousPage,
 }: {
   setTermsAccepted: (value: boolean) => void;
@@ -61,8 +76,35 @@ export default function Page2({
       confidentiality: false,
       receiveCaseUpdates: false,
       receiveOtherCaseUpdates: false,
+      image1: undefined,
+      image2: undefined,
+      image3: undefined,
+      image4: undefined,
     },
   });
+
+  const [imagePreviews, setImagePreviews] = useState({
+    image1: undefined,
+    image2: undefined,
+    image3: undefined,
+    image4: undefined,
+  });
+
+  const handleImageChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    name: string,
+    fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
+  ) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImagePreviews((prev) => ({
+        ...prev,
+        [name]: url,
+      }));
+      fieldOnChange(file); // Update react-hook-form state
+    }
+  };
 
   // Define a submit handler
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -70,6 +112,41 @@ export default function Page2({
     // ✅ This will be type-safe and validated.
     console.log(values);
   }
+
+  const ImageFormField: React.FC<{
+    image: "image1" | "image2" | "image3" | "image4";
+  }> = ({ image }) => (
+    <FormField
+      control={form.control}
+      name={image}
+      render={({ field }) => (
+        <FormItem className="flex-1">
+          <FormControl>
+            <Input
+              id={image}
+              className="hidden"
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, image, field.onChange)}
+            />
+          </FormControl>
+          <Label htmlFor={image}>
+            <div
+              className="h-[116px] w-auto cursor-pointer rounded-md bg-center"
+              style={{
+                backgroundImage: `url('${
+                  imagePreviews[image] ??
+                  "/images/incident-report-image-placeholder.png"
+                }')`,
+                backgroundSize: "cover",
+              }}
+            />
+          </Label>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
 
   return (
     <>
@@ -175,14 +252,15 @@ export default function Page2({
                     <FormItem className="flex items-center space-x-1">
                       <FormControl>
                         <Checkbox
-                          id="terms"
+                          id="confidentiality"
                           checked={field.value}
-                          onCheckedChange={(checked) =>
-                            setTermsAccepted(checked.valueOf() as boolean)
-                          }
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <Label htmlFor="terms" className="text-body-small">
+                      <Label
+                        htmlFor="confidentiality"
+                        className="text-body-small"
+                      >
                         Prin trimiterea acestei solicitări, confirm că am citit
                         Politica de confidențialitate și sunt de acord ca
                         AnimAlert să stocheze datele mele personale pentru a
@@ -200,9 +278,7 @@ export default function Page2({
                         <Checkbox
                           id="receiveCaseUpdates"
                           checked={field.value}
-                          onCheckedChange={(checked) =>
-                            field.onChange(checked.valueOf() as boolean)
-                          }
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
                       <Label
@@ -223,9 +299,7 @@ export default function Page2({
                         <Checkbox
                           id="receiveOtherCaseUpdates"
                           checked={field.value}
-                          onCheckedChange={(checked) =>
-                            field.onChange(checked.valueOf() as boolean)
-                          }
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
                       <Label
@@ -249,34 +323,12 @@ export default function Page2({
               fotografii atât cu animalul cât și cu incidentul.
             </p>
             <div className="flex flex-row gap-[2rem]">
-              <Image
-                width={185}
-                height={116}
-                src="/images/incident-report-image-placeholder.png"
-                alt="Incarca o imagine"
-                className="cursor-pointer"
-              />
-              <Image
-                width={185}
-                height={116}
-                src="/images/incident-report-image-placeholder.png"
-                alt="Incarca o imagine"
-                className="cursor-pointer"
-              />
-              <Image
-                width={185}
-                height={116}
-                src="/images/incident-report-image-placeholder.png"
-                alt="Incarca o imagine"
-                className="cursor-pointer"
-              />
-              <Image
-                width={185}
-                height={116}
-                src="/images/incident-report-image-placeholder.png"
-                alt="Incarca o imagine"
-                className="cursor-pointer"
-              />
+              {Object.keys(imagePreviews).map((key) => (
+                <ImageFormField
+                  key={key}
+                  image={key as "image1" | "image2" | "image3" | "image4"}
+                />
+              ))}
             </div>
           </section>
           <section className="flex items-center justify-end gap-[1.5rem]">
@@ -292,7 +344,8 @@ export default function Page2({
               className="m-0"
               variant="primary"
               size="md"
-              onClick={handleNextPage}
+              type="submit"
+              // onClick={handleNextPage}
             >
               Salvează și continuă <SVGArrowRight />
             </Button>
