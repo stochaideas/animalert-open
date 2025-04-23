@@ -9,9 +9,6 @@ import Page2 from "./_components/page2";
 import Page3 from "./_components/page3";
 import Page4 from "./_components/page4";
 
-// TODO: Continue implementing the form in Page2
-// TODO: Finish pages 3 and 4
-
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(1);
   const [termsAccepted, setTermsAccepted] = useState(false);

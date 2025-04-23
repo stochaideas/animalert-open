@@ -59,9 +59,9 @@ const formSchema = z.object({
 });
 
 export default function Page2({
+  handleNextPage,
   handlePreviousPage,
 }: {
-  setTermsAccepted: (value: boolean) => void;
   handleNextPage: () => void;
   handlePreviousPage: () => void;
 }) {
@@ -345,7 +345,12 @@ export default function Page2({
               variant="primary"
               size="md"
               type="submit"
-              // onClick={handleNextPage}
+              disabled={!form.formState.isValid}
+              onClick={() => {
+                if (form.formState.isValid) {
+                  handleNextPage();
+                }
+              }}
             >
               Salvează și continuă <SVGArrowRight />
             </Button>
