@@ -10,7 +10,7 @@ import Page3 from "./_components/page3";
 import Page4 from "./_components/page4";
 
 export default function IncidentReport() {
-  const [currentPage, setCurrentPage] = useState(3);
+  const [currentPage, setCurrentPage] = useState(4);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleNextPage = () => {

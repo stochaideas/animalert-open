@@ -4,7 +4,7 @@ import { Roboto } from "next/font/google";
 import Link from "next/link";
 import { useState, type JSX } from "react";
 import { SVGAlert, SVGHeart, SVGLogo, SVGPhone } from "~/components/icons";
-import Hamburger from "~/components/icons/components/hamburger";
+import Hamburger from "~/components/icons/svgs/hamburger";
 import { Button } from "~/components/ui/button";
 
 const roboto = Roboto({
