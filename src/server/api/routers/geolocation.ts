@@ -49,4 +49,76 @@ export const geolocationRouter = createTRPCRouter({
 
       return result;
     }),
+  autocomplete: publicProcedure
+    .input(z.object({ input: z.string().min(2) }))
+    .query(async ({ input }) => {
+      const url = new URL(
+        "https://maps.googleapis.com/maps/api/place/autocomplete/json",
+      );
+      url.searchParams.set("input", input.input);
+      url.searchParams.set("key", googleMapsApiKey);
+      url.searchParams.set("language", "ro");
+      url.searchParams.set("components", "country:ro");
+      url.searchParams.set("types", "geocode");
+
+      const res = await fetch(url.toString());
+      if (!res.ok) throw new Error("Failed to fetch predictions");
+      const data = (await res.json()) as {
+        predictions: Array<{
+          description: string;
+          place_id: string;
+        }>;
+        status: string;
+        error_message?: string;
+      };
+
+      if (data.status !== "OK")
+        throw new Error(data.error_message ?? "No predictions");
+
+      return data.predictions.map(
+        (p: { description: string; place_id: string }) => ({
+          description: p.description,
+          place_id: p.place_id,
+        }),
+      );
+    }),
+
+  placeDetails: publicProcedure
+    .input(z.object({ placeId: z.string() }))
+    .query(async ({ input }) => {
+      const url = new URL(
+        "https://maps.googleapis.com/maps/api/place/details/json",
+      );
+      url.searchParams.set("place_id", input.placeId);
+      url.searchParams.set("fields", "geometry,formatted_address");
+      url.searchParams.set("key", googleMapsApiKey);
+      url.searchParams.set("language", "ro");
+
+      const res = await fetch(url.toString());
+      if (!res.ok) throw new Error("Failed to fetch place details");
+      const data = (await res.json()) as {
+        result: {
+          formatted_address: string;
+          geometry: {
+            location: {
+              lat: number;
+              lng: number;
+            };
+          };
+        };
+        status: string;
+        error_message?: string;
+      };
+
+      if (data.status !== "OK")
+        throw new Error(data.error_message ?? "No details");
+
+      return {
+        formatted_address: data.result.formatted_address,
+        location: {
+          lat: data.result.geometry.location.lat,
+          lng: data.result.geometry.location.lng,
+        },
+      };
+    }),
 });

@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useGeolocation } from "~/hooks/useGeolocation";
 import { api } from "~/trpc/react";
+// import AddressAutocomplete from "./address-predictions";
 
 export default function Page3({
   handlePreviousPage,

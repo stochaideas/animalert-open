@@ -38,6 +38,7 @@ export function GoogleMap({
             defaultCenter={position}
             defaultZoom={13}
             mapId={mapId}
+            streetViewControl={false}
           >
             <AdvancedMarker position={position} />
           </Map>
