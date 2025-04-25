@@ -1,16 +1,11 @@
 "use client";
 
-import { Roboto } from "next/font/google";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, type JSX } from "react";
-import { SVGAlert, SVGHeart, SVGLogo, SVGPhone } from "~/components/icons";
+import { SVGAlert, SVGHeart, SVGPhone } from "~/components/icons";
 import Hamburger from "~/components/icons/svgs/hamburger";
 import { Button } from "~/components/ui/button";
-
-const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["900"],
-});
 
 const navItems: { title: string; href: string }[] = [
   { title: "Acasă", href: "/" },
@@ -53,12 +48,12 @@ export default function Navbar() {
         <div className="flex w-full flex-row items-center justify-between">
           <div className="flex flex-row items-center gap-[0.75rem]">
             <Link href="/">
-              <SVGLogo width="44" height="44" />
-            </Link>
-            <Link href="/">
-              <span className={`${roboto.className} text-[1.25rem]`}>
-                AnimAlert
-              </span>
+              <Image
+                src="/logo/logo-white.png"
+                alt="AnimAlert Logo"
+                width={150}
+                height={45}
+              />
             </Link>
           </div>
           <Hamburger
