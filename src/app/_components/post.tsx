@@ -18,6 +18,7 @@ import {
   SVGVideoCamera,
   SVGStar,
   SVGMessageBubble,
+  SVGAlert,
 } from "~/components/icons";
 
 export function LatestPost() {
@@ -35,17 +36,7 @@ export function LatestPost() {
   return (
     <div className="w-full max-w-xs">
       <div className="text-secondary flex items-center justify-between">
-        <SVGInstagram width="32" height="32" />
-        <SVGInstagramFilled width="32" height="32" />
-        <SVGYoutube width="32" height="32" />
-        <SVGYoutubeFilled width="32" height="32" />
-        <SVGFacebook width="32" height="32" />
-        <SVGFacebookFilled width="32" height="32" />
-        <SVGLogo className="text-neutral" width="44" height="44" />
-        <SVGMessageBubble width="20" height="20" />
-        <SVGPaperPage width="20" height="20" />
-        <SVGVideoCamera width="20" height="20" />
-        <SVGStar width="20" height="20" />
+        <SVGAlert className="text-primary" width="46" height="46" />
       </div>
       {latestPost ? (
         <p className="truncate">Your most recent post: {latestPost.name}</p>

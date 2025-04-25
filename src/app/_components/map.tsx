@@ -1,33 +1,25 @@
-"use client";
-
-// TODO: Default location: Cluj-Napoca, Romania
-// -> map should be blurred until location is accepted
-
 import {
   AdvancedMarker,
   APIProvider,
   Map,
   type MapMouseEvent,
 } from "@vis.gl/react-google-maps";
-import { useEffect, useState } from "react";
 import { env } from "~/env";
 
-export function GoogleMap() {
-  const [position, setPosition] = useState<
-    google.maps.LatLngLiteral | undefined
-  >();
+type Position = {
+  lat: number;
+  lng: number;
+};
 
+export function GoogleMap({
+  position,
+  setPosition,
+}: {
+  position: Position | null;
+  setPosition: (position: google.maps.LatLngLiteral) => void;
+}) {
   const apiKey = env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapId = env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
-
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
-        const { latitude, longitude } = coords;
-        setPosition({ lat: latitude, lng: longitude });
-      });
-    }
-  }, []);
 
   const onClickMap = (event: MapMouseEvent) => {
     const lat = event.detail.latLng?.lat;
@@ -39,13 +31,14 @@ export function GoogleMap() {
 
   return (
     <APIProvider apiKey={apiKey}>
-      <div style={{ width: "100%", height: "100vh" }}>
+      <div style={{ width: "100%", height: "100%" }}>
         {position ? (
           <Map
             onClick={onClickMap}
             defaultCenter={position}
             defaultZoom={13}
             mapId={mapId}
+            streetViewControl={false}
           >
             <AdvancedMarker position={position} />
           </Map>

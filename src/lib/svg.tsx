@@ -15,7 +15,7 @@ export default function SVG(props: React.SVGProps<SVGSVGElement>) {
       height={props.height ?? "16"}
       viewBox={props.viewBox ?? "0 0 16 16"}
       strokeWidth="0"
-      className={`${props.className} fill-current stroke-current`}
+      className={`${props.className} fill-transparent stroke-current`}
     >
       {props.children}
     </svg>
