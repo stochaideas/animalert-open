@@ -1,0 +1,37 @@
+# Node modules and dependencies
+node_modules
+
+# Build and output directories
+.next
+dist
+build
+out
+
+# Logs and temporary files
+npm-debug.log
+yarn-error.log
+*.log
+logs/
+tmp/
+.DS_Store
+
+# Environment and sensitive files
+*.pem
+*.key
+config/secrets.yml
+
+# Git and version control
+.git
+.gitignore
+
+# Docker-related files
+Dockerfile
+.dockerignore
+
+# IDE/editor files
+.idea
+.vscode
+
+# Documentation and markdown files (optional)
+*.md
+README.md
