@@ -8,7 +8,7 @@ import { useGeolocation } from "~/hooks/useGeolocation";
 import { api } from "~/trpc/react";
 // import AddressAutocomplete from "./address-predictions";
 
-export default function Page3({
+export default function Map({
   handlePreviousPage,
   handleNextPage,
 }: {

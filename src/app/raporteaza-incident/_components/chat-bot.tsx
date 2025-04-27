@@ -22,7 +22,7 @@ const CONVERSATION: {
   // Add more steps if needed
 ];
 
-export default function Page4() {
+export default function ChatBot() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
 

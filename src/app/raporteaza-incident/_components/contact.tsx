@@ -104,7 +104,7 @@ const formSchema = z.object({
     .optional(),
 });
 
-export default function Page2({
+export default function Contact({
   handleNextPage,
   handlePreviousPage,
 }: {
