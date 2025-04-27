@@ -2,17 +2,81 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, type JSX } from "react";
-import { SVGAlert, SVGHeart, SVGPhone } from "~/components/icons";
+import React, { useState, type JSX } from "react";
+import {
+  SVGAlert,
+  SVGHeart,
+  SVGMessageBubble,
+  SVGPaperPage,
+  SVGPhone,
+  SVGPin,
+  SVGVideoCamera,
+  SVGStar,
+} from "~/components/icons";
 import Hamburger from "~/components/icons/svgs/hamburger";
 import { Button } from "~/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "~/components/ui/navigation-menu";
+import { cn } from "~/lib/utils";
 
-const navItems: { title: string; href: string }[] = [
+const navItems: {
+  title: string;
+  href: string;
+  content?: {
+    title: string;
+    href: string;
+    description: string;
+    icon: JSX.Element;
+  }[];
+}[] = [
   { title: "Acasă", href: "/" },
-  { title: "Acțiuni & Info", href: "/actiuni-info" },
+  {
+    title: "Acțiuni & Info",
+    href: "/actiuni-info",
+    content: [
+      {
+        title: "Raportează prezență",
+        href: "/raporteaza-prezenta",
+        description: "Animal sălbatic viu/decedat",
+        icon: <SVGPin />,
+      },
+      {
+        title: "Conflicte & Interacțiuni",
+        href: "/recomandari",
+        description: "Info animal nedorit/periculos",
+        icon: <SVGMessageBubble />,
+      },
+      {
+        title: "Sesizări & Legalitate",
+        href: "/sesizari",
+        description: "Braconaj, ilegalități",
+        icon: <SVGPaperPage />,
+      },
+      {
+        title: "EduWild",
+        href: "/eduwild",
+        description: "Viața si lumea animalelor",
+        icon: <SVGVideoCamera />,
+      },
+      {
+        title: "Arii Naturale & Specii Protejate",
+        href: "/zone-protejate",
+        description: "Obligații, statut de protecție",
+        icon: <SVGStar />,
+      },
+    ],
+  },
   { title: "Despre noi", href: "/despre-noi" },
   { title: "Contact", href: "/contact" },
 ];
+
 const actionItems: {
   title: string;
   href: string;
@@ -68,28 +132,65 @@ export default function Navbar() {
             isOpen={isOpen}
             toggleMenu={toggleMenu}
           />
-          <ul className={"hidden items-center gap-[0.5rem] md:flex"}>
-            {navItems.map((item) => (
-              <li
-                key={item.title}
-                className="text-single-line-body-base px-[0.5rem]"
-              >
-                <Link href={item.href}>{item.title}</Link>
-              </li>
-            ))}
-            {actionItems.map((item) => (
-              <li key={item.title}>
-                <Link href={item.href}>
-                  <Button size="sm" variant={item.variant}>
-                    {item.icon} {item.title}
-                  </Button>
-                </Link>
-              </li>
-            ))}
-          </ul>
+
+          {/* LARGE SCREENS */}
+          <NavigationMenu
+            className={"hidden gap-[0.5rem] lg:flex lg:items-center"}
+          >
+            <NavigationMenuList>
+              {navItems.map((item) => (
+                <NavigationMenuItem
+                  key={item.title}
+                  className="text-single-line-body-base px-[1rem]"
+                >
+                  {item.content ? (
+                    <NavigationMenuTrigger
+                      className={cn(
+                        "hover:cursor-pointer",
+                        navigationMenuTriggerStyle(),
+                      )}
+                    >
+                      {item.title}
+                    </NavigationMenuTrigger>
+                  ) : (
+                    <Link href={item.href} className="block w-full">
+                      {item.title}
+                    </Link>
+                  )}
+                  {item.content && (
+                    <NavigationMenuContent className="bg-secondary text-secondary-foreground">
+                      <ul className="flex w-[15rem] flex-col gap-[0.5rem]">
+                        {item.content.map((contentItem) => (
+                          <ListItem
+                            className="hover:cursor-pointer"
+                            key={contentItem.title}
+                            title={contentItem.title}
+                            href={contentItem.href}
+                          >
+                            {contentItem.description}
+                          </ListItem>
+                        ))}
+                      </ul>
+                    </NavigationMenuContent>
+                  )}
+                </NavigationMenuItem>
+              ))}
+              {actionItems.map((item) => (
+                <NavigationMenuItem key={item.title} className="px-[0.3rem]">
+                  <Link href={item.href}>
+                    <Button size="sm" variant={item.variant}>
+                      {item.icon} {item.title}
+                    </Button>
+                  </Link>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
+
+        {/* SMALL AND MEDIUM SCREENS */}
         <ul
-          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-center justify-between gap-[0.5rem] md:hidden`}
+          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-center justify-between gap-[0.5rem] lg:hidden`}
         >
           <div className="mt-[4rem] flex flex-col items-center gap-[0.5rem]">
             {navItems.map((item) => (
@@ -114,6 +215,7 @@ export default function Navbar() {
           </div>
         </ul>
       </nav>
+
       <section className="text-neutral-foreground w-full bg-[#ADABA8] py-[0.875rem]">
         <div className="m-auto w-max">
           <SVGPhone className="mr-[0.75rem] inline" width="20" height="20" />{" "}
@@ -125,3 +227,31 @@ export default function Navbar() {
     </div>
   );
 }
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "hover:bg-secondary-hover block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none",
+            className,
+          )}
+          {...props}
+        >
+          <div className="text-single-line-body-base text-sm leading-none text-white">
+            {title}
+          </div>
+          <p className="text-body-small text-tertiary-border line-clamp-2 leading-snug">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
