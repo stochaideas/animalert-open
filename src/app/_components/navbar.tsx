@@ -189,31 +189,34 @@ export default function Navbar() {
         </div>
 
         {/* SMALL AND MEDIUM SCREENS */}
-        <ul
-          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-center justify-between gap-[0.5rem] lg:hidden`}
+        <NavigationMenu
+          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-[0.5rem] lg:hidden`}
         >
-          <div className="mt-[4rem] flex flex-col items-center gap-[0.5rem]">
+          <NavigationMenuList className="mt-[3.75rem] flex flex-col items-start gap-[0.5rem]">
             {navItems.map((item) => (
-              <li
+              <NavigationMenuItem
                 key={item.title}
                 className="text-single-line-body-base py-[0.5rem]"
               >
                 <Link href={item.href}>{item.title}</Link>
-              </li>
+              </NavigationMenuItem>
             ))}
-          </div>
-          <div className="flex flex-col items-center gap-[0.75rem]">
+          </NavigationMenuList>
+          <NavigationMenuList className="flex flex-col items-start gap-[0.75rem]">
             {actionItems.map((item) => (
-              <li key={item.title}>
+              <NavigationMenuItem key={item.title}>
                 <Link href={item.href}>
-                  <Button size="sm" variant={item.variant}>
-                    {item.icon} {item.title}
+                  <Button size="xs" variant={item.variant}>
+                    {item.icon}
+                    <span className="text-single-line-body-base">
+                      {item.title}
+                    </span>
                   </Button>
                 </Link>
-              </li>
+              </NavigationMenuItem>
             ))}
-          </div>
-        </ul>
+          </NavigationMenuList>
+        </NavigationMenu>
       </nav>
 
       <section className="text-neutral-foreground w-full bg-[#ADABA8] py-[0.875rem]">
@@ -229,7 +232,7 @@ export default function Navbar() {
 }
 
 const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
+  React.ComponentRef<"a">,
   React.ComponentPropsWithoutRef<"a">
 >(({ className, title, children, ...props }, ref) => {
   return (
