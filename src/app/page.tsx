@@ -11,7 +11,7 @@ const cards = [
     strong:
       "Ești deranjat de prezența unor animale pe care le consideri nedorite sau periculoase?",
     body: "Află cum să rămâi în siguranță tu și gospodăria ta, cum să ții la distanță „intrușii” eficient și etic și care sunt obligațiile tale.",
-    link: "/recomandari",
+    href: "/recomandari",
     button: "Solicită recomandări",
   },
   {
@@ -21,7 +21,7 @@ const cards = [
     strong:
       "Cunoști un caz de braconaj, maltratare sau de deținere ilegală a unui animal sălbatic? Ai observat vehicule motorizate într-o arie protejată sau într-un fond cinegetic?",
     body: "Raportează ilegalități aici.",
-    link: "/sesizari",
+    href: "/sesizari",
     button: "Trimite sesizare",
   },
   {
@@ -31,7 +31,7 @@ const cards = [
     strong:
       "Învață despre miracolul naturii în mod interactiv, la orice vârstă!",
     body: "Descoperă lumea animalelor, curiozități despre viața și mediul lor prin imagini fascinante, povești educative și activități distractive.",
-    link: "/eduwild",
+    href: "/eduwild",
     button: "Explorează EduWild",
   },
   {
@@ -40,7 +40,7 @@ const cards = [
     title: "Arii Naturale & Specii Protejate",
     strong: "Ce obligații avem într-o arie naturală protejată?",
     body: "Informează-te despre zonele protejate, specii rare, cu statut special de protecție și de conservare.",
-    link: "/zone-protejate",
+    href: "/zone-protejate",
     button: "Află mai multe",
   },
 ];
@@ -111,7 +111,7 @@ export default async function Home() {
               <p className="text-body-strong mt-[0.5rem]">{card.strong}</p>
               <p className="text-body mt-[1rem]">{card.body}</p>
               <div className="mt-auto pt-[2rem]">
-                <Link href={card.link}>
+                <Link href={card.href}>
                   <Button variant="tertiary" size="md">
                     {card.button}
                   </Button>
