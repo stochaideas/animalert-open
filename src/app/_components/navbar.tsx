@@ -117,11 +117,12 @@ export default function Navbar() {
                 alt="AnimAlert Logo"
                 width={150}
                 height={45}
+                className="max-w-[150px] min-w-[100px] lg:max-w-[150px] lg:min-w-[100px]"
               />
             </Link>
           </div>
           <Hamburger
-            className="cursor-pointer md:hidden"
+            className="cursor-pointer lg:hidden"
             data-collapse-toggle="navbar"
             type="button"
             aria-controls="navbar"
@@ -141,7 +142,7 @@ export default function Navbar() {
               {navItems.map((item) => (
                 <NavigationMenuItem
                   key={item.title}
-                  className="text-single-line-body-base px-[1rem]"
+                  className="text-single-line-body-base w-max px-[1rem]"
                 >
                   {item.content ? (
                     <NavigationMenuTrigger
@@ -220,7 +221,7 @@ export default function Navbar() {
       </nav>
 
       <section className="text-neutral-foreground w-full bg-[#ADABA8] py-[0.875rem]">
-        <div className="m-auto w-max">
+        <div className="m-auto">
           <SVGPhone className="mr-[0.75rem] inline" width="20" height="20" />{" "}
           Sună imediat la <b>112</b>, dacă ești în pericol sau vezi un animal
           sălbatic rănit și nu îl poți duce la o clinică (ex: vulpe, căprior,
