@@ -48,12 +48,10 @@ const cards = [
 export default async function Home() {
   return (
     <main className="bg-tertiary flex flex-col items-center justify-center gap-[6.25rem] pb-[6.25rem]">
-      <section className="h-[50rem] w-full bg-[url(/images/homepage-hero.png)] bg-left bg-no-repeat">
-        <div className="flex flex-col items-start gap-[2rem] pt-[10.25rem] pl-[20.625rem]">
-          <span className="text-heading-1 text-neutral">
-            <b>
-              Ai întâlnit un animal sălbatic <br /> rănit sau în pericol?
-            </b>
+      <section className="h-[50rem] w-full bg-[url(/images/homepage-hero.png)] bg-[65%] bg-no-repeat lg:bg-center">
+        <div className="flex flex-col items-start gap-[2rem] pt-28 pl-6 lg:pt-[10.25rem] lg:pl-[20.625rem]">
+          <span className="text-heading-1 text-neutral lg:max-w-[40rem]">
+            <b>Ai întâlnit un animal sălbatic rănit sau în pericol?</b>
           </span>
           <Link href="/raporteaza-incident">
             <Button
@@ -67,7 +65,7 @@ export default async function Home() {
         </div>
       </section>
       <div className="container mx-auto px-8">
-        <section className="border-tertiary-border mb-[6.25rem] flex flex-row items-center gap-[3rem] rounded-md border-[1px] border-solid bg-white p-[3rem]">
+        <section className="border-tertiary-border mb-[6.25rem] flex flex-col items-center gap-[3rem] rounded-md border-[1px] border-solid bg-white p-[3rem] lg:flex-row">
           <video
             className="h-[300px] w-[600px] rounded-lg border border-gray-200 object-cover"
             controls={false}
@@ -88,9 +86,8 @@ export default async function Home() {
             </p>
             <p className="text-body-small mt-6 text-[#3A3A3A]">
               Raportarea ta poate ajuta un animal aflat în pericol (rănit,
-              bolnav, agresat) sau
-              <br /> într-un mediu străin. Sprijină cercetarea științifică cu
-              observațiile tale.
+              bolnav, agresat) sau într-un mediu străin. Sprijină cercetarea
+              științifică cu observațiile tale.
             </p>
             <Link href="/raporteaza-incident">
               <Button className="mt-[2rem]" variant="secondary" size="md">
@@ -100,7 +97,7 @@ export default async function Home() {
             </Link>
           </article>
         </section>
-        <section className="flex flex-row justify-between gap-6">
+        <section className="flex flex-col justify-between gap-6 lg:flex-row">
           {cards.map((card, i) => (
             <div
               key={i}
