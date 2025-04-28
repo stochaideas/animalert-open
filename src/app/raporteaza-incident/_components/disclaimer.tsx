@@ -3,7 +3,7 @@ import { SVGArrowRight } from "~/components/icons";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 
-export default function Page1({
+export default function Disclaimer({
   termsAccepted,
   setTermsAccepted,
   handleNextPage,

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import FirstPage from "./_components/page1";
+import Disclaimer from "./_components/disclaimer";
 import { Button } from "~/components/ui/button";
 import { Stepper } from "../_components/stepper";
 import { redirect } from "next/navigation";
-import Page2 from "./_components/page2";
-import Page3 from "./_components/page3";
-import Page4 from "./_components/page4";
+import Contact from "./_components/contact";
+import Map from "./_components/map";
+import ChatBot from "./_components/chat-bot";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,7 +34,7 @@ export default function IncidentReport() {
       case 1:
         return (
           <>
-            <FirstPage
+            <Disclaimer
               termsAccepted={termsAccepted}
               setTermsAccepted={setTermsAccepted}
               handleNextPage={handleNextPage}
@@ -61,20 +61,20 @@ export default function IncidentReport() {
         );
       case 2:
         return (
-          <Page2
+          <Contact
             handleNextPage={handleNextPage}
             handlePreviousPage={handlePreviousPage}
           />
         );
       case 3:
         return (
-          <Page3
+          <Map
             handlePreviousPage={handlePreviousPage}
             handleNextPage={handleNextPage}
           />
         );
       case 4:
-        return <Page4 />;
+        return <ChatBot />;
       default:
         redirect("/");
     }
