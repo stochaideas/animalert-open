@@ -107,10 +107,10 @@ export default function Navbar() {
   return (
     <div className="sticky top-0 z-20 flex w-full flex-col gap-0">
       <nav
-        className={`${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-[1.5rem] md:flex-row lg:px-[15.625rem] lg:py-[1.5rem]`}
+        className={`${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-6 md:flex-row lg:px-[15.625rem] lg:py-6`}
       >
-        <div className="flex w-full flex-row items-center justify-between">
-          <div className="flex flex-row items-center gap-[0.75rem]">
+        <div className="flex flex-row items-center justify-between">
+          <div className="flex flex-row items-center gap-3">
             <Link href="/">
               <Image
                 src="/logo/logo-white.png"
@@ -135,14 +135,12 @@ export default function Navbar() {
           />
 
           {/* LARGE SCREENS */}
-          <NavigationMenu
-            className={"hidden gap-[0.5rem] lg:flex lg:items-center"}
-          >
+          <NavigationMenu className={"hidden gap-2 lg:flex lg:items-center"}>
             <NavigationMenuList>
               {navItems.map((item) => (
                 <NavigationMenuItem
                   key={item.title}
-                  className="text-single-line-body-base w-max px-[1rem]"
+                  className="text-single-line-body-base w-max px-4"
                 >
                   {item.content ? (
                     <NavigationMenuTrigger
@@ -160,7 +158,7 @@ export default function Navbar() {
                   )}
                   {item.content && (
                     <NavigationMenuContent className="bg-secondary text-secondary-foreground">
-                      <ul className="flex w-[15rem] flex-col gap-[0.5rem]">
+                      <ul className="flex w-[15rem] flex-col gap-2">
                         {item.content.map((contentItem) => (
                           <ListItem
                             className="hover:cursor-pointer"
@@ -177,7 +175,7 @@ export default function Navbar() {
                 </NavigationMenuItem>
               ))}
               {actionItems.map((item) => (
-                <NavigationMenuItem key={item.title} className="px-[0.3rem]">
+                <NavigationMenuItem key={item.title} className="px-2">
                   <Link href={item.href}>
                     <Button size="sm" variant={item.variant}>
                       {item.icon} {item.title}
@@ -191,19 +189,19 @@ export default function Navbar() {
 
         {/* SMALL AND MEDIUM SCREENS */}
         <NavigationMenu
-          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-[0.5rem] lg:hidden`}
+          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 lg:hidden`}
         >
-          <NavigationMenuList className="mt-[3.75rem] flex flex-col items-start gap-[0.5rem]">
+          <NavigationMenuList className="mt-14 flex flex-col items-start gap-2">
             {navItems.map((item) => (
               <NavigationMenuItem
                 key={item.title}
-                className="text-single-line-body-base py-[0.5rem]"
+                className="text-single-line-body-base py-2"
               >
                 <Link href={item.href}>{item.title}</Link>
               </NavigationMenuItem>
             ))}
           </NavigationMenuList>
-          <NavigationMenuList className="flex flex-col items-start gap-[0.75rem]">
+          <NavigationMenuList className="flex flex-col items-start gap-3">
             {actionItems.map((item) => (
               <NavigationMenuItem key={item.title}>
                 <Link href={item.href}>
@@ -221,9 +219,9 @@ export default function Navbar() {
       </nav>
 
       <section className="text-neutral-foreground w-full bg-[#ADABA8] py-[0.875rem]">
-        <div className="m-auto">
-          <SVGPhone className="mr-[0.75rem] inline" width="20" height="20" />{" "}
-          Sună imediat la <b>112</b>, dacă ești în pericol sau vezi un animal
+        <div className="m-auto text-center">
+          <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
+          imediat la <b>112</b>, dacă ești în pericol sau vezi un animal
           sălbatic rănit și nu îl poți duce la o clinică (ex: vulpe, căprior,
           mistreț, urs).
         </div>

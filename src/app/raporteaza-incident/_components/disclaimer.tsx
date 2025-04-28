@@ -66,7 +66,7 @@ export default function Disclaimer({
           Am citit informațiile, vreau să continui să raportez incidentul
         </Label>
       </section>
-      <section className="flex items-center justify-end gap-[1.5rem]">
+      <section className="flex items-center justify-end gap-6">
         <Button className="m-0" variant="neutral" size="md">
           Vezi acțiuni & info
         </Button>

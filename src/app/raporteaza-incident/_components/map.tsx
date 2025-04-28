@@ -39,9 +39,9 @@ export default function Map({
 
   return (
     <>
-      <div className="flex flex-col gap-[1rem]">
+      <div className="flex flex-col gap-4">
         <section className="bg-neutral text-neutral-foreground border-tertiary-border rounded-md border-1 p-[3rem]">
-          <h3 className="text-heading-3 pb-[1rem]">Identificare locație</h3>
+          <h3 className="text-heading-3 pb-4">Identificare locație</h3>
           <Label className="flex items-center gap-0" htmlFor="location">
             Localizare
             <span className="text-red-500">*</span>
@@ -50,16 +50,16 @@ export default function Map({
             type="search"
             id="location"
             placeholder="Ex: București, Cluj, Timișoara"
-            className="mt-[0.75rem] p-[1.5rem]"
+            className="mt-3 p-6"
             onChange={handleSearchAddressChange}
             value={address ?? ""}
           />
         </section>
-        <section className="border-tertiary-border mb-[1rem] h-[600px] rounded-md border-1">
+        <section className="border-tertiary-border mb-4 h-[600px] rounded-md border-1">
           <GoogleMap position={position} setPosition={setPosition} />
         </section>
       </div>
-      <section className="flex items-center justify-end gap-[1.5rem]">
+      <section className="flex items-center justify-end gap-6">
         <Button
           className="m-0"
           variant="neutral"

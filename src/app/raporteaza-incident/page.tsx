@@ -41,7 +41,7 @@ export default function IncidentReport() {
             />
             <section className="pt-[6.25rem]">
               <h1 className="text-heading-2">Suntem oameni, ca tine</h1>
-              <p className="text-body pt-[1.5rem]">
+              <p className="text-body pt-6">
                 Facem tot ce putem, cu toată inima. Suntem un ONG format din
                 voluntari care își oferă timpul liber pentru această cauză, pe
                 lângă serviciu și viața personală. Uneori nu putem răspunde sau

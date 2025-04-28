@@ -82,11 +82,11 @@ export default async function Home() {
             <h2 className="text-heading-2">
               Observare Prezență Animale & Raportări
             </h2>
-            <p className="text-subheading mt-[0.5rem]">
+            <p className="text-subheading mt-2">
               Ai văzut un animal sălbatic, viu sau decedat? <br />
               Ai găsit urme, indicii sau alte semne ale prezenței lui?
             </p>
-            <p className="text-body-small mt-[1.5rem] text-[#3A3A3A]">
+            <p className="text-body-small mt-6 text-[#3A3A3A]">
               Raportarea ta poate ajuta un animal aflat în pericol (rănit,
               bolnav, agresat) sau
               <br /> într-un mediu străin. Sprijină cercetarea științifică cu
@@ -100,7 +100,7 @@ export default async function Home() {
             </Link>
           </article>
         </section>
-        <section className="flex flex-row justify-between gap-[1.5rem]">
+        <section className="flex flex-row justify-between gap-6">
           {cards.map((card, i) => (
             <div
               key={i}
@@ -108,8 +108,8 @@ export default async function Home() {
             >
               <Image src={card.img} alt={card.alt} width={272} height={160} />
               <h3 className="text-heading-3 mt-[2rem]">{card.title}</h3>
-              <p className="text-body-strong mt-[0.5rem]">{card.strong}</p>
-              <p className="text-body mt-[1rem]">{card.body}</p>
+              <p className="text-body-strong mt-2">{card.strong}</p>
+              <p className="text-body mt-4">{card.body}</p>
               <div className="mt-auto pt-[2rem]">
                 <Link href={card.href}>
                   <Button variant="tertiary" size="md">

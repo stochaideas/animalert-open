@@ -26,7 +26,7 @@ const buttonVariants = cva(
           "bg-transparent text-tertiary-foreground border-tertiary-stroke hover:bg-tertiary-hover hover:text-tertiary-hover-foreground active:bg-tertiary-active",
       },
       size: {
-        xs: "py-[0.5rem] px-[1rem]",
+        xs: "py-2 px-4",
         sm: "p-[12px]",
         md: "p-[16px]",
         lg: "p-[19px]",
