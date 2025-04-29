@@ -94,7 +94,8 @@
 
 .text-heading-1 {
   font-family: var(--font-baloo-2);
-  font-size: 3rem;
+  @apply text-4xl;
+  @apply md:text-5xl;
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -3%;

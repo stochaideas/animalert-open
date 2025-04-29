@@ -107,9 +107,9 @@ export default function Navbar() {
   return (
     <div className="sticky top-0 z-20 flex w-full flex-col gap-0">
       <nav
-        className={`${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-6 md:flex-row lg:px-[15.625rem] lg:py-6`}
+        className={` ${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-2 sm:p-4 md:p-6 xl:px-32 2xl:px-64`}
       >
-        <div className="flex flex-row items-center justify-between">
+        <div className="container mx-auto flex flex-row items-center justify-between">
           <div className="flex flex-row items-center gap-3">
             <Link href="/">
               <Image
@@ -217,7 +217,6 @@ export default function Navbar() {
           </NavigationMenuList>
         </NavigationMenu>
       </nav>
-
       <section className="text-neutral-foreground w-full bg-[#ADABA8] py-[0.875rem]">
         <div className="m-auto text-center">
           <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
