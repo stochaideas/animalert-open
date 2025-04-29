@@ -1,19 +1,13 @@
 name: Build & Deploy to ECS Fargate
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - "app/**"         # source code
-      - "Dockerfile"
-      - ".github/workflows/ecs-ci-cd.yml"
+ workflow_call:
 
 env:
   AWS_REGION: eu-central-1
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
   CLUSTER_NAME: ${{ secrets.ECR_CLUSTER_NAME }}
   SERVICE_NAME: ${{ secrets.ECR_SERVICE_NAME }}
-  TASK_DEF_TEMPLATE: infra/ecs-taskdef.json
 
 jobs:
   build-and-deploy:
@@ -32,7 +26,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: GithubWebappDeploy
           aws-region:     ${{ env.AWS_REGION }}
 
       # --- 2. Log in to ECR -------------------------------------------
@@ -54,7 +48,7 @@ jobs:
       - name: Force new ECS deployment
         run: |
               aws ecs update-service \
-                --cluster  animalert-ecs-cluster \
-                --service  animalert-web-app-service \
+                --cluster  ${{ env.ECR_CLUSTER }} \
+                --service  ${{ env.ECR_SERVICE_NAME }} \
                 --force-new-deployment \
                 --region   eu-central-1
