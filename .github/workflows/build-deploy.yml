@@ -1,0 +1,60 @@
+name: Build & Deploy to ECS Fargate
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "app/**"         # source code
+      - "Dockerfile"
+      - ".github/workflows/ecs-ci-cd.yml"
+
+env:
+  AWS_REGION: eu-central-1
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  CLUSTER_NAME: ${{ secrets.ECR_CLUSTER_NAME }}
+  SERVICE_NAME: ${{ secrets.ECR_SERVICE_NAME }}
+  TASK_DEF_TEMPLATE: infra/ecs-taskdef.json
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write        # for OIDC
+      contents: read
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # --- 1. Configure AWS credentials -------------------------------
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region:     ${{ env.AWS_REGION }}
+
+      # --- 2. Log in to ECR -------------------------------------------
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # --- 3. Build & push --------------------------------------------
+      - name: Build, tag & push image to ECR
+        id: build-image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+
+      - name: Force new ECS deployment
+        run: |
+              aws ecs update-service \
+                --cluster  animalert-ecs-cluster \
+                --service  animalert-web-app-service \
+                --force-new-deployment \
+                --region   eu-central-1
