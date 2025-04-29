@@ -1,7 +1,8 @@
 name: Build & Deploy to ECS Fargate
 
 on:
- workflow_run:
+ workflow_dispatch:
+  
   
 
 env:
