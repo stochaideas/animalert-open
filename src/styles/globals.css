@@ -103,7 +103,8 @@
 
 .text-heading-2 {
   font-family: var(--font-baloo-2);
-  font-size: 2rem;
+  @apply text-[1.75rem];
+  @apply md:text-[2rem];
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -3%;
@@ -119,7 +120,8 @@
 
 .text-subheading {
   font-family: var(--font-poppins);
-  font-size: 1.25rem;
+  @apply text-[1.125rem];
+  @apply md:text-[1.25rem];
   font-weight: 500;
   line-height: 1.6;
   letter-spacing: 0;
