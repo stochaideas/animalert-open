@@ -107,21 +107,22 @@ export default function Navbar() {
   return (
     <div className="sticky top-0 z-20 flex w-full flex-col gap-0">
       <nav
-        className={`${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-[1.5rem] md:flex-row lg:px-[15.625rem] lg:py-[1.5rem]`}
+        className={` ${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-2 sm:p-4 md:p-6 xl:px-32 2xl:px-64`}
       >
-        <div className="flex w-full flex-row items-center justify-between">
-          <div className="flex flex-row items-center gap-[0.75rem]">
+        <div className="container mx-auto flex flex-row items-center justify-between">
+          <div className="flex flex-row items-center gap-3">
             <Link href="/">
               <Image
                 src="/logo/logo-white.png"
                 alt="AnimAlert Logo"
                 width={150}
                 height={45}
+                className="max-w-[150px] min-w-[100px] lg:max-w-[150px] lg:min-w-[100px]"
               />
             </Link>
           </div>
           <Hamburger
-            className="cursor-pointer md:hidden"
+            className="cursor-pointer lg:hidden"
             data-collapse-toggle="navbar"
             type="button"
             aria-controls="navbar"
@@ -134,14 +135,12 @@ export default function Navbar() {
           />
 
           {/* LARGE SCREENS */}
-          <NavigationMenu
-            className={"hidden gap-[0.5rem] lg:flex lg:items-center"}
-          >
+          <NavigationMenu className={"hidden gap-2 lg:flex lg:items-center"}>
             <NavigationMenuList>
               {navItems.map((item) => (
                 <NavigationMenuItem
                   key={item.title}
-                  className="text-single-line-body-base px-[1rem]"
+                  className="text-single-line-body-base w-max px-4"
                 >
                   {item.content ? (
                     <NavigationMenuTrigger
@@ -159,7 +158,7 @@ export default function Navbar() {
                   )}
                   {item.content && (
                     <NavigationMenuContent className="bg-secondary text-secondary-foreground">
-                      <ul className="flex w-[15rem] flex-col gap-[0.5rem]">
+                      <ul className="flex w-60 flex-col gap-2">
                         {item.content.map((contentItem) => (
                           <ListItem
                             className="hover:cursor-pointer"
@@ -176,7 +175,7 @@ export default function Navbar() {
                 </NavigationMenuItem>
               ))}
               {actionItems.map((item) => (
-                <NavigationMenuItem key={item.title} className="px-[0.3rem]">
+                <NavigationMenuItem key={item.title} className="px-2">
                   <Link href={item.href}>
                     <Button size="sm" variant={item.variant}>
                       {item.icon} {item.title}
@@ -189,37 +188,39 @@ export default function Navbar() {
         </div>
 
         {/* SMALL AND MEDIUM SCREENS */}
-        <ul
-          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-center justify-between gap-[0.5rem] lg:hidden`}
+        <NavigationMenu
+          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 lg:hidden`}
         >
-          <div className="mt-[4rem] flex flex-col items-center gap-[0.5rem]">
+          <NavigationMenuList className="mt-14 flex flex-col items-start gap-2">
             {navItems.map((item) => (
-              <li
+              <NavigationMenuItem
                 key={item.title}
-                className="text-single-line-body-base py-[0.5rem]"
+                className="text-single-line-body-base py-2"
               >
                 <Link href={item.href}>{item.title}</Link>
-              </li>
+              </NavigationMenuItem>
             ))}
-          </div>
-          <div className="flex flex-col items-center gap-[0.75rem]">
+          </NavigationMenuList>
+          <NavigationMenuList className="flex flex-col items-start gap-3">
             {actionItems.map((item) => (
-              <li key={item.title}>
+              <NavigationMenuItem key={item.title}>
                 <Link href={item.href}>
-                  <Button size="sm" variant={item.variant}>
-                    {item.icon} {item.title}
+                  <Button size="xs" variant={item.variant}>
+                    {item.icon}
+                    <span className="text-single-line-body-base">
+                      {item.title}
+                    </span>
                   </Button>
                 </Link>
-              </li>
+              </NavigationMenuItem>
             ))}
-          </div>
-        </ul>
+          </NavigationMenuList>
+        </NavigationMenu>
       </nav>
-
-      <section className="text-neutral-foreground w-full bg-[#ADABA8] py-[0.875rem]">
-        <div className="m-auto w-max">
-          <SVGPhone className="mr-[0.75rem] inline" width="20" height="20" />{" "}
-          Sună imediat la <b>112</b>, dacă ești în pericol sau vezi un animal
+      <section className="text-neutral-foreground w-full bg-[#ADABA8] py-3.5">
+        <div className="m-auto text-center">
+          <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
+          imediat la <b>112</b>, dacă ești în pericol sau vezi un animal
           sălbatic rănit și nu îl poți duce la o clinică (ex: vulpe, căprior,
           mistreț, urs).
         </div>
@@ -229,7 +230,7 @@ export default function Navbar() {
 }
 
 const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
+  React.ComponentRef<"a">,
   React.ComponentPropsWithoutRef<"a">
 >(({ className, title, children, ...props }, ref) => {
   return (

@@ -200,10 +200,10 @@ export default function Contact({
     <>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Form {...form}>
-          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-[1rem] rounded-md border-1 p-[3rem]">
-            <h3 className="text-heading-3 pb-[1rem]">Date contact</h3>
-            <section className="mb-[1rem] flex flex-col gap-[2rem]">
-              <div className="flex flex-row justify-between gap-[2rem]">
+          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 p-12">
+            <h3 className="text-heading-3 pb-4">Date contact</h3>
+            <section className="mb-4 flex flex-col gap-8">
+              <div className="flex flex-row justify-between gap-8">
                 <div className="flex-1">
                   <FormField
                     control={form.control}
@@ -217,7 +217,7 @@ export default function Contact({
                         <FormControl>
                           <Input
                             placeholder="Ex: Popescu"
-                            className="p-[1.5rem]"
+                            className="p-6"
                             {...field}
                           />
                         </FormControl>
@@ -239,7 +239,7 @@ export default function Contact({
                         <FormControl>
                           <Input
                             placeholder="Ex: Cristina"
-                            className="p-[1.5rem]"
+                            className="p-6"
                             {...field}
                           />
                         </FormControl>
@@ -249,7 +249,7 @@ export default function Contact({
                   />
                 </div>
               </div>
-              <div className="flex flex-row justify-between gap-[2rem]">
+              <div className="flex flex-row justify-between gap-8">
                 <div className="flex-1">
                   <FormField
                     control={form.control}
@@ -263,7 +263,7 @@ export default function Contact({
                         <FormControl>
                           <Input
                             placeholder="Număr de telefon"
-                            className="p-[1.5rem]"
+                            className="p-6"
                             {...field}
                           />
                         </FormControl>
@@ -282,7 +282,7 @@ export default function Contact({
                         <FormControl>
                           <Input
                             placeholder="Adresă de email"
-                            className="p-[1.5rem]"
+                            className="p-6"
                             {...field}
                           />
                         </FormControl>
@@ -366,14 +366,14 @@ export default function Contact({
               </div>
             </section>
           </section>
-          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-[3rem] rounded-md border-1 p-[3rem]">
-            <h3 className="text-heading-3 pb-[1rem]">Fișiere foto și video</h3>
-            <p className="text-body pb-[0.75rem]">
+          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-12 rounded-md border-1 p-12">
+            <h3 className="text-heading-3 pb-4">Fișiere foto și video</h3>
+            <p className="text-body pb-3">
               Încărcați cel puțin o imagine
               <span className="text-red-500">*</span> (obligatoriu). Adăugați
               fotografii atât cu animalul cât și cu incidentul.
             </p>
-            <div className="flex flex-row gap-[2rem]">
+            <div className="flex flex-row gap-8">
               {Object.keys(imagePreviews).map((key) => (
                 <ImageFormField
                   key={key}
@@ -382,7 +382,7 @@ export default function Contact({
               ))}
             </div>
           </section>
-          <section className="flex items-center justify-end gap-[1.5rem]">
+          <section className="flex items-center justify-end gap-6">
             <Button
               className="m-0"
               variant="neutral"

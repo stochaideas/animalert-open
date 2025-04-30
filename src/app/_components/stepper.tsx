@@ -12,7 +12,7 @@ export function Stepper({ currentStep }: { currentStep: number }) {
         <div key={step.title} className="flex flex-1 flex-col items-center">
           {/* Step circle */}
           <div
-            className={`text-body-strong z-10 flex h-[3rem] w-[3rem] items-center justify-center rounded-full border-1 ${
+            className={`text-body-strong z-10 flex h-12 w-12 items-center justify-center rounded-full border-1 ${
               idx + 1 === currentStep
                 ? "border-neutral-stroke bg-neutral-active"
                 : "border-neutral-stroke bg-white"

@@ -16,6 +16,7 @@ tmp/
 .DS_Store
 
 # Environment and sensitive files
+.env
 *.pem
 *.key
 config/secrets.yml

@@ -11,17 +11,17 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary text-secondary-foreground w-full p-[2rem] lg:px-[15.625rem] lg:py-[3rem]">
-      <div className="flex flex-col items-start justify-center gap-[3.75rem] lg:gap-[2rem]">
-        <div className="flex w-full flex-col items-start justify-between gap-[3.75rem] lg:flex-row lg:gap-[2rem]">
-          <section className="flex w-full flex-row items-center justify-between gap-[1.5rem] sm:w-auto lg:flex-col lg:items-start">
+    <footer className="bg-secondary text-secondary-foreground mx-auto w-full p-2 sm:p-4 md:p-6 lg:py-12 xl:px-32 2xl:px-64">
+      <div className="container mx-auto flex flex-col items-start justify-center gap-14 lg:gap-8">
+        <div className="flex w-full flex-col items-start justify-between gap-14 lg:flex-row lg:gap-8">
+          <section className="flex w-full flex-row items-center justify-between gap-6 sm:w-auto lg:flex-col lg:items-start">
             <Image
               src="/logo/logo-white.png"
               alt="AnimAlert Logo"
               width={150}
               height={45}
             />
-            <div className="flex flex-row gap-[0.5rem]">
+            <div className="flex flex-row gap-2">
               <Link
                 href="https://www.instagram.com/opmcb.cluj/"
                 target="_blank"
@@ -84,8 +84,8 @@ export default function Footer() {
               </Link>
             </div>
           </section>
-          <section className="flex flex-col gap-[0.75rem]">
-            <h3 className="text-body-strong mb-[1rem]">Contact</h3>
+          <section className="flex flex-col gap-3">
+            <h3 className="text-body-strong mb-4">Contact</h3>
             <span className="text-single-line-body-base">
               Adresa: Cluj-Napoca, România
             </span>
@@ -95,8 +95,8 @@ export default function Footer() {
               </Link>
             </span>
           </section>
-          <section className="flex flex-col gap-[0.75rem]">
-            <h3 className="text-body-strong mb-[1rem]">
+          <section className="flex flex-col gap-3">
+            <h3 className="text-body-strong mb-4">
               Termeni legali și Politici
             </h3>
             <span className="text-single-line-body-base">
@@ -109,8 +109,8 @@ export default function Footer() {
               Termeni și condiții
             </span>
           </section>
-          <section className="flex flex-col gap-[0.75rem]">
-            <h3 className="text-body-strong mb-[1rem]">Parteneri</h3>
+          <section className="flex flex-col gap-3">
+            <h3 className="text-body-strong mb-4">Parteneri</h3>
             <span className="text-single-line-body-base">
               Foto: © Lonay Arthur
             </span>
@@ -119,7 +119,7 @@ export default function Footer() {
             </span>
           </section>
         </div>
-        <span className="text-body-small flex w-full flex-col items-start lg:flex-row lg:justify-center lg:gap-[0.5rem] lg:text-center">
+        <span className="text-body-small flex w-full flex-col items-start lg:flex-row lg:justify-center lg:gap-2 lg:text-center">
           <span>© 2024 AnimAlert.</span>
           <span>Toate drepturile rezervate.</span>
         </span>
