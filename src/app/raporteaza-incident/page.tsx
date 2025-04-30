@@ -39,7 +39,7 @@ export default function IncidentReport() {
               setTermsAccepted={setTermsAccepted}
               handleNextPage={handleNextPage}
             />
-            <section className="pt-[6.25rem]">
+            <section className="pt-24">
               <h1 className="text-heading-2">Suntem oameni, ca tine</h1>
               <p className="text-body pt-6">
                 Facem tot ce putem, cu toată inima. Suntem un ONG format din
@@ -53,7 +53,7 @@ export default function IncidentReport() {
                 Mulțumim pentru răbdare, încredere și empatie. Contează enorm
                 pentru noi.
               </p>
-              <Button className="mt-[2rem]" variant="tertiary" size="md">
+              <Button className="mt-8" variant="tertiary" size="md">
                 Află mai multe
               </Button>
             </section>
@@ -81,8 +81,8 @@ export default function IncidentReport() {
   };
 
   return (
-    <div className="bg-tertiary px-[30.75rem] pt-[6.25rem] pb-[12.5rem]">
-      <main className="flex flex-col justify-center gap-[3rem]">
+    <div className="bg-tertiary px-[30.75rem] pt-24 pb-52">
+      <main className="flex flex-col justify-center gap-12">
         <h1 className="text-heading-2">Raportează incident</h1>
         <Stepper currentStep={currentPage} />
         {getCurrentPage()}

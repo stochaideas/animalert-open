@@ -158,7 +158,7 @@ export default function Navbar() {
                   )}
                   {item.content && (
                     <NavigationMenuContent className="bg-secondary text-secondary-foreground">
-                      <ul className="flex w-[15rem] flex-col gap-2">
+                      <ul className="flex w-60 flex-col gap-2">
                         {item.content.map((contentItem) => (
                           <ListItem
                             className="hover:cursor-pointer"
@@ -217,7 +217,7 @@ export default function Navbar() {
           </NavigationMenuList>
         </NavigationMenu>
       </nav>
-      <section className="text-neutral-foreground w-full bg-[#ADABA8] py-[0.875rem]">
+      <section className="text-neutral-foreground w-full bg-[#ADABA8] py-3.5">
         <div className="m-auto text-center">
           <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
           imediat la <b>112</b>, dacă ești în pericol sau vezi un animal

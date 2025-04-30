@@ -49,7 +49,7 @@ export default function ChatBot() {
         </Link>
       </div>
       {/* Chat body */}
-      <div className="border-tertiary-border flex flex-col rounded-b-md border-x-1 border-b-1 bg-white px-6 py-[2rem]">
+      <div className="border-tertiary-border flex flex-col rounded-b-md border-x-1 border-b-1 bg-white px-6 py-8">
         {CONVERSATION.slice(0, step + 1).map((stepItem, idx) => (
           <React.Fragment key={idx}>
             {/* Bot message */}

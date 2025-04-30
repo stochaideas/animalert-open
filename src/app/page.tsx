@@ -47,10 +47,10 @@ const cards = [
 
 export default async function Home() {
   return (
-    <main className="bg-tertiary flex flex-col items-center justify-center gap-[6.25rem] pb-[6.25rem]">
+    <main className="bg-tertiary flex flex-col items-center justify-center gap-24 pb-24">
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero-sm.png)] bg-cover bg-[65%] bg-no-repeat md:bg-[url(/images/homepage-hero-lg.png)] md:bg-center">
-        <div className="flex flex-col items-start gap-[2rem] p-6 pt-28 lg:pt-[10.25rem] lg:pl-[20.625rem]">
-          <span className="text-heading-1 text-neutral lg:max-w-[40rem]">
+        <div className="flex flex-col items-start gap-8 p-6 pt-28 lg:pt-40 lg:pl-80">
+          <span className="text-heading-1 text-neutral lg:max-w-2xl">
             <b>Ai întâlnit un animal sălbatic rănit sau în pericol?</b>
           </span>
           <Link href="/raporteaza-incident">
@@ -65,7 +65,7 @@ export default async function Home() {
         </div>
       </section>
       <div className="container mx-auto px-8 lg:px-0">
-        <section className="border-tertiary-border mb-[6.25rem] flex flex-col items-center gap-[3rem] rounded-md border-[1px] border-solid bg-white p-[3rem] lg:flex-row">
+        <section className="border-tertiary-border mb-24 flex flex-col items-center gap-12 rounded-md border-[1px] border-solid bg-white p-12 lg:flex-row">
           <div className="relative h-[220px] w-[266px] flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-black sm:h-[250px] sm:w-[350px] md:h-[300px] md:w-[400px] lg:h-[300px] lg:w-[600px]">
             <video
               className="h-full w-full object-cover"
@@ -92,7 +92,7 @@ export default async function Home() {
               științifică cu observațiile tale.
             </p>
             <Link href="/raporteaza-incident">
-              <Button className="mt-[2rem]" variant="secondary" size="md">
+              <Button className="mt-8" variant="secondary" size="md">
                 <SVGPin />
                 Raportează prezență
               </Button>
@@ -103,7 +103,7 @@ export default async function Home() {
           {cards.map((card, i) => (
             <div
               key={i}
-              className="border-tertiary-border flex min-w-0 flex-col rounded-md border-[1px] bg-white p-[2rem]"
+              className="border-tertiary-border flex min-w-0 flex-col rounded-md border-[1px] bg-white p-8"
             >
               <Image
                 src={card.img}
@@ -112,10 +112,10 @@ export default async function Home() {
                 height={160}
                 className="h-auto w-full object-cover"
               />
-              <h3 className="text-heading-3 mt-[2rem]">{card.title}</h3>
+              <h3 className="text-heading-3 mt-8">{card.title}</h3>
               <p className="text-body-strong mt-2">{card.strong}</p>
               <p className="text-body mt-4">{card.body}</p>
-              <div className="mt-auto pt-[2rem]">
+              <div className="mt-auto pt-8">
                 <Link href={card.href}>
                   <Button variant="tertiary" size="md">
                     {card.button}

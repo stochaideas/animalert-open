@@ -14,7 +14,7 @@ export default function Disclaimer({
 }) {
   return (
     <>
-      <section className="bg-primary-disclaimer text-body rounded-md p-[3rem]">
+      <section className="bg-primary-disclaimer text-body rounded-md p-12">
         <p className="text-body-strong">⚠️ Important!</p>
         <p>
           AnimAlert Bot este destinat doar pentru raportarea animalelor

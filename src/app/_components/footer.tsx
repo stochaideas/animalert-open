@@ -11,9 +11,9 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary text-secondary-foreground mx-auto w-full p-2 sm:p-4 md:p-6 lg:py-[3rem] xl:px-32 2xl:px-64">
+    <footer className="bg-secondary text-secondary-foreground mx-auto w-full p-2 sm:p-4 md:p-6 lg:py-12 xl:px-32 2xl:px-64">
       <div className="container mx-auto flex flex-col items-start justify-center gap-14 lg:gap-8">
-        <div className="flex w-full flex-col items-start justify-between gap-14 lg:flex-row lg:gap-[2rem]">
+        <div className="flex w-full flex-col items-start justify-between gap-14 lg:flex-row lg:gap-8">
           <section className="flex w-full flex-row items-center justify-between gap-6 sm:w-auto lg:flex-col lg:items-start">
             <Image
               src="/logo/logo-white.png"

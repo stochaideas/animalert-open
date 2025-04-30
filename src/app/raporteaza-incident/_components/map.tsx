@@ -40,7 +40,7 @@ export default function Map({
   return (
     <>
       <div className="flex flex-col gap-4">
-        <section className="bg-neutral text-neutral-foreground border-tertiary-border rounded-md border-1 p-[3rem]">
+        <section className="bg-neutral text-neutral-foreground border-tertiary-border rounded-md border-1 p-12">
           <h3 className="text-heading-3 pb-4">Identificare locație</h3>
           <Label className="flex items-center gap-0" htmlFor="location">
             Localizare
