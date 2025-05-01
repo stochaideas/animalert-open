@@ -115,9 +115,10 @@ export default function Navbar() {
               <Image
                 src="/logo/logo-white.png"
                 alt="AnimAlert Logo"
+                className="h-full w-auto max-w-none object-cover"
                 width={150}
                 height={45}
-                className="max-w-[150px] min-w-[100px] lg:max-w-[150px] lg:min-w-[100px]"
+                loading="eager"
               />
             </Link>
           </div>

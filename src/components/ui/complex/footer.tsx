@@ -18,8 +18,10 @@ export default function Footer() {
             <Image
               src="/logo/logo-white.png"
               alt="AnimAlert Logo"
+              className="h-full w-auto max-w-none object-cover"
               width={150}
               height={45}
+              loading="eager"
             />
             <div className="flex flex-row gap-2">
               <Link

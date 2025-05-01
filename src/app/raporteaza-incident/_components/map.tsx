@@ -1,6 +1,6 @@
 import { Label } from "@radix-ui/react-label";
 import { useEffect, useState } from "react";
-import { GoogleMap } from "~/components/ui/complex/map";
+import { GoogleMap } from "~/components/ui/complex/google-map";
 import { SVGArrowLeft, SVGArrowRight } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import { Input } from "~/components/ui/simple/input";
