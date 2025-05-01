@@ -67,7 +67,7 @@ export default function Disclaimer({
           Am citit informațiile, vreau să continui să raportez incidentul
         </Label>
       </section>
-      <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse">
+      <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse md:justify-start">
         <Button
           className="m-0 w-full sm:w-auto"
           variant="primary"
