@@ -46,8 +46,8 @@ function CustomStepIcon(props: { active?: boolean; icon: React.ReactNode }) {
         color: "#000000",
         fontFamily: "var(--font-poppins)",
         fontSize: {
-          sm: "0.5rem",
-          md: "1rem",
+          xs: "0.5rem",
+          sm: "1rem",
         },
         transition: "all 0.2s",
       }}
@@ -69,8 +69,8 @@ export function MaterialStepper({ currentStep }: { currentStep: number }) {
           marginTop: "8px", // Add space between icon and label
           fontFamily: "var(--font-poppins)",
           fontSize: {
-            sm: "0.5rem",
-            md: "1rem",
+            xs: "0.5rem",
+            sm: "1rem",
           },
           fontWeight: 600,
           lineHeight: 1.4,
