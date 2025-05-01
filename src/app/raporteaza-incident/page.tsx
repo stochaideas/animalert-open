@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Disclaimer from "./_components/disclaimer";
-import { Button } from "~/components/ui/button";
-import { Stepper } from "../_components/stepper";
+import { Button } from "~/components/ui/simple/button";
+import { Stepper } from "../../components/ui/complex/stepper";
 import { redirect } from "next/navigation";
 import Contact from "./_components/contact";
 import Map from "./_components/map";

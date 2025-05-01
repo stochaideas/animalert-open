@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Combobox } from "~/components/ui/combobox";
+import { Combobox } from "~/components/ui/simple/combobox";
 import { api } from "~/trpc/react";
 
 export default function AddressAutocomplete({

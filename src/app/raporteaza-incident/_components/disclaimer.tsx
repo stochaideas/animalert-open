@@ -1,7 +1,7 @@
 import { Label } from "@radix-ui/react-label";
 import { SVGArrowRight } from "~/components/icons";
-import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
+import { Button } from "~/components/ui/simple/button";
+import { Checkbox } from "~/components/ui/simple/checkbox";
 
 export default function Disclaimer({
   termsAccepted,

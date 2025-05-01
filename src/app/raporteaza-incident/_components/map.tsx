@@ -1,9 +1,9 @@
 import { Label } from "@radix-ui/react-label";
 import { useEffect, useState } from "react";
-import { GoogleMap } from "~/app/_components/map";
+import { GoogleMap } from "~/components/ui/complex/map";
 import { SVGArrowLeft, SVGArrowRight } from "~/components/icons";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/simple/button";
+import { Input } from "~/components/ui/simple/input";
 import { useGeolocation } from "~/hooks/useGeolocation";
 import { api } from "~/trpc/react";
 // import AddressAutocomplete from "./address-predictions";

@@ -14,7 +14,7 @@ import {
   SVGStar,
 } from "~/components/icons";
 import Hamburger from "~/components/icons/svgs/hamburger";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components/ui/simple/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -23,7 +23,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "~/components/ui/navigation-menu";
+} from "~/components/ui/simple/navigation-menu";
 import { cn } from "~/lib/utils";
 
 const navItems: {

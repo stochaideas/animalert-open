@@ -2,8 +2,8 @@
 
 import { Label } from "@radix-ui/react-label";
 import { SVGArrowLeft, SVGArrowRight } from "~/components/icons";
-import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
+import { Button } from "~/components/ui/simple/button";
+import { Checkbox } from "~/components/ui/simple/checkbox";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -14,8 +14,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+} from "~/components/ui/simple/form";
+import { Input } from "~/components/ui/simple/input";
 import { phoneNumberSchema } from "~/lib/mobile-validator";
 import { useState, type ChangeEvent } from "react";
 
