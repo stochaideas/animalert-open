@@ -16,7 +16,7 @@ const steps = [
 ];
 
 // Custom Connector with centered line
-const CustomConnector = styled(StepConnector)(({ theme }) => ({
+const CustomConnector = styled(StepConnector)(() => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
     top: 24, // Half of your 48px icon height
   },
