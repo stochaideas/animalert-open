@@ -4,8 +4,8 @@ import { type Metadata } from "next";
 import { Poppins } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import Footer from "./_components/footer";
-import Navbar from "./_components/navbar";
+import Footer from "../components/ui/complex/footer";
+import Navbar from "../components/ui/complex/navbar";
 
 export const metadata: Metadata = {
   title: "Animalert",

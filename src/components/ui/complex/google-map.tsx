@@ -36,7 +36,7 @@ export function GoogleMap({
           <Map
             onClick={onClickMap}
             defaultCenter={position}
-            defaultZoom={13}
+            defaultZoom={10}
             mapId={mapId}
             streetViewControl={false}
           >

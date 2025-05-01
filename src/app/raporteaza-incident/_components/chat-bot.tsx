@@ -1,26 +1,7 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import { SVGBotAvatar, SVGCross } from "~/components/icons";
-
-const CONVERSATION: {
-  question: string;
-  options: string[];
-}[] = [
-  {
-    question: "Te rog, spune-mi despre ce tip de animal sălbatic e vorba?",
-    options: ["Vulpe", "Căprior", "Mistreț", "Urs", "Lup", "Iepure"],
-  },
-  {
-    question: "Unde ai găsit animalul?",
-    options: [
-      "În apropierea unui drum/trafic intens",
-      "În pădure/parc",
-      "În apropierea locuințelor",
-      "Alte locații (te rog specifică)",
-    ],
-  },
-  // Add more steps if needed
-];
+import { CONVERSATION } from "../_utils/chat-bot-conversation";
 
 export default function ChatBot() {
   const [step, setStep] = useState(0);
@@ -36,8 +17,8 @@ export default function ChatBot() {
 
   return (
     <section className="bg-neutral text-neutral-foreground text-single-line-body-base">
-      <div className="bg-secondary border-tertiary-border flex flex-row items-center justify-between rounded-t-md border-x-1 border-t-1 p-6 text-white">
-        <div className="flex flex-row items-center gap-4">
+      <div className="bg-secondary border-tertiary-border flex flex-row items-start justify-between rounded-t-md border-x-1 border-t-1 p-6 text-white">
+        <div className="flex flex-row items-start gap-4">
           <SVGBotAvatar width="60" height="60" />
           <div className="flex flex-col">
             <h3 className="text-heading-3">AnimAlert Bot</h3>
@@ -62,7 +43,7 @@ export default function ChatBot() {
             {/* User reply */}
             {answers[idx] && (
               <div className="flex justify-end">
-                <div className="text-neutral-foreground text-single-line-body-base mt-6 max-w-[60%] rounded-t-lg rounded-l-lg bg-[#F2F2F2] p-4">
+                <div className="text-neutral-foreground text-single-line-body-base my-8 max-w-[60%] rounded-t-lg rounded-l-lg bg-[#F2F2F2] p-4">
                   {answers[idx]}
                 </div>
               </div>

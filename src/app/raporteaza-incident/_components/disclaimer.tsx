@@ -1,20 +1,20 @@
 import { Label } from "@radix-ui/react-label";
 import { SVGArrowRight } from "~/components/icons";
-import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
+import { Button } from "~/components/ui/simple/button";
+import { Checkbox } from "~/components/ui/simple/checkbox";
 
 export default function Disclaimer({
-  termsAccepted,
-  setTermsAccepted,
+  disclaimerTermsAccepted,
+  setDisclaimerTermsAccepted,
   handleNextPage,
 }: {
-  termsAccepted: boolean;
-  setTermsAccepted: (value: boolean) => void;
+  disclaimerTermsAccepted: boolean;
+  setDisclaimerTermsAccepted: (value: boolean) => void;
   handleNextPage: () => void;
 }) {
   return (
     <>
-      <section className="bg-primary-disclaimer text-body rounded-md p-12">
+      <section className="bg-primary-disclaimer text-body rounded-md p-6 md:p-12">
         <p className="text-body-strong">⚠️ Important!</p>
         <p>
           AnimAlert Bot este destinat doar pentru raportarea animalelor
@@ -54,30 +54,31 @@ export default function Disclaimer({
           🙏 Fiecare minut contează! Acționează acum!
         </p>
       </section>
-      <section className="flex items-center space-x-2">
+      <section className="flex items-start gap-3">
         <Checkbox
           id="terms"
-          checked={termsAccepted}
+          className="mt-1"
+          checked={disclaimerTermsAccepted}
           onCheckedChange={(checked) =>
-            setTermsAccepted(checked.valueOf() as boolean)
+            setDisclaimerTermsAccepted(checked.valueOf() as boolean)
           }
         />
         <Label htmlFor="terms" className="text-body">
           Am citit informațiile, vreau să continui să raportez incidentul
         </Label>
       </section>
-      <section className="flex items-center justify-end gap-6">
-        <Button className="m-0" variant="neutral" size="md">
-          Vezi acțiuni & info
-        </Button>
+      <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse md:justify-start">
         <Button
-          className="m-0"
+          className="m-0 w-full sm:w-auto"
           variant="primary"
           size="md"
           onClick={handleNextPage}
-          disabled={!termsAccepted}
+          disabled={!disclaimerTermsAccepted}
         >
           Mergi mai departe <SVGArrowRight />
+        </Button>
+        <Button className="m-0 w-full sm:w-auto" variant="neutral" size="md">
+          Vezi acțiuni & info
         </Button>
       </section>
     </>

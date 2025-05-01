@@ -1,17 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import Disclaimer from "./_components/disclaimer";
-import { Button } from "~/components/ui/button";
-import { Stepper } from "../_components/stepper";
+import { Button } from "~/components/ui/simple/button";
+import { MaterialStepper } from "../../components/ui/complex/stepper";
 import { redirect } from "next/navigation";
 import Contact from "./_components/contact";
 import Map from "./_components/map";
 import ChatBot from "./_components/chat-bot";
+import { contactFormSchema } from "./_utils/contact-form-schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type z } from "zod";
+import type { Position } from "./_types/position";
 
 export default function IncidentReport() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // DISCLAIMER
+  const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
+
+  // CONTACT FORM
+  // Define contact form
+  const contactForm = useForm<z.infer<typeof contactFormSchema>>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      lastName: "",
+      firstName: "",
+      phone: "",
+      email: undefined,
+      confidentiality: false,
+      receiveCaseUpdates: false,
+      receiveOtherCaseUpdates: false,
+      image1: undefined,
+      image2: undefined,
+      image3: undefined,
+      image4: undefined,
+    },
+    mode: "onChange",
+    reValidateMode: "onChange",
+  });
+
+  const [contactImagePreviews, setContactImagePreviews] = useState({
+    image1: undefined,
+    image2: undefined,
+    image3: undefined,
+    image4: undefined,
+  });
+
+  // MAP
+  const [mapPosition, setMapPosition] = useState<Position | null>(null);
+
+  const handleContactImageChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    name: string,
+    fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
+  ) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setContactImagePreviews((prev) => ({
+        ...prev,
+        [name]: url,
+      }));
+      fieldOnChange(file); // Update react-hook-form state
+    }
+  };
+
+  // Submit handler for the contact form
+  function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log(values);
+
+    handleNextPage();
+  }
 
   const handleNextPage = () => {
     window.scrollTo({
@@ -31,12 +94,12 @@ export default function IncidentReport() {
 
   const getCurrentPage = () => {
     switch (currentPage) {
-      case 1:
+      case 0:
         return (
           <>
             <Disclaimer
-              termsAccepted={termsAccepted}
-              setTermsAccepted={setTermsAccepted}
+              disclaimerTermsAccepted={disclaimerTermsAccepted}
+              setDisclaimerTermsAccepted={setDisclaimerTermsAccepted}
               handleNextPage={handleNextPage}
             />
             <section className="pt-24">
@@ -59,21 +122,26 @@ export default function IncidentReport() {
             </section>
           </>
         );
-      case 2:
+      case 1:
         return (
           <Contact
-            handleNextPage={handleNextPage}
             handlePreviousPage={handlePreviousPage}
+            contactForm={contactForm}
+            contactImagePreviews={contactImagePreviews}
+            handleContactImageChange={handleContactImageChange}
+            onContactSubmit={onContactSubmit}
           />
         );
-      case 3:
+      case 2:
         return (
           <Map
             handlePreviousPage={handlePreviousPage}
             handleNextPage={handleNextPage}
+            initialPosition={mapPosition}
+            onPositionChange={setMapPosition}
           />
         );
-      case 4:
+      case 3:
         return <ChatBot />;
       default:
         redirect("/");
@@ -81,10 +149,10 @@ export default function IncidentReport() {
   };
 
   return (
-    <div className="bg-tertiary px-[30.75rem] pt-24 pb-52">
+    <div className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
       <main className="flex flex-col justify-center gap-12">
         <h1 className="text-heading-2">Raportează incident</h1>
-        <Stepper currentStep={currentPage} />
+        <MaterialStepper currentStep={currentPage} />
         {getCurrentPage()}
       </main>
     </div>

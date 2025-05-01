@@ -14,7 +14,7 @@ import {
   SVGStar,
 } from "~/components/icons";
 import Hamburger from "~/components/icons/svgs/hamburger";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components/ui/simple/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -23,7 +23,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "~/components/ui/navigation-menu";
+} from "~/components/ui/simple/navigation-menu";
 import { cn } from "~/lib/utils";
 
 const navItems: {
@@ -107,7 +107,7 @@ export default function Navbar() {
   return (
     <div className="sticky top-0 z-20 flex w-full flex-col gap-0">
       <nav
-        className={` ${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-2 sm:p-4 md:p-6 xl:px-32 2xl:px-64`}
+        className={` ${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-6 sm:p-4 md:p-6 xl:px-32 2xl:px-64`}
       >
         <div className="container mx-auto flex flex-row items-center justify-between">
           <div className="flex flex-row items-center gap-3">
@@ -115,9 +115,10 @@ export default function Navbar() {
               <Image
                 src="/logo/logo-white.png"
                 alt="AnimAlert Logo"
+                className="h-full w-auto max-w-none object-cover"
                 width={150}
                 height={45}
-                className="max-w-[150px] min-w-[100px] lg:max-w-[150px] lg:min-w-[100px]"
+                loading="eager"
               />
             </Link>
           </div>
@@ -217,7 +218,7 @@ export default function Navbar() {
           </NavigationMenuList>
         </NavigationMenu>
       </nav>
-      <section className="text-neutral-foreground w-full bg-[#ADABA8] py-3.5">
+      <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-6 py-3.5">
         <div className="m-auto text-center">
           <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
           imediat la <b>112</b>, dacă ești în pericol sau vezi un animal

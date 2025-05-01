@@ -3,15 +3,15 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "~/components/ui/popover";
+} from "~/components/ui/simple/popover";
 import {
   Command,
   CommandList,
   CommandEmpty,
   CommandGroup,
   CommandItem,
-} from "~/components/ui/command";
-import { Input } from "~/components/ui/input";
+} from "~/components/ui/simple/command";
+import { Input } from "~/components/ui/simple/input";
 
 export function Combobox({
   value,
