@@ -15,10 +15,20 @@ const steps = [
   { title: "Chatbot" },
 ];
 
-// Custom Connector with centered line
-const CustomConnector = styled(StepConnector)(() => ({
+// Custom Connector with centered line, responsive to icon size
+const CustomConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 24, // Half of your 48px icon height
+    // Responsive: half the icon height at each breakpoint
+    [theme.breakpoints.down("sm")]: {
+      top: 12,
+      left: "calc(-50% + 12px)",
+      right: "calc(50% + 12px)",
+    }, // 24px icon → 12px
+    [theme.breakpoints.up("sm")]: {
+      top: 24,
+      left: "calc(-50% + 24px)",
+      right: "calc(50% + 24px)",
+    }, // 48px icon → 24px
   },
   [`& .${stepConnectorClasses.line}`]: {
     borderColor: "#d9d9d9",
@@ -28,15 +38,15 @@ const CustomConnector = styled(StepConnector)(() => ({
   },
 }));
 
-// Custom Step Icon (unchanged from your original)
 function CustomStepIcon(props: { active?: boolean; icon: React.ReactNode }) {
   const { active, icon } = props;
   return (
     <Box
       sx={{
         zIndex: 1,
-        width: 48,
-        height: 48,
+        // Responsive icon size
+        width: { xs: 24, sm: 48 },
+        height: { xs: 24, sm: 48 },
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -45,10 +55,7 @@ function CustomStepIcon(props: { active?: boolean; icon: React.ReactNode }) {
         backgroundColor: active ? "#d5d5d5" : "#FFFFFF",
         color: "#000000",
         fontFamily: "var(--font-poppins)",
-        fontSize: {
-          xs: "0.5rem",
-          sm: "1rem",
-        },
+        fontSize: { xs: "0.5rem", sm: "1rem" }, // Responsive font size for icon number
         transition: "all 0.2s",
       }}
     >
@@ -66,12 +73,9 @@ export function MaterialStepper({ currentStep }: { currentStep: number }) {
       sx={{
         "& .MuiStepLabel-label": {
           color: "#000000",
-          marginTop: "8px", // Add space between icon and label
+          marginTop: { xs: "4px", sm: "8px" },
           fontFamily: "var(--font-poppins)",
-          fontSize: {
-            xs: "0.5rem",
-            sm: "1rem",
-          },
+          fontSize: { xs: "0.75rem", sm: "1rem" }, // Responsive label size
           fontWeight: 600,
           lineHeight: 1.4,
           letterSpacing: "0",

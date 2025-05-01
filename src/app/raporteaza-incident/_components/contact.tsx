@@ -93,7 +93,7 @@ export default function Contact({
     <>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Form {...form}>
-          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 p-12">
+          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Date contact</h3>
             <section className="mb-4 grid grid-cols-1 gap-8 md:grid-cols-2">
               <div className="flex-1">
@@ -257,7 +257,7 @@ export default function Contact({
               />
             </div>
           </section>
-          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-12 rounded-md border-1 p-12">
+          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-12 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Fișiere foto și video</h3>
             <p className="text-body pb-3">
               Încărcați cel puțin o imagine
