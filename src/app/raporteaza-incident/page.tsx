@@ -12,11 +12,15 @@ import { contactFormSchema } from "./_utils/contact-form-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
+import type { Position } from "./_types/position";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
+
+  // DISCLAIMER
   const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
 
+  // CONTACT FORM
   // Define contact form
   const contactForm = useForm<z.infer<typeof contactFormSchema>>({
     resolver: zodResolver(contactFormSchema),
@@ -43,6 +47,9 @@ export default function IncidentReport() {
     image3: undefined,
     image4: undefined,
   });
+
+  // MAP
+  const [mapPosition, setMapPosition] = useState<Position | null>(null);
 
   const handleContactImageChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -130,6 +137,8 @@ export default function IncidentReport() {
           <Map
             handlePreviousPage={handlePreviousPage}
             handleNextPage={handleNextPage}
+            initialPosition={mapPosition}
+            onPositionChange={setMapPosition}
           />
         );
       case 3:

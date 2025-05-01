@@ -6,17 +6,28 @@ import { Button } from "~/components/ui/simple/button";
 import { Input } from "~/components/ui/simple/input";
 import { useGeolocation } from "~/hooks/useGeolocation";
 import { api } from "~/trpc/react";
+import type { Position } from "../_types/position";
 // import AddressAutocomplete from "./address-predictions";
 
 export default function Map({
   handlePreviousPage,
   handleNextPage,
+  initialPosition,
+  onPositionChange,
 }: {
   handlePreviousPage: () => void;
   handleNextPage: () => void;
+  initialPosition?: Position | null;
+  onPositionChange?: (pos: { lat: number; lng: number } | null) => void;
 }) {
-  const { position, setPosition, error } = useGeolocation();
+  const { position, setPosition, error } = useGeolocation(initialPosition);
   const [address, setAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (onPositionChange) {
+      onPositionChange(position);
+    }
+  }, [position, onPositionChange]);
 
   const fetchedAddress = api.geolocation.getAddress.useQuery(
     position ?? { lat: 0, lng: 0 },
