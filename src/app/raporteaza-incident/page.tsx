@@ -8,18 +8,18 @@ import { redirect } from "next/navigation";
 import Contact from "./_components/contact";
 import Map from "./_components/map";
 import ChatBot from "./_components/chat-bot";
-import { formSchema } from "./_utils/contact-form-schema";
+import { contactFormSchema } from "./_utils/contact-form-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
 
-  // Define form
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  // Define contact form
+  const contactForm = useForm<z.infer<typeof contactFormSchema>>({
+    resolver: zodResolver(contactFormSchema),
     defaultValues: {
       lastName: "",
       firstName: "",
@@ -37,14 +37,14 @@ export default function IncidentReport() {
     reValidateMode: "onChange",
   });
 
-  const [imagePreviews, setImagePreviews] = useState({
+  const [contactImagePreviews, setContactImagePreviews] = useState({
     image1: undefined,
     image2: undefined,
     image3: undefined,
     image4: undefined,
   });
 
-  const handleImageChange = (
+  const handleContactImageChange = (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
@@ -52,7 +52,7 @@ export default function IncidentReport() {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
       const url = URL.createObjectURL(file);
-      setImagePreviews((prev) => ({
+      setContactImagePreviews((prev) => ({
         ...prev,
         [name]: url,
       }));
@@ -61,7 +61,7 @@ export default function IncidentReport() {
   };
 
   // Submit handler for the contact form
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
@@ -91,8 +91,8 @@ export default function IncidentReport() {
         return (
           <>
             <Disclaimer
-              termsAccepted={termsAccepted}
-              setTermsAccepted={setTermsAccepted}
+              disclaimerTermsAccepted={disclaimerTermsAccepted}
+              setDisclaimerTermsAccepted={setDisclaimerTermsAccepted}
               handleNextPage={handleNextPage}
             />
             <section className="pt-24">
@@ -119,10 +119,10 @@ export default function IncidentReport() {
         return (
           <Contact
             handlePreviousPage={handlePreviousPage}
-            form={form}
-            imagePreviews={imagePreviews}
-            handleImageChange={handleImageChange}
-            onSubmit={onSubmit}
+            contactForm={contactForm}
+            contactImagePreviews={contactImagePreviews}
+            handleContactImageChange={handleContactImageChange}
+            onContactSubmit={onContactSubmit}
           />
         );
       case 2:

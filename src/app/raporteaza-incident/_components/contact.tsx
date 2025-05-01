@@ -17,35 +17,35 @@ import {
 import { Input } from "~/components/ui/simple/input";
 import { type ChangeEvent } from "react";
 import Image from "next/image";
-import { type formSchema } from "../_utils/contact-form-schema";
+import { type contactFormSchema } from "../_utils/contact-form-schema";
 
 export default function Contact({
   handlePreviousPage,
-  form,
-  imagePreviews,
-  handleImageChange,
-  onSubmit,
+  contactForm,
+  contactImagePreviews,
+  handleContactImageChange,
+  onContactSubmit,
 }: {
   handlePreviousPage: () => void;
-  form: ReturnType<typeof useForm<z.infer<typeof formSchema>>>;
-  imagePreviews: {
+  contactForm: ReturnType<typeof useForm<z.infer<typeof contactFormSchema>>>;
+  contactImagePreviews: {
     image1: string | undefined;
     image2: string | undefined;
     image3: string | undefined;
     image4: string | undefined;
   };
-  handleImageChange: (
+  handleContactImageChange: (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => void;
-  onSubmit: (data: z.infer<typeof formSchema>) => void;
+  onContactSubmit: (data: z.infer<typeof contactFormSchema>) => void;
 }) {
   const ImageFormField: React.FC<{
     image: "image1" | "image2" | "image3" | "image4";
   }> = ({ image }) => (
     <FormField
-      control={form.control}
+      control={contactForm.control}
       name={image}
       render={({ field }) => (
         <FormItem className="flex-1">
@@ -55,7 +55,9 @@ export default function Contact({
               className="hidden"
               type="file"
               accept="image/*"
-              onChange={(e) => handleImageChange(e, image, field.onChange)}
+              onChange={(e) =>
+                handleContactImageChange(e, image, field.onChange)
+              }
             />
           </FormControl>
           <Label htmlFor={image}>
@@ -72,12 +74,12 @@ export default function Contact({
               <Image
                 alt="Imagine cu incidentul"
                 src={
-                  imagePreviews[image] ??
+                  contactImagePreviews[image] ??
                   "/images/incident-report-image-placeholder.png"
                 }
                 fill
                 style={{
-                  objectFit: imagePreviews[image] ? "cover" : "contain",
+                  objectFit: contactImagePreviews[image] ? "cover" : "contain",
                   background: "#e3e3e3",
                 }}
               />
@@ -91,14 +93,14 @@ export default function Contact({
 
   return (
     <>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Form {...form}>
+      <form onSubmit={contactForm.handleSubmit(onContactSubmit)}>
+        <Form {...contactForm}>
           <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Date contact</h3>
             <section className="mb-4 grid grid-cols-1 gap-8 md:grid-cols-2">
               <div className="flex-1">
                 <FormField
-                  control={form.control}
+                  control={contactForm.control}
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
@@ -120,7 +122,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={form.control}
+                  control={contactForm.control}
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
@@ -142,7 +144,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={form.control}
+                  control={contactForm.control}
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
@@ -164,7 +166,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={form.control}
+                  control={contactForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -184,7 +186,7 @@ export default function Contact({
             </section>
             <div className="flex flex-col gap-2">
               <FormField
-                control={form.control}
+                control={contactForm.control}
                 name="confidentiality"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
@@ -199,7 +201,8 @@ export default function Contact({
                     <Label
                       htmlFor="confidentiality"
                       className={`text-body-small ${
-                        form.formState.errors.confidentiality && "text-red-500"
+                        contactForm.formState.errors.confidentiality &&
+                        "text-red-500"
                       }`}
                     >
                       Prin trimiterea acestei solicitări, confirm că am citit
@@ -211,7 +214,7 @@ export default function Contact({
                 )}
               />
               <FormField
-                control={form.control}
+                control={contactForm.control}
                 name="receiveOtherCaseUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
@@ -234,7 +237,7 @@ export default function Contact({
                 )}
               />
               <FormField
-                control={form.control}
+                control={contactForm.control}
                 name="receiveCaseUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
@@ -265,7 +268,7 @@ export default function Contact({
               fotografii atât cu animalul cât și cu incidentul.
             </p>
             <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-              {Object.keys(imagePreviews).map((key) => (
+              {Object.keys(contactImagePreviews).map((key) => (
                 <ImageFormField
                   key={key}
                   image={key as "image1" | "image2" | "image3" | "image4"}

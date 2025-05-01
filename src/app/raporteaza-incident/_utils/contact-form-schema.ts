@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { phoneNumberSchema } from "~/lib/mobile-validator";
 
-export const formSchema = z.object({
+export const contactFormSchema = z.object({
   lastName: z.string().min(1, {
     message: "Numele de familie este necesar",
   }),

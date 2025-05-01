@@ -4,12 +4,12 @@ import { Button } from "~/components/ui/simple/button";
 import { Checkbox } from "~/components/ui/simple/checkbox";
 
 export default function Disclaimer({
-  termsAccepted,
-  setTermsAccepted,
+  disclaimerTermsAccepted,
+  setDisclaimerTermsAccepted,
   handleNextPage,
 }: {
-  termsAccepted: boolean;
-  setTermsAccepted: (value: boolean) => void;
+  disclaimerTermsAccepted: boolean;
+  setDisclaimerTermsAccepted: (value: boolean) => void;
   handleNextPage: () => void;
 }) {
   return (
@@ -57,10 +57,10 @@ export default function Disclaimer({
       <section className="flex items-start gap-3">
         <Checkbox
           id="terms"
-          className="mt-2"
-          checked={termsAccepted}
+          className="mt-1"
+          checked={disclaimerTermsAccepted}
           onCheckedChange={(checked) =>
-            setTermsAccepted(checked.valueOf() as boolean)
+            setDisclaimerTermsAccepted(checked.valueOf() as boolean)
           }
         />
         <Label htmlFor="terms" className="text-body">
@@ -73,7 +73,7 @@ export default function Disclaimer({
           variant="primary"
           size="md"
           onClick={handleNextPage}
-          disabled={!termsAccepted}
+          disabled={!disclaimerTermsAccepted}
         >
           Mergi mai departe <SVGArrowRight />
         </Button>
