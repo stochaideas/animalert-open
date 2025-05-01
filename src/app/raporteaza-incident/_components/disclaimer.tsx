@@ -54,9 +54,10 @@ export default function Disclaimer({
           🙏 Fiecare minut contează! Acționează acum!
         </p>
       </section>
-      <section className="flex items-center space-x-2">
+      <section className="flex items-start gap-3">
         <Checkbox
           id="terms"
+          className="mt-2"
           checked={termsAccepted}
           onCheckedChange={(checked) =>
             setTermsAccepted(checked.valueOf() as boolean)
@@ -66,18 +67,18 @@ export default function Disclaimer({
           Am citit informațiile, vreau să continui să raportez incidentul
         </Label>
       </section>
-      <section className="flex items-center justify-end gap-6">
-        <Button className="m-0" variant="neutral" size="md">
-          Vezi acțiuni & info
-        </Button>
+      <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse">
         <Button
-          className="m-0"
+          className="m-0 w-full sm:w-auto"
           variant="primary"
           size="md"
           onClick={handleNextPage}
           disabled={!termsAccepted}
         >
           Mergi mai departe <SVGArrowRight />
+        </Button>
+        <Button className="m-0 w-full sm:w-auto" variant="neutral" size="md">
+          Vezi acțiuni & info
         </Button>
       </section>
     </>

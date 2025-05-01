@@ -59,23 +59,23 @@ export default function Map({
           <GoogleMap position={position} setPosition={setPosition} />
         </section>
       </div>
-      <section className="flex items-center justify-end gap-6">
+      <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse">
         <Button
-          className="m-0"
-          variant="neutral"
-          size="md"
-          onClick={handlePreviousPage}
-        >
-          <SVGArrowLeft /> Înapoi
-        </Button>
-        <Button
-          className="m-0"
+          className="m-0 w-full sm:w-auto"
           variant="primary"
           size="md"
           type="submit"
           onClick={handleNextPage}
         >
           Salvează și continuă <SVGArrowRight />
+        </Button>
+        <Button
+          className="m-0 w-full sm:w-auto"
+          variant="neutral"
+          size="md"
+          onClick={handlePreviousPage}
+        >
+          <SVGArrowLeft /> Înapoi
         </Button>
       </section>
     </>

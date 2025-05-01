@@ -18,6 +18,7 @@ import {
 import { Input } from "~/components/ui/simple/input";
 import { phoneNumberSchema } from "~/lib/mobile-validator";
 import { useState, type ChangeEvent } from "react";
+import Image from "next/image";
 
 const formSchema = z.object({
   lastName: z.string().min(1, {
@@ -50,6 +51,7 @@ const formSchema = z.object({
           "image/jpg",
           "image/svg+xml",
           "image/gif",
+          "image/webp",
         ].includes(file.type),
       { message: "Fișierul trebuie să fie o imagine" },
     )
@@ -66,6 +68,7 @@ const formSchema = z.object({
           "image/jpg",
           "image/svg+xml",
           "image/gif",
+          "image/webp",
         ].includes(file.type),
       { message: "Fișierul trebuie să fie o imagine" },
     )
@@ -82,6 +85,7 @@ const formSchema = z.object({
           "image/jpg",
           "image/svg+xml",
           "image/gif",
+          "image/webp",
         ].includes(file.type),
       { message: "Fișierul trebuie să fie o imagine" },
     )
@@ -98,6 +102,7 @@ const formSchema = z.object({
           "image/jpg",
           "image/svg+xml",
           "image/gif",
+          "image/webp",
         ].includes(file.type),
       { message: "Fișierul trebuie să fie o imagine" },
     )
@@ -179,8 +184,14 @@ export default function Contact({
             />
           </FormControl>
           <Label htmlFor={image}>
-            <div
-              className="h-[116px] w-auto cursor-pointer rounded-md bg-center"
+            <Image
+              alt="Imagine cu incidentul"
+              src={
+                imagePreviews[image] ??
+                "/images/incident-report-image-placeholder.png"
+              }
+              width={100}
+              height={100}
               style={{
                 backgroundImage: `url('${
                   imagePreviews[image] ??
@@ -292,14 +303,15 @@ export default function Contact({
                   />
                 </div>
               </div>
-              <div>
+              <div className="flex flex-col gap-2">
                 <FormField
                   control={form.control}
                   name="confidentiality"
                   render={({ field }) => (
-                    <FormItem className="flex items-center space-x-1">
+                    <FormItem className="flex items-start gap-3">
                       <FormControl>
                         <Checkbox
+                          className="mt-1"
                           id="confidentiality"
                           checked={field.value}
                           onCheckedChange={field.onChange}
@@ -324,9 +336,10 @@ export default function Contact({
                   control={form.control}
                   name="receiveOtherCaseUpdates"
                   render={({ field }) => (
-                    <FormItem className="flex items-center space-x-1">
+                    <FormItem className="flex items-start gap-3">
                       <FormControl>
                         <Checkbox
+                          className="mt-1"
                           id="receiveOtherCaseUpdates"
                           checked={field.value}
                           onCheckedChange={field.onChange}
@@ -346,9 +359,10 @@ export default function Contact({
                   control={form.control}
                   name="receiveCaseUpdates"
                   render={({ field }) => (
-                    <FormItem className="flex items-center space-x-1">
+                    <FormItem className="flex items-start gap-3">
                       <FormControl>
                         <Checkbox
+                          className="mt-1"
                           id="receiveCaseUpdates"
                           checked={field.value}
                           onCheckedChange={field.onChange}
@@ -373,7 +387,7 @@ export default function Contact({
               <span className="text-red-500">*</span> (obligatoriu). Adăugați
               fotografii atât cu animalul cât și cu incidentul.
             </p>
-            <div className="flex flex-row gap-8">
+            <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
               {Object.keys(imagePreviews).map((key) => (
                 <ImageFormField
                   key={key}
@@ -382,17 +396,9 @@ export default function Contact({
               ))}
             </div>
           </section>
-          <section className="flex items-center justify-end gap-6">
+          <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse">
             <Button
-              className="m-0"
-              variant="neutral"
-              size="md"
-              onClick={handlePreviousPage}
-            >
-              <SVGArrowLeft /> Înapoi
-            </Button>
-            <Button
-              className="m-0"
+              className="m-0 w-full sm:w-auto"
               variant="primary"
               size="md"
               type="submit"
@@ -404,6 +410,14 @@ export default function Contact({
               }}
             >
               Salvează și continuă <SVGArrowRight />
+            </Button>
+            <Button
+              className="m-0 w-full sm:w-auto"
+              variant="neutral"
+              size="md"
+              onClick={handlePreviousPage}
+            >
+              <SVGArrowLeft /> Înapoi
             </Button>
           </section>
         </Form>

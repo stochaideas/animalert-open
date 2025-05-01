@@ -81,7 +81,7 @@ export default function IncidentReport() {
   };
 
   return (
-    <div className="bg-tertiary px-6 pt-20 pb-40 lg:px-[30.75rem] lg:pt-24 lg:pb-52">
+    <div className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
       <main className="flex flex-col justify-center gap-12">
         <h1 className="text-heading-2">Raportează incident</h1>
         <MaterialStepper currentStep={currentPage} />
