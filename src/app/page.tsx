@@ -70,9 +70,11 @@ export default async function Home() {
             <video
               className="h-full w-full object-cover"
               controls={false}
-              autoPlay={true}
-              loop={true}
-              muted={true}
+              autoPlay
+              loop
+              muted
+              playsInline
+              webkit-playsinline="true"
             >
               <source src="/videos/homepage-video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
