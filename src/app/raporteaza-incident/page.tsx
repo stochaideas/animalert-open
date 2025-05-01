@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import Disclaimer from "./_components/disclaimer";
 import { Button } from "~/components/ui/simple/button";
 import { MaterialStepper } from "../../components/ui/complex/stepper";
@@ -8,10 +8,66 @@ import { redirect } from "next/navigation";
 import Contact from "./_components/contact";
 import Map from "./_components/map";
 import ChatBot from "./_components/chat-bot";
+import { formSchema } from "./_utils/contact-form-schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type z } from "zod";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
   const [termsAccepted, setTermsAccepted] = useState(false);
+
+  // Define form
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      lastName: "",
+      firstName: "",
+      phone: "",
+      email: undefined,
+      confidentiality: false,
+      receiveCaseUpdates: false,
+      receiveOtherCaseUpdates: false,
+      image1: undefined,
+      image2: undefined,
+      image3: undefined,
+      image4: undefined,
+    },
+    mode: "onChange",
+    reValidateMode: "onChange",
+  });
+
+  const [imagePreviews, setImagePreviews] = useState({
+    image1: undefined,
+    image2: undefined,
+    image3: undefined,
+    image4: undefined,
+  });
+
+  const handleImageChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    name: string,
+    fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
+  ) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImagePreviews((prev) => ({
+        ...prev,
+        [name]: url,
+      }));
+      fieldOnChange(file); // Update react-hook-form state
+    }
+  };
+
+  // Submit handler for the contact form
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log(values);
+
+    handleNextPage();
+  }
 
   const handleNextPage = () => {
     window.scrollTo({
@@ -62,8 +118,11 @@ export default function IncidentReport() {
       case 1:
         return (
           <Contact
-            handleNextPage={handleNextPage}
             handlePreviousPage={handlePreviousPage}
+            form={form}
+            imagePreviews={imagePreviews}
+            handleImageChange={handleImageChange}
+            onSubmit={onSubmit}
           />
         );
       case 2:

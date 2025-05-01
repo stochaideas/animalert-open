@@ -4,9 +4,8 @@ import { Label } from "@radix-ui/react-label";
 import { SVGArrowLeft, SVGArrowRight } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import { Checkbox } from "~/components/ui/simple/checkbox";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { type useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -16,156 +15,32 @@ import {
   FormMessage,
 } from "~/components/ui/simple/form";
 import { Input } from "~/components/ui/simple/input";
-import { phoneNumberSchema } from "~/lib/mobile-validator";
-import { useState, type ChangeEvent } from "react";
+import { type ChangeEvent } from "react";
 import Image from "next/image";
-
-const formSchema = z.object({
-  lastName: z.string().min(1, {
-    message: "Numele de familie este necesar",
-  }),
-  firstName: z.string().min(1, {
-    message: "Prenumele este necesar",
-  }),
-  phone: phoneNumberSchema,
-  email: z
-    .string()
-    .email({
-      message: "Adresa de email nu este validă",
-    })
-    .optional(),
-  confidentiality: z.boolean().refine((val) => val === true, {
-    message: "Trebuie să accepți Politica de confidențialitate",
-  }),
-  receiveCaseUpdates: z.boolean().optional(),
-  receiveOtherCaseUpdates: z.boolean().optional(),
-  image1: z
-    .instanceof(File, {
-      message: "Fișierul trebuie să fie o imagine",
-    })
-    .refine(
-      (file) =>
-        [
-          "image/png",
-          "image/jpeg",
-          "image/jpg",
-          "image/svg+xml",
-          "image/gif",
-          "image/webp",
-        ].includes(file.type),
-      { message: "Fișierul trebuie să fie o imagine" },
-    )
-    .optional(),
-  image2: z
-    .instanceof(File, {
-      message: "Fișierul trebuie să fie o imagine",
-    })
-    .refine(
-      (file) =>
-        [
-          "image/png",
-          "image/jpeg",
-          "image/jpg",
-          "image/svg+xml",
-          "image/gif",
-          "image/webp",
-        ].includes(file.type),
-      { message: "Fișierul trebuie să fie o imagine" },
-    )
-    .optional(),
-  image4: z
-    .instanceof(File, {
-      message: "Fișierul trebuie să fie o imagine",
-    })
-    .refine(
-      (file) =>
-        [
-          "image/png",
-          "image/jpeg",
-          "image/jpg",
-          "image/svg+xml",
-          "image/gif",
-          "image/webp",
-        ].includes(file.type),
-      { message: "Fișierul trebuie să fie o imagine" },
-    )
-    .optional(),
-  image3: z
-    .instanceof(File, {
-      message: "Fișierul trebuie să fie o imagine",
-    })
-    .refine(
-      (file) =>
-        [
-          "image/png",
-          "image/jpeg",
-          "image/jpg",
-          "image/svg+xml",
-          "image/gif",
-          "image/webp",
-        ].includes(file.type),
-      { message: "Fișierul trebuie să fie o imagine" },
-    )
-    .optional(),
-});
+import { type formSchema } from "../_utils/contact-form-schema";
 
 export default function Contact({
-  handleNextPage,
   handlePreviousPage,
+  form,
+  imagePreviews,
+  handleImageChange,
+  onSubmit,
 }: {
-  handleNextPage: () => void;
   handlePreviousPage: () => void;
-}) {
-  // Define form
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      lastName: "",
-      firstName: "",
-      phone: "",
-      email: undefined,
-      confidentiality: false,
-      receiveCaseUpdates: false,
-      receiveOtherCaseUpdates: false,
-      image1: undefined,
-      image2: undefined,
-      image3: undefined,
-      image4: undefined,
-    },
-    mode: "onChange",
-    reValidateMode: "onChange",
-  });
-
-  const [imagePreviews, setImagePreviews] = useState({
-    image1: undefined,
-    image2: undefined,
-    image3: undefined,
-    image4: undefined,
-  });
-
-  const handleImageChange = (
+  form: ReturnType<typeof useForm<z.infer<typeof formSchema>>>;
+  imagePreviews: {
+    image1: string | undefined;
+    image2: string | undefined;
+    image3: string | undefined;
+    image4: string | undefined;
+  };
+  handleImageChange: (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
-  ) => {
-    const file = e.target.files ? e.target.files[0] : null;
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setImagePreviews((prev) => ({
-        ...prev,
-        [name]: url,
-      }));
-      fieldOnChange(file); // Update react-hook-form state
-    }
-  };
-
-  // Define a submit handler
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
-
+  ) => void;
+  onSubmit: (data: z.infer<typeof formSchema>) => void;
+}) {
   const ImageFormField: React.FC<{
     image: "image1" | "image2" | "image3" | "image4";
   }> = ({ image }) => (
@@ -404,12 +279,6 @@ export default function Contact({
               variant="primary"
               size="md"
               type="submit"
-              onClick={async () => {
-                await form.trigger();
-                if (form.formState.isValid) {
-                  handleNextPage();
-                }
-              }}
             >
               Salvează și continuă <SVGArrowRight />
             </Button>
