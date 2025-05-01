@@ -59,7 +59,7 @@ export default function Map({
           <GoogleMap position={position} setPosition={setPosition} />
         </section>
       </div>
-      <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse">
+      <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse md:justify-start">
         <Button
           className="m-0 w-full sm:w-auto"
           variant="primary"
