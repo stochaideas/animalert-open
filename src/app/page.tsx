@@ -49,7 +49,7 @@ export default async function Home() {
   return (
     <main className="bg-tertiary flex flex-col items-center justify-center gap-24 pb-24">
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero-sm.png)] bg-cover bg-[65%] bg-no-repeat md:bg-[url(/images/homepage-hero-lg.png)] md:bg-center">
-        <div className="flex flex-col items-start gap-8 p-6 pt-28 lg:pt-40 lg:pl-80">
+        <div className="flex flex-col items-start gap-8 p-6 pt-28 md:px-20 md:pt-32 xl:pt-40 xl:pl-80">
           <span className="text-heading-1 text-neutral lg:max-w-2xl">
             <b>Ai întâlnit un animal sălbatic rănit sau în pericol?</b>
           </span>
@@ -99,7 +99,7 @@ export default async function Home() {
             </Link>
           </article>
         </section>
-        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
           {cards.map((card, i) => (
             <div
               key={i}
