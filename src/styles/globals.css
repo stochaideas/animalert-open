@@ -137,6 +137,8 @@
 
 .text-body-strong {
   font-family: var(--font-poppins);
+  @apply text-[0.5rem];
+  @apply md:text-[1rem];
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.4;

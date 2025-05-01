@@ -3,14 +3,14 @@
 import { useState } from "react";
 import Disclaimer from "./_components/disclaimer";
 import { Button } from "~/components/ui/simple/button";
-import { Stepper } from "../../components/ui/complex/stepper";
+import { MaterialStepper } from "../../components/ui/complex/stepper";
 import { redirect } from "next/navigation";
 import Contact from "./_components/contact";
 import Map from "./_components/map";
 import ChatBot from "./_components/chat-bot";
 
 export default function IncidentReport() {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleNextPage = () => {
@@ -31,7 +31,7 @@ export default function IncidentReport() {
 
   const getCurrentPage = () => {
     switch (currentPage) {
-      case 1:
+      case 0:
         return (
           <>
             <Disclaimer
@@ -59,21 +59,21 @@ export default function IncidentReport() {
             </section>
           </>
         );
-      case 2:
+      case 1:
         return (
           <Contact
             handleNextPage={handleNextPage}
             handlePreviousPage={handlePreviousPage}
           />
         );
-      case 3:
+      case 2:
         return (
           <Map
             handlePreviousPage={handlePreviousPage}
             handleNextPage={handleNextPage}
           />
         );
-      case 4:
+      case 3:
         return <ChatBot />;
       default:
         redirect("/");
@@ -84,7 +84,7 @@ export default function IncidentReport() {
     <div className="bg-tertiary px-[30.75rem] pt-24 pb-52">
       <main className="flex flex-col justify-center gap-12">
         <h1 className="text-heading-2">Raportează incident</h1>
-        <Stepper currentStep={currentPage} />
+        <MaterialStepper currentStep={currentPage} />
         {getCurrentPage()}
       </main>
     </div>
