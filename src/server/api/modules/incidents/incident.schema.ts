@@ -15,7 +15,7 @@ export const incidents = pgTable(
     userId: d
       .uuid()
       .notNull()
-      .references(() => users.phone, {
+      .references(() => users.id, {
         onDelete: "set null",
       }),
     confidentiality: d.boolean().default(false),
