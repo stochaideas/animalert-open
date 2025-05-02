@@ -54,7 +54,7 @@ export function Combobox({
             onInputChange?.(e.target.value);
           }}
           onFocus={() => setOpen(true)}
-          autoComplete="off"
+          placeAutocomplete="off"
         />
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">

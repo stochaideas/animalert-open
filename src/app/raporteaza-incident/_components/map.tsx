@@ -6,37 +6,38 @@ import { Button } from "~/components/ui/simple/button";
 import { Input } from "~/components/ui/simple/input";
 import { useGeolocation } from "~/hooks/useGeolocation";
 import { api } from "~/trpc/react";
-import type { Position } from "../_types/position";
-// import AddressAutocomplete from "./address-predictions";
+import type { Coordinates } from "../../../types/coordinates";
+// import AddressplaceAutocomplete from "./address-predictions";
 
 export default function Map({
   handlePreviousPage,
   handleNextPage,
-  initialPosition,
-  onPositionChange,
+  initialCoordinates,
+  onCoordinatesChange,
 }: {
   handlePreviousPage: () => void;
   handleNextPage: () => void;
-  initialPosition?: Position | null;
-  onPositionChange?: (pos: { lat: number; lng: number } | null) => void;
+  initialCoordinates?: Coordinates | null;
+  onCoordinatesChange?: (pos: { lat: number; lng: number } | null) => void;
 }) {
-  const { position, setPosition, error } = useGeolocation(initialPosition);
+  const { coordinates, setCoordinates, error } =
+    useGeolocation(initialCoordinates);
   const [address, setAddress] = useState<string | null>(null);
 
   useEffect(() => {
-    if (onPositionChange) {
-      onPositionChange(position);
+    if (onCoordinatesChange) {
+      onCoordinatesChange(coordinates);
     }
-  }, [position, onPositionChange]);
+  }, [coordinates, onCoordinatesChange]);
 
-  const fetchedAddress = api.geolocation.getAddress.useQuery(
-    position ?? { lat: 0, lng: 0 },
-    { enabled: !!position },
+  const fetchedAddress = api.geolocation.mapsGeocode.useQuery(
+    coordinates ?? { lat: 0, lng: 0 },
+    { enabled: !!coordinates },
   );
 
   useEffect(() => {
     if (fetchedAddress.data) {
-      setAddress(fetchedAddress.data.formatted_address);
+      setAddress(fetchedAddress.data.formattedAddress);
     }
   }, [fetchedAddress.data]);
 
@@ -68,11 +69,17 @@ export default function Map({
             />
           </div>
           <section className="border-tertiary-border mb-4 h-[600px] rounded-md border-1 lg:hidden">
-            <GoogleMap position={position} setPosition={setPosition} />
+            <GoogleMap
+              coordinates={coordinates}
+              setCoordinates={setCoordinates}
+            />
           </section>
         </section>
         <section className="border-tertiary-border mb-4 hidden h-[600px] rounded-md border-1 lg:block">
-          <GoogleMap position={position} setPosition={setPosition} />
+          <GoogleMap
+            coordinates={coordinates}
+            setCoordinates={setCoordinates}
+          />
         </section>
       </div>
       <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse md:justify-start">

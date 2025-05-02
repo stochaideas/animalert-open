@@ -12,7 +12,7 @@ import { contactFormSchema } from "./_utils/contact-form-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
-import type { Position } from "./_types/position";
+import type { Coordinates } from "../../types/coordinates";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -49,7 +49,7 @@ export default function IncidentReport() {
   });
 
   // MAP
-  const [mapPosition, setMapPosition] = useState<Position | null>(null);
+  const [mapPosition, setMapPosition] = useState<Coordinates | null>(null);
 
   const handleContactImageChange = (
     e: ChangeEvent<HTMLInputElement>,

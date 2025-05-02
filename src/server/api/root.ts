@@ -1,5 +1,5 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
-import { geolocationRouter } from "./routers/geolocation";
+import { geolocationRouter } from "./modules/geolocation/geolocation.router";
 
 /**
  * This is the primary router for your server.
