@@ -8,6 +8,13 @@
       "when": 1743442042810,
       "tag": "0000_cheerful_luckman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1746126176517,
+      "tag": "0001_clever_boomer",
+      "breakpoints": true
     }
   ]
 }

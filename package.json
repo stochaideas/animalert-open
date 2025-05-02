@@ -43,6 +43,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "drizzle-orm": "^0.41.0",
+    "drizzle-zod": "^0.7.1",
     "google-libphonenumber": "^3.2.40",
     "lucide-react": "^0.486.0",
     "next": "^15.2.3",
