@@ -25,14 +25,15 @@ export default function Contact({
   contactImagePreviews,
   handleContactImageChange,
   onContactSubmit,
+  isPending,
 }: {
   handlePreviousPage: () => void;
   contactForm: ReturnType<typeof useForm<z.infer<typeof contactFormSchema>>>;
   contactImagePreviews: {
-    image1: string | undefined;
-    image2: string | undefined;
-    image3: string | undefined;
-    image4: string | undefined;
+    image1: File | undefined;
+    image2: File | undefined;
+    image3: File | undefined;
+    image4: File | undefined;
   };
   handleContactImageChange: (
     e: ChangeEvent<HTMLInputElement>,
@@ -40,56 +41,64 @@ export default function Contact({
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => void;
   onContactSubmit: (data: z.infer<typeof contactFormSchema>) => void;
+  isPending?: boolean;
 }) {
   const ImageFormField: React.FC<{
     image: "image1" | "image2" | "image3" | "image4";
-  }> = ({ image }) => (
-    <FormField
-      control={contactForm.control}
-      name={image}
-      render={({ field }) => (
-        <FormItem className="flex-1">
-          <FormControl>
-            <Input
-              id={image}
-              className="hidden"
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                handleContactImageChange(e, image, field.onChange)
-              }
-            />
-          </FormControl>
-          <Label htmlFor={image}>
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                height: "116px",
-                aspectRatio: "1/1", // or "16/9" or any aspect ratio you want
-                borderRadius: "8px", // optional, for rounded corners
-                overflow: "hidden", // optional, for clean edges
-              }}
-            >
-              <Image
-                alt="Imagine cu incidentul"
-                src={
-                  contactImagePreviews[image] ??
-                  "/images/incident-report-image-placeholder.png"
+  }> = ({ image }) => {
+    let imageUrl: string | undefined;
+
+    if (contactImagePreviews[image]) {
+      imageUrl = URL.createObjectURL(contactImagePreviews[image]);
+    }
+
+    return (
+      <FormField
+        control={contactForm.control}
+        name={image}
+        render={({ field }) => (
+          <FormItem className="flex-1">
+            <FormControl>
+              <Input
+                id={image}
+                className="hidden"
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  handleContactImageChange(e, image, field.onChange)
                 }
-                fill
-                style={{
-                  objectFit: contactImagePreviews[image] ? "cover" : "contain",
-                  background: "#e3e3e3",
-                }}
               />
-            </div>
-          </Label>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
+            </FormControl>
+            <Label htmlFor={image}>
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  height: "116px",
+                  aspectRatio: "1/1", // or "16/9" or any aspect ratio you want
+                  borderRadius: "8px", // optional, for rounded corners
+                  overflow: "hidden", // optional, for clean edges
+                }}
+              >
+                <Image
+                  alt="Imagine cu incidentul"
+                  src={
+                    imageUrl ?? "/images/incident-report-image-placeholder.png"
+                  }
+                  fill
+                  style={{
+                    objectFit: imageUrl ? "cover" : "contain",
+                    background: "#e3e3e3",
+                  }}
+                />
+              </div>
+            </Label>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    );
+  };
 
   return (
     <>
@@ -215,19 +224,19 @@ export default function Contact({
               />
               <FormField
                 control={contactForm.control}
-                name="receiveOtherCaseUpdates"
+                name="receiveOtherIncidentUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
                     <FormControl>
                       <Checkbox
                         className="mt-1"
-                        id="receiveOtherCaseUpdates"
+                        id="receiveOtherIncidentUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
                     <Label
-                      htmlFor="receiveOtherCaseUpdates"
+                      htmlFor="receiveOtherIncidentUpdates"
                       className="text-body-small"
                     >
                       Vreau să fiu contactat pe WhatsApp despre alte cazuri și
@@ -238,19 +247,19 @@ export default function Contact({
               />
               <FormField
                 control={contactForm.control}
-                name="receiveCaseUpdates"
+                name="receiveIncidentUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
                     <FormControl>
                       <Checkbox
                         className="mt-1"
-                        id="receiveCaseUpdates"
+                        id="receiveIncidentUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
                     <Label
-                      htmlFor="receiveCaseUpdates"
+                      htmlFor="receiveIncidentUpdates"
                       className="text-body-small"
                     >
                       Vreau să primesc update pe email despre caz
@@ -282,8 +291,15 @@ export default function Contact({
               variant="primary"
               size="md"
               type="submit"
+              disabled={isPending}
             >
-              Salvează și continuă <SVGArrowRight />
+              {isPending ? (
+                <>Se salvează</>
+              ) : (
+                <>
+                  Salvează și continuă <SVGArrowRight />
+                </>
+              )}
             </Button>
             <Button
               className="m-0 w-full sm:w-auto"

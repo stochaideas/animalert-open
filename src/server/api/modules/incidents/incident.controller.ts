@@ -1,7 +1,7 @@
 import { IncidentService } from "./incident.service";
 import { TRPCError } from "@trpc/server";
 import {
-  type insertIncidentWithUserSchema,
+  type upsertIncidentWithUserSchema,
   type insertIncidentSchema,
 } from "./incident.schema";
 import { type z } from "zod";
@@ -28,10 +28,10 @@ export class IncidentController {
     return incident;
   }
 
-  async createIncidentWithUser(
-    data: z.infer<typeof insertIncidentWithUserSchema>,
+  async upsertIncidentWithUser(
+    data: z.infer<typeof upsertIncidentWithUserSchema>,
   ) {
-    return this.incidentService.createIncidentWithUser(data);
+    return this.incidentService.upsertIncidentWithUser(data);
   }
 
   async updateIncident(

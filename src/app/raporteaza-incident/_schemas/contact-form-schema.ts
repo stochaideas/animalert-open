@@ -18,8 +18,8 @@ export const contactFormSchema = z.object({
   confidentiality: z.boolean().refine((val) => val === true, {
     message: "Trebuie să accepți Politica de confidențialitate",
   }),
-  receiveCaseUpdates: z.boolean().optional(),
-  receiveOtherCaseUpdates: z.boolean().optional(),
+  receiveIncidentUpdates: z.boolean().optional(),
+  receiveOtherIncidentUpdates: z.boolean().optional(),
   image1: z
     .instanceof(File, {
       message: "Fișierul trebuie să fie o imagine",

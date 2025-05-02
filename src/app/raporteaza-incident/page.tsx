@@ -1,21 +1,26 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
-import Disclaimer from "./_components/disclaimer";
-import { Button } from "~/components/ui/simple/button";
-import { MaterialStepper } from "../../components/ui/complex/stepper";
-import { redirect } from "next/navigation";
-import Contact from "./_components/contact";
-import Map from "./_components/map";
-import ChatBot from "./_components/chat-bot";
-import { contactFormSchema } from "./_schemas/contact-form-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
+import { redirect } from "next/navigation";
+
+import Disclaimer from "./_components/disclaimer";
+import Contact from "./_components/contact";
+import Map from "./_components/map";
+import ChatBot from "./_components/chat-bot";
+import { Button } from "~/components/ui/simple/button";
+import { MaterialStepper } from "../../components/ui/complex/stepper";
+
+import { contactFormSchema } from "./_schemas/contact-form-schema";
 import type { Coordinates } from "../../types/coordinates";
+import { api } from "~/trpc/react";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
+  const [incidentId, setIncidentId] = useState<string | undefined>(undefined);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
 
   // DISCLAIMER
   const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
@@ -30,8 +35,8 @@ export default function IncidentReport() {
       phone: "",
       email: undefined,
       confidentiality: false,
-      receiveCaseUpdates: false,
-      receiveOtherCaseUpdates: false,
+      receiveIncidentUpdates: false,
+      receiveOtherIncidentUpdates: false,
       image1: undefined,
       image2: undefined,
       image3: undefined,
@@ -41,7 +46,12 @@ export default function IncidentReport() {
     reValidateMode: "onChange",
   });
 
-  const [contactImagePreviews, setContactImagePreviews] = useState({
+  const [contactImagePreviews, setContactImagePreviews] = useState<{
+    image1: File | undefined;
+    image2: File | undefined;
+    image3: File | undefined;
+    image4: File | undefined;
+  }>({
     image1: undefined,
     image2: undefined,
     image3: undefined,
@@ -53,6 +63,53 @@ export default function IncidentReport() {
     null,
   );
 
+  const utils = api.useUtils();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { mutateAsync, isPending, error } = api.incident.create.useMutation({
+    onSuccess: () => {
+      void utils.incident.invalidate();
+    },
+  });
+
+  // Submit handler for the contact form
+  async function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
+    try {
+      const result = await mutateAsync({
+        user: {
+          id: userId,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          phone: values.phone,
+          email: values.email,
+          receiveOtherIncidentUpdates:
+            values.receiveOtherIncidentUpdates ?? false,
+        },
+        incident: {
+          id: incidentId,
+          receiveIncidentUpdates: values.receiveIncidentUpdates ?? false,
+          latitude: mapCoordinates?.lat ?? 0,
+          longitude: mapCoordinates?.lng ?? 0,
+          imageUrls: [
+            values.image1,
+            values.image2,
+            values.image3,
+            values.image4,
+          ],
+        },
+      });
+
+      if (!incidentId) {
+        setIncidentId(result?.id);
+        setUserId(result?.userId);
+      }
+
+      handleNextPage();
+    } catch (error) {
+      // Error handled by TRPC
+      console.log(error);
+    }
+  }
+
   const handleContactImageChange = (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
@@ -60,23 +117,13 @@ export default function IncidentReport() {
   ) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
-      const url = URL.createObjectURL(file);
       setContactImagePreviews((prev) => ({
         ...prev,
-        [name]: url,
+        [name]: file,
       }));
       fieldOnChange(file); // Update react-hook-form state
     }
   };
-
-  // Submit handler for the contact form
-  function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-
-    handleNextPage();
-  }
 
   const handleNextPage = () => {
     window.scrollTo({
@@ -132,6 +179,7 @@ export default function IncidentReport() {
             contactImagePreviews={contactImagePreviews}
             handleContactImageChange={handleContactImageChange}
             onContactSubmit={onContactSubmit}
+            isPending={isPending}
           />
         );
       case 2:

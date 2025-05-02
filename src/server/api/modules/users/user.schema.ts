@@ -18,6 +18,7 @@ export const users = pgTable(
       .notNull()
       .unique(),
     email: d.varchar({ length: 255 }).unique(),
+    receiveOtherIncidentUpdates: d.boolean().default(false),
     createdAt: d.timestamp({ withTimezone: true }).defaultNow(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),

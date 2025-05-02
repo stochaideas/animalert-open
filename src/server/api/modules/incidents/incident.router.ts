@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { IncidentController } from "./incident.controller";
 import {
   insertIncidentSchema,
-  insertIncidentWithUserSchema,
+  upsertIncidentWithUserSchema,
 } from "./incident.schema";
 
 const incidentController = new IncidentController();
@@ -20,9 +20,9 @@ export const incidentRouter = createTRPCRouter({
     }),
 
   create: publicProcedure
-    .input(insertIncidentWithUserSchema)
+    .input(upsertIncidentWithUserSchema)
     .mutation(({ input }) => {
-      return incidentController.createIncidentWithUser(input);
+      return incidentController.upsertIncidentWithUser(input);
     }),
 
   update: publicProcedure

@@ -28,21 +28,47 @@ export class IncidentService {
     return result[0];
   }
 
-  async createIncidentWithUser(data: {
+  async upsertIncidentWithUser(data: {
     user: {
-      id: string;
+      id?: string;
       firstName: string;
       lastName: string;
       phone: string;
-      email?: string | null;
+      email?: string;
+      receiveOtherIncidentUpdates: boolean | null;
     };
     incident: {
-      confidentiality: boolean;
+      id?: string;
       latitude: number;
       longitude: number;
+      receiveIncidentUpdates: boolean;
+      imageUrls: (File | undefined)[];
     };
   }) {
     return db.transaction(async (tx) => {
+      if (data.incident.id) {
+        if (!data.user.id) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "User ID is required for updating the user",
+          });
+        }
+        await tx.update(users).set(data.user).where(eq(users.id, data.user.id));
+
+        const [incident] = await tx
+          .update(incidents)
+          .set({
+            ...data.incident,
+            imageUrls: data.incident.imageUrls
+              .filter((url): url is File => url !== undefined)
+              .map((file) => file.name),
+          })
+          .where(eq(incidents.id, data.incident.id))
+          .returning();
+
+        return incident;
+      }
+
       // Normalize input data phone number before checking and inserting
       const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
 
@@ -84,9 +110,9 @@ export class IncidentService {
         .insert(incidents)
         .values({
           userId: user.id,
-          confidentiality: data.incident.confidentiality,
           latitude: data.incident.latitude,
           longitude: data.incident.longitude,
+          receiveIncidentUpdates: data.incident.receiveIncidentUpdates,
         })
         .returning();
 
