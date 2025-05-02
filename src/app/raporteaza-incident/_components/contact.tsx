@@ -17,7 +17,7 @@ import {
 import { Input } from "~/components/ui/simple/input";
 import { type ChangeEvent } from "react";
 import Image from "next/image";
-import { type contactFormSchema } from "../_utils/contact-form-schema";
+import { type contactFormSchema } from "../_schemas/contact-form-schema";
 
 export default function Contact({
   handlePreviousPage,

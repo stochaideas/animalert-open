@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import Contact from "./_components/contact";
 import Map from "./_components/map";
 import ChatBot from "./_components/chat-bot";
-import { contactFormSchema } from "./_utils/contact-form-schema";
+import { contactFormSchema } from "./_schemas/contact-form-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";

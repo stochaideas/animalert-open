@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import { SVGBotAvatar, SVGCross } from "~/components/icons";
-import { CONVERSATION } from "../_utils/chat-bot-conversation";
+import { CONVERSATION } from "../_constants/chat-bot-conversation";
 
 export default function ChatBot() {
   const [step, setStep] = useState(0);
