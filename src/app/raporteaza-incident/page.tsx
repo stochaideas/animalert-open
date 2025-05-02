@@ -49,7 +49,9 @@ export default function IncidentReport() {
   });
 
   // MAP
-  const [mapPosition, setMapPosition] = useState<Coordinates | null>(null);
+  const [mapCoordinates, setMapCoordinates] = useState<Coordinates | null>(
+    null,
+  );
 
   const handleContactImageChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -137,8 +139,8 @@ export default function IncidentReport() {
           <Map
             handlePreviousPage={handlePreviousPage}
             handleNextPage={handleNextPage}
-            initialPosition={mapPosition}
-            onPositionChange={setMapPosition}
+            initialCoordinates={mapCoordinates}
+            onCoordinatesChange={setMapCoordinates}
           />
         );
       case 3:
