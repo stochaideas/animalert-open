@@ -2,7 +2,8 @@ import { sql } from "drizzle-orm";
 import { pgTable, index } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
-import { users } from "../users/user.schema";
+import { users, insertUserSchema } from "../users/user.schema";
+import { z } from "zod";
 
 export const incidents = pgTable(
   "incidents",
@@ -11,23 +12,34 @@ export const incidents = pgTable(
       .uuid()
       .primaryKey()
       .default(sql`gen_random_uuid()`),
-    userId: d
+    userPhone: d
       .uuid()
-      .notNull() // Explicit NOT NULL constraint
-      .references(() => users.id, {
-        onDelete: "cascade",
-        onUpdate: "restrict",
+      .notNull()
+      .references(() => users.phone, {
+        onDelete: "set null",
       }),
     confidentiality: d.boolean().default(false),
-    latitude: d.numeric({ precision: 12, scale: 8 }),
-    longitude: d.numeric({ precision: 12, scale: 8 }),
+    latitude: d.doublePrecision(),
+    longitude: d.doublePrecision(),
     createdAt: d.timestamp({ withTimezone: true }).defaultNow(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
-  (t) => [index("user_idx").on(t.userId)],
+  (t) => [index("user_idx").on(t.userPhone)],
 );
 
-// Create Zod schemas for type validation
+export const insertIncidentWithUserSchema = z.object({
+  user: insertUserSchema.pick({
+    firstName: true,
+    lastName: true,
+    phone: true,
+    email: true,
+  }),
+  incident: z.object({
+    confidentiality: z.boolean(),
+    latitude: z.number(),
+    longitude: z.number(),
+  }),
+});
 export const insertIncidentSchema = createInsertSchema(incidents);
 export const selectIncidentSchema = createSelectSchema(incidents);
 

@@ -11,7 +11,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 // Incident belongs to user
 export const incidentsRelations = relations(incidents, ({ one }) => ({
   user: one(users, {
-    fields: [incidents.userId],
-    references: [users.id],
+    fields: [incidents.userPhone],
+    references: [users.phone],
   }),
 }));

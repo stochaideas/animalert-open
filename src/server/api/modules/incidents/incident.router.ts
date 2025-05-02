@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { IncidentController } from "./incident.controller";
-import { insertIncidentSchema } from "./incident.schema";
+import {
+  insertIncidentSchema,
+  insertIncidentWithUserSchema,
+} from "./incident.schema";
 
 const incidentController = new IncidentController();
 
@@ -16,9 +19,11 @@ export const incidentRouter = createTRPCRouter({
       return incidentController.getIncidentById(input.id);
     }),
 
-  create: publicProcedure.input(insertIncidentSchema).mutation(({ input }) => {
-    return incidentController.createIncident(input);
-  }),
+  create: publicProcedure
+    .input(insertIncidentWithUserSchema)
+    .mutation(({ input }) => {
+      return incidentController.createIncidentWithUser(input);
+    }),
 
   update: publicProcedure
     .input(

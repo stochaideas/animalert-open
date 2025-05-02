@@ -25,6 +25,12 @@ export class UserController {
     return user;
   }
 
+  async getUserByPhone(phone: string) {
+    const user = await this.userService.findByPhone(phone);
+
+    return user;
+  }
+
   async createUser(userData: z.infer<typeof insertUserSchema>) {
     return this.userService.create(userData);
   }
