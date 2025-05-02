@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { pgTable, index } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
-import { users, insertUserSchema } from "../users/user.schema";
+import { users, selectUserSchema } from "../users/user.schema";
 import { z } from "zod";
 
 export const incidents = pgTable(
@@ -12,7 +12,7 @@ export const incidents = pgTable(
       .uuid()
       .primaryKey()
       .default(sql`gen_random_uuid()`),
-    userPhone: d
+    userId: d
       .uuid()
       .notNull()
       .references(() => users.phone, {
@@ -24,11 +24,12 @@ export const incidents = pgTable(
     createdAt: d.timestamp({ withTimezone: true }).defaultNow(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
-  (t) => [index("user_idx").on(t.userPhone)],
+  (t) => [index("user_idx").on(t.userId)],
 );
 
 export const insertIncidentWithUserSchema = z.object({
-  user: insertUserSchema.pick({
+  user: selectUserSchema.pick({
+    id: true,
     firstName: true,
     lastName: true,
     phone: true,

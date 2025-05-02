@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
 import { users, type InsertUser, type User } from "./user.schema";
+import { normalizePhoneNumber } from "~/lib/phone";
 
 export class UserService {
   async findAll(): Promise<User[]> {
@@ -17,7 +18,12 @@ export class UserService {
   }
 
   async findByPhone(phone: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.phone, phone));
+    const normalizedPhoneNumber = normalizePhoneNumber(phone);
+
+    const result = await db
+      .select()
+      .from(users)
+      .where(eq(users.phone, normalizedPhoneNumber));
     if (!result[0]) {
       return undefined;
     }
@@ -26,7 +32,15 @@ export class UserService {
   }
 
   async create(userData: InsertUser): Promise<User> {
-    const result = await db.insert(users).values(userData).returning();
+    const normalizedPhoneNumber = normalizePhoneNumber(userData.phone);
+
+    const result = await db
+      .insert(users)
+      .values({
+        ...userData,
+        phone: normalizedPhoneNumber,
+      })
+      .returning();
     if (!result[0]) {
       throw new Error("Failed to create user");
     }
@@ -38,9 +52,18 @@ export class UserService {
     id: string,
     userData: Partial<InsertUser>,
   ): Promise<User | undefined> {
+    let normalizedPhoneNumber = userData.phone;
+
+    if (userData.phone) {
+      normalizedPhoneNumber = normalizePhoneNumber(userData.phone);
+    }
+
     const result = await db
       .update(users)
-      .set(userData)
+      .set({
+        ...userData,
+        phone: normalizedPhoneNumber,
+      })
       .where(eq(users.id, id))
       .returning();
     return result[0];

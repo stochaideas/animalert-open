@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { UserController } from "./user.controller";
 import { insertUserSchema } from "./user.schema";
-import { phoneNumberRefine } from "~/lib/mobile-validator";
+import { phoneNumberRefine } from "~/lib/phone";
 
 const userController = new UserController();
 

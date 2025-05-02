@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { phoneNumberSchema } from "~/lib/mobile-validator";
+import { phoneNumberSchema } from "~/lib/phone";
 
 export const contactFormSchema = z.object({
   lastName: z.string().min(1, {
