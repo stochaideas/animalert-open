@@ -49,7 +49,7 @@ jobs:
       - name: Force new ECS deployment
         run: |
               aws ecs update-service \
-                --cluster  ${{ env.ECR_CLUSTER }} \
+                --cluster  ${{ env.ECR_CLUSTER_NAME }} \
                 --service  ${{ env.ECR_SERVICE_NAME }} \
                 --force-new-deployment \
                 --region   eu-central-1
