@@ -42,21 +42,7 @@ export const upsertIncidentWithUserSchema = z.object({
     receiveIncidentUpdates: z.boolean(),
     latitude: z.number(),
     longitude: z.number(),
-    imageUrls: z.array(
-      z
-        .instanceof(File)
-        .refine((file) =>
-          [
-            "image/png",
-            "image/jpeg",
-            "image/jpg",
-            "image/svg+xml",
-            "image/gif",
-            "image/webp",
-          ].includes(file.type),
-        )
-        .optional(),
-    ),
+    imageUrls: z.array(z.string()),
   }),
 });
 export const insertIncidentSchema = createInsertSchema(incidents);
