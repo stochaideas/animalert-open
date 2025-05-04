@@ -8,6 +8,7 @@ import SVGVideoCamera from "./svgs/video-camera";
 import SVGStar from "./svgs/star";
 import SVGPhone from "./svgs/phone";
 import SVGCross from "./svgs/cross";
+import SVGPaperPlane from "./svgs/paper-plane";
 
 // Social media icons
 import SVGInstagram from "./svgs/instagram";
@@ -36,6 +37,7 @@ export {
   SVGArrowRight,
   SVGArrowLeft,
   SVGCross,
+  SVGPaperPlane,
 
   // Social media
   SVGInstagram,

@@ -10,9 +10,21 @@ import {
   FormField,
   FormItem,
   FormMessage,
+  FormControl,
+  FormLabel,
 } from "~/components/ui/simple/form";
-import { FormControl, FormLabel } from "@mui/material";
 import { Input } from "~/components/ui/simple/input";
+import { Textarea } from "~/components/ui/simple/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/simple/select";
+import { COUNTIES } from "~/constants/counties";
+import { Button } from "~/components/ui/simple/button";
+import { SVGPaperPlane } from "~/components/icons";
 
 export default function Contact() {
   const contactForm = useForm<z.infer<typeof contactFormSchema>>({
@@ -21,8 +33,8 @@ export default function Contact() {
       lastName: "",
       firstName: "",
       phone: "",
-      email: undefined,
-      county: "CJ",
+      email: "",
+      county: undefined,
       message: "",
     },
     mode: "onChange",
@@ -46,7 +58,6 @@ export default function Contact() {
           Împreună protejăm și ajutăm fauna sălbatică!
         </p>
         <div className="grid h-full gap-3 md:grid-cols-2 md:grid-rows-2">
-          {/* Image 1 */}
           <div className="h-full w-full md:col-start-1 md:row-start-1">
             <Image
               alt="Colaborare"
@@ -56,7 +67,6 @@ export default function Contact() {
               className="h-full w-full object-cover"
             />
           </div>
-          {/* Image 2 */}
           <div className="h-full w-full md:col-start-1 md:row-start-2">
             <Image
               alt="Colaborare"
@@ -66,7 +76,6 @@ export default function Contact() {
               className="h-full w-full object-cover"
             />
           </div>
-          {/* Image 3 */}
           <div className="h-full w-full md:col-start-2 md:row-span-2 md:row-start-1">
             <Image
               alt="Colaborare"
@@ -141,7 +150,7 @@ export default function Contact() {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Număr de telefon"
+                          placeholder="Ex: 0745 234 566"
                           className="p-6"
                           {...field}
                         />
@@ -160,7 +169,7 @@ export default function Contact() {
                       <FormLabel>Adresă email</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Adresă de email"
+                          placeholder="Ex: cris.popescu@email.com"
                           className="p-6"
                           {...field}
                         />
@@ -179,13 +188,29 @@ export default function Contact() {
                       <FormLabel>
                         Localizare (zona în care poți să activezi)
                       </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Selectează Județ"
-                          className="p-6"
-                          {...field}
-                        />
-                      </FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full p-6 hover:cursor-pointer">
+                            <SelectValue placeholder="Selectează Județ" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-neutral">
+                          {Object.entries(COUNTIES).map(
+                            ([countyCode, countyName]) => (
+                              <SelectItem
+                                className="hover:bg-neutral-hover hover:cursor-pointer"
+                                key={countyCode}
+                                value={countyCode}
+                              >
+                                {countyName}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -199,9 +224,9 @@ export default function Contact() {
                     <FormItem>
                       <FormLabel>Mesaj</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Adresă de email"
-                          className="p-6"
+                        <Textarea
+                          placeholder="Scrie aici mesajul tău..."
+                          className="resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -210,6 +235,14 @@ export default function Contact() {
                   )}
                 />
               </div>
+              <Button
+                className="m-0 w-full sm:w-auto"
+                variant="secondary"
+                size="md"
+                type="submit"
+              >
+                <SVGPaperPlane /> Trimite Mesaj
+              </Button>
             </section>
           </section>
         </Form>

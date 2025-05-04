@@ -10,9 +10,18 @@ export const contactFormSchema = z.object({
     message: "Prenumele este necesar",
   }),
   phone: phoneNumberSchema,
-  email: z.string().email({
-    message: "Adresa de email nu este validă",
+  email: z
+    .string()
+    .email({
+      message: "Adresa de email nu este validă",
+    })
+    .min(1, {
+      message: "Adresa de email este necesară",
+    }),
+  county: z.enum(Object.keys(COUNTIES) as [string, ...string[]], {
+    errorMap: () => ({ message: "Județul este necesar" }),
   }),
-  county: z.enum(Object.keys(COUNTIES) as [string, ...string[]]),
-  message: z.string(),
+  message: z.string().min(1, {
+    message: "Mesajul este necesar",
+  }),
 });
