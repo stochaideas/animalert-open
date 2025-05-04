@@ -1,33 +1,12 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
 
-import {
-  incidents,
-  type InsertIncident,
-  type Incident,
-} from "./incident.schema";
+import { incidents } from "./incident.schema";
 import { users } from "../users/user.schema";
 import { TRPCError } from "@trpc/server";
 import { normalizePhoneNumber } from "~/lib/phone";
 
 export class IncidentService {
-  async findAll(): Promise<Incident[]> {
-    return db.select().from(incidents);
-  }
-
-  async findById(id: string): Promise<Incident | undefined> {
-    const result = await db
-      .select()
-      .from(incidents)
-      .where(eq(incidents.id, id));
-
-    if (!result[0]) {
-      throw new Error("Incident not found");
-    }
-
-    return result[0];
-  }
-
   async upsertIncidentWithUser(data: {
     user: {
       id?: string;
@@ -118,24 +97,5 @@ export class IncidentService {
 
       return incident;
     });
-  }
-
-  async update(
-    id: string,
-    incidentData: Partial<InsertIncident>,
-  ): Promise<Incident | undefined> {
-    const result = await db
-      .update(incidents)
-      .set(incidentData)
-      .where(eq(incidents.id, id))
-      .returning();
-
-    return result[0];
-  }
-
-  async delete(id: string): Promise<boolean> {
-    const result = await db.delete(incidents).where(eq(incidents.id, id));
-
-    return !!result;
   }
 }
