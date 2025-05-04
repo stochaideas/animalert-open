@@ -26,6 +26,9 @@ export const s3Router = createTRPCRouter({
         ContentType: input.fileType,
       });
 
-      return await getSignedUrl(s3, command, { expiresIn: 3600 });
+      const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+
+      const publicUrl = `https://${env.S3_BUCKET_NAME}.s3.${env.AWS_REGION}.amazonaws.com/${key}`;
+      return { url: signedUrl, publicUrl }; // Update return type
     }),
 });

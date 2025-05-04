@@ -22,14 +22,14 @@ import { type contactFormSchema } from "../_schemas/contact-form-schema";
 export default function Contact({
   handlePreviousPage,
   contactForm,
-  contactImagePreviews,
+  contactImageFiles,
   handleContactImageChange,
   onContactSubmit,
   isPending,
 }: {
   handlePreviousPage: () => void;
   contactForm: ReturnType<typeof useForm<z.infer<typeof contactFormSchema>>>;
-  contactImagePreviews: {
+  contactImageFiles: {
     image1: File | undefined;
     image2: File | undefined;
     image3: File | undefined;
@@ -48,8 +48,8 @@ export default function Contact({
   }> = ({ image }) => {
     let imageUrl: string | undefined;
 
-    if (contactImagePreviews[image]) {
-      imageUrl = URL.createObjectURL(contactImagePreviews[image]);
+    if (contactImageFiles[image]) {
+      imageUrl = URL.createObjectURL(contactImageFiles[image]);
     }
 
     return (
@@ -277,7 +277,7 @@ export default function Contact({
               fotografii atât cu animalul cât și cu incidentul.
             </p>
             <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-              {Object.keys(contactImagePreviews).map((key) => (
+              {Object.keys(contactImageFiles).map((key) => (
                 <ImageFormField
                   key={key}
                   image={key as "image1" | "image2" | "image3" | "image4"}

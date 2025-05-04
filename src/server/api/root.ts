@@ -3,6 +3,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { geolocationRouter } from "./modules/geolocation/geolocation.router";
 import { incidentRouter } from "./modules/incidents/incident.router";
 import { userRouter } from "./modules/users/user.router";
+import { s3Router } from "./modules/s3/s3.router";
 
 /**
  * This is the primary router for your server.
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   user: userRouter,
   incident: incidentRouter,
   geolocation: geolocationRouter,
+  s3: s3Router,
 });
 
 // export type definition of API

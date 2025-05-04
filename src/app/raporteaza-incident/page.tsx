@@ -16,6 +16,7 @@ import { MaterialStepper } from "../../components/ui/complex/stepper";
 import { contactFormSchema } from "./_schemas/contact-form-schema";
 import type { Coordinates } from "../../types/coordinates";
 import { api } from "~/trpc/react";
+import { TRPCError } from "@trpc/server";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -46,7 +47,7 @@ export default function IncidentReport() {
     reValidateMode: "onChange",
   });
 
-  const [contactImagePreviews, setContactImagePreviews] = useState<{
+  const [contactImageFiles, setContactImageFiles] = useState<{
     image1: File | undefined;
     image2: File | undefined;
     image3: File | undefined;
@@ -64,37 +65,86 @@ export default function IncidentReport() {
   );
 
   const utils = api.useUtils();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { mutateAsync, isPending, error } = api.incident.create.useMutation({
+  const {
+    mutateAsync: mutateIncidentAsync,
+    isPending: incidentIsPending,
+    // error: incidentError,
+  } = api.incident.create.useMutation({
     onSuccess: () => {
       void utils.incident.invalidate();
     },
   });
 
+  const {
+    mutateAsync: mutateS3Async,
+    // isPending: s3IsPending,
+    // error: s3Error,
+  } = api.s3.getPresignedUrl.useMutation({
+    onSuccess: () => {
+      void utils.s3.invalidate();
+    },
+  });
+
+  async function handleImageUpload(files: (File | undefined)[]) {
+    try {
+      const urls = await Promise.all(
+        Array.from(files).map(async (file) => {
+          if (!file) return null;
+
+          if (!userId || !incidentId) {
+            throw new Error("User ID or Incident ID is not defined");
+          }
+
+          const { url } = await mutateS3Async({
+            userId: userId,
+            incidentId: incidentId,
+            fileName: file.name,
+            fileType: file.type,
+          });
+
+          await fetch(url, {
+            method: "PUT",
+            body: file,
+            headers: { "Content-Type": file.type },
+          });
+
+          return url.split("?")[0]; // Get permanent URL
+        }),
+      );
+
+      return urls;
+    } catch (error) {
+      contactForm.setError("root", {
+        message:
+          error instanceof Error ? error.message : "Failed to upload images",
+      });
+      throw error;
+    }
+  }
+
   // Submit handler for the contact form
   async function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
     try {
-      const result = await mutateAsync({
+      // 1. Upload images first
+      const imageUrls = await handleImageUpload(
+        Object.values(contactImageFiles),
+      );
+
+      const result = await mutateIncidentAsync({
         user: {
           id: userId,
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
           email: values.email,
-          receiveOtherIncidentUpdates:
-            values.receiveOtherIncidentUpdates ?? false,
+          receiveOtherIncidentUpdates: values.receiveOtherIncidentUpdates,
         },
         incident: {
           id: incidentId,
-          receiveIncidentUpdates: values.receiveIncidentUpdates ?? false,
-          latitude: mapCoordinates?.lat ?? 0,
-          longitude: mapCoordinates?.lng ?? 0,
-          imageUrls: [
-            values.image1,
-            values.image2,
-            values.image3,
-            values.image4,
-          ],
+          receiveIncidentUpdates: values.receiveIncidentUpdates,
+          latitude: mapCoordinates?.lat,
+          longitude: mapCoordinates?.lng,
+          imageUrls: imageUrls?.filter((url): url is string => !!url) ?? [],
         },
       });
 
@@ -105,8 +155,23 @@ export default function IncidentReport() {
 
       handleNextPage();
     } catch (error) {
-      // Error handled by TRPC
-      console.log(error);
+      if (error instanceof TRPCError) {
+        contactForm.setError("root", {
+          message: error.message,
+        });
+
+        // Handle field-specific errors
+        if (
+          "path" in error &&
+          typeof error.path === "string" &&
+          (error.path.startsWith("user.") || error.path.startsWith("incident"))
+        ) {
+          const field = error.path.split(".")[1];
+          contactForm.setError(field as keyof typeof values, {
+            message: error.message,
+          });
+        }
+      }
     }
   }
 
@@ -117,7 +182,7 @@ export default function IncidentReport() {
   ) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
-      setContactImagePreviews((prev) => ({
+      setContactImageFiles((prev) => ({
         ...prev,
         [name]: file,
       }));
@@ -176,10 +241,10 @@ export default function IncidentReport() {
           <Contact
             handlePreviousPage={handlePreviousPage}
             contactForm={contactForm}
-            contactImagePreviews={contactImagePreviews}
+            contactImageFiles={contactImageFiles}
             handleContactImageChange={handleContactImageChange}
             onContactSubmit={onContactSubmit}
-            isPending={isPending}
+            isPending={incidentIsPending}
           />
         );
       case 2:
