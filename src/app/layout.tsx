@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.className}`}>
       <body>
-        <main className="bg-neutral flex min-h-screen flex-col items-stretch justify-between">
+        <main className="bg-neutral flex min-h-screen flex-col items-stretch justify-between lg:h-screen">
           <Navbar />
           <TRPCReactProvider>{children}</TRPCReactProvider>
           <Footer />

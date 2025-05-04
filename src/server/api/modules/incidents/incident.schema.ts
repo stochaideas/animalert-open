@@ -16,7 +16,7 @@ export const incidents = pgTable(
       .uuid()
       .notNull()
       .references(() => users.id, {
-        onDelete: "set null",
+        onDelete: "cascade",
       }),
     receiveIncidentUpdates: d.boolean().default(false),
     latitude: d.doublePrecision(),
