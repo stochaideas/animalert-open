@@ -17,18 +17,18 @@ import {
 import { Input } from "~/components/ui/simple/input";
 import { type ChangeEvent } from "react";
 import Image from "next/image";
-import { type contactFormSchema } from "../_schemas/contact-form-schema";
+import { type incidentFormSchema } from "../_schemas/incident-form-schema";
 
 export default function Contact({
   handlePreviousPage,
-  contactForm,
+  incidentForm,
   contactImageFiles,
   handleContactImageChange,
   onContactSubmit,
   isPending,
 }: {
   handlePreviousPage: () => void;
-  contactForm: ReturnType<typeof useForm<z.infer<typeof contactFormSchema>>>;
+  incidentForm: ReturnType<typeof useForm<z.infer<typeof incidentFormSchema>>>;
   contactImageFiles: {
     image1: File | undefined;
     image2: File | undefined;
@@ -40,7 +40,7 @@ export default function Contact({
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => void;
-  onContactSubmit: (data: z.infer<typeof contactFormSchema>) => void;
+  onContactSubmit: (data: z.infer<typeof incidentFormSchema>) => void;
   isPending?: boolean;
 }) {
   const ImageFormField: React.FC<{
@@ -54,7 +54,7 @@ export default function Contact({
 
     return (
       <FormField
-        control={contactForm.control}
+        control={incidentForm.control}
         name={image}
         render={({ field }) => (
           <FormItem className="flex-1">
@@ -102,14 +102,14 @@ export default function Contact({
 
   return (
     <>
-      <form onSubmit={contactForm.handleSubmit(onContactSubmit)}>
-        <Form {...contactForm}>
+      <form onSubmit={incidentForm.handleSubmit(onContactSubmit)}>
+        <Form {...incidentForm}>
           <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Date contact</h3>
             <section className="mb-4 grid grid-cols-1 gap-8 md:grid-cols-2">
               <div className="flex-1">
                 <FormField
-                  control={contactForm.control}
+                  control={incidentForm.control}
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
@@ -131,7 +131,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={contactForm.control}
+                  control={incidentForm.control}
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
@@ -153,7 +153,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={contactForm.control}
+                  control={incidentForm.control}
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
@@ -175,7 +175,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={contactForm.control}
+                  control={incidentForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -195,7 +195,7 @@ export default function Contact({
             </section>
             <div className="flex flex-col gap-2">
               <FormField
-                control={contactForm.control}
+                control={incidentForm.control}
                 name="confidentiality"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
@@ -210,7 +210,7 @@ export default function Contact({
                     <Label
                       htmlFor="confidentiality"
                       className={`text-body-small ${
-                        contactForm.formState.errors.confidentiality &&
+                        incidentForm.formState.errors.confidentiality &&
                         "text-red-500"
                       }`}
                     >
@@ -223,7 +223,7 @@ export default function Contact({
                 )}
               />
               <FormField
-                control={contactForm.control}
+                control={incidentForm.control}
                 name="receiveOtherIncidentUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
@@ -246,7 +246,7 @@ export default function Contact({
                 )}
               />
               <FormField
-                control={contactForm.control}
+                control={incidentForm.control}
                 name="receiveIncidentUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { phoneNumberSchema } from "~/lib/phone";
 
-export const contactFormSchema = z.object({
+export const incidentFormSchema = z.object({
   lastName: z.string().min(1, {
     message: "Numele de familie este necesar",
   }),

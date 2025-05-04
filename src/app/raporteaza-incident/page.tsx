@@ -13,7 +13,7 @@ import ChatBot from "./_components/chat-bot";
 import { Button } from "~/components/ui/simple/button";
 import { MaterialStepper } from "../../components/ui/complex/stepper";
 
-import { contactFormSchema } from "./_schemas/contact-form-schema";
+import { incidentFormSchema } from "./_schemas/incident-form-schema";
 import type { Coordinates } from "../../types/coordinates";
 import { api } from "~/trpc/react";
 import { TRPCError } from "@trpc/server";
@@ -28,8 +28,8 @@ export default function IncidentReport() {
 
   // CONTACT FORM
   // Define contact form
-  const contactForm = useForm<z.infer<typeof contactFormSchema>>({
-    resolver: zodResolver(contactFormSchema),
+  const incidentForm = useForm<z.infer<typeof incidentFormSchema>>({
+    resolver: zodResolver(incidentFormSchema),
     defaultValues: {
       lastName: "",
       firstName: "",
@@ -114,7 +114,7 @@ export default function IncidentReport() {
 
       return urls;
     } catch (error) {
-      contactForm.setError("root", {
+      incidentForm.setError("root", {
         message:
           error instanceof Error ? error.message : "Failed to upload images",
       });
@@ -123,7 +123,7 @@ export default function IncidentReport() {
   }
 
   // Submit handler for the contact form
-  async function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
+  async function onContactSubmit(values: z.infer<typeof incidentFormSchema>) {
     try {
       const imageUrls = await handleImageUpload(
         Object.values(contactImageFiles),
@@ -155,7 +155,7 @@ export default function IncidentReport() {
       handleNextPage();
     } catch (error) {
       if (error instanceof TRPCError) {
-        contactForm.setError("root", {
+        incidentForm.setError("root", {
           message: error.message,
         });
 
@@ -166,7 +166,7 @@ export default function IncidentReport() {
           (error.path.startsWith("user.") || error.path.startsWith("incident"))
         ) {
           const field = error.path.split(".")[1];
-          contactForm.setError(field as keyof typeof values, {
+          incidentForm.setError(field as keyof typeof values, {
             message: error.message,
           });
         }
@@ -239,7 +239,7 @@ export default function IncidentReport() {
         return (
           <Contact
             handlePreviousPage={handlePreviousPage}
-            contactForm={contactForm}
+            incidentForm={incidentForm}
             contactImageFiles={contactImageFiles}
             handleContactImageChange={handleContactImageChange}
             onContactSubmit={onContactSubmit}
@@ -251,7 +251,7 @@ export default function IncidentReport() {
           <Map
             handlePreviousPage={handlePreviousPage}
             onMapSubmit={async () =>
-              await onContactSubmit(contactForm.getValues())
+              await onContactSubmit(incidentForm.getValues())
             }
             initialCoordinates={mapCoordinates}
             onCoordinatesChange={setMapCoordinates}
@@ -265,12 +265,12 @@ export default function IncidentReport() {
   };
 
   return (
-    <div className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
-      <main className="flex flex-col justify-center gap-12">
+    <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
+      <div className="flex flex-col justify-center gap-12">
         <h1 className="text-heading-2">Raportează incident</h1>
         <MaterialStepper currentStep={currentPage} />
         {getCurrentPage()}
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
