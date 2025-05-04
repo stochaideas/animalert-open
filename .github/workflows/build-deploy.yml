@@ -41,6 +41,9 @@ jobs:
         id: build-image
         uses: docker/build-push-action@v5
         with:
+          build-args: |
+           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+           NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: ${{ secrets.GOOGLE_MAPS_MAP_ID }}
           context: .
           push: true
           tags: |
@@ -49,7 +52,7 @@ jobs:
       - name: Force new ECS deployment
         run: |
               aws ecs update-service \
-                --cluster  ${{ env.ECR_CLUSTER }} \
+                --cluster  ${{ env.ECR_CLUSTER_NAME }} \
                 --service  ${{ env.ECR_SERVICE_NAME }} \
                 --force-new-deployment \
                 --region   eu-central-1
