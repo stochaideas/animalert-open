@@ -37,43 +37,43 @@ const navItems: {
   }[];
 }[] = [
   { title: "Acasă", href: "/" },
-  {
-    title: "Acțiuni & Info",
-    href: "/actiuni-info",
-    content: [
-      {
-        title: "Raportează prezență",
-        href: "/raporteaza-prezenta",
-        description: "Animal sălbatic viu/decedat",
-        icon: <SVGPin />,
-      },
-      {
-        title: "Conflicte & Interacțiuni",
-        href: "/recomandari",
-        description: "Info animal nedorit/periculos",
-        icon: <SVGMessageBubble />,
-      },
-      {
-        title: "Sesizări & Legalitate",
-        href: "/sesizari",
-        description: "Braconaj, ilegalități",
-        icon: <SVGPaperPage />,
-      },
-      {
-        title: "EduWild",
-        href: "/eduwild",
-        description: "Viața si lumea animalelor",
-        icon: <SVGVideoCamera />,
-      },
-      {
-        title: "Arii Naturale & Specii Protejate",
-        href: "/zone-protejate",
-        description: "Obligații, statut de protecție",
-        icon: <SVGStar />,
-      },
-    ],
-  },
-  { title: "Despre noi", href: "/despre-noi" },
+  // {
+  //   title: "Acțiuni & Info",
+  //   href: "/actiuni-info",
+  //   content: [
+  //     {
+  //       title: "Raportează prezență",
+  //       href: "/raporteaza-prezenta",
+  //       description: "Animal sălbatic viu/decedat",
+  //       icon: <SVGPin />,
+  //     },
+  //     {
+  //       title: "Conflicte & Interacțiuni",
+  //       href: "/recomandari",
+  //       description: "Info animal nedorit/periculos",
+  //       icon: <SVGMessageBubble />,
+  //     },
+  //     {
+  //       title: "Sesizări & Legalitate",
+  //       href: "/sesizari",
+  //       description: "Braconaj, ilegalități",
+  //       icon: <SVGPaperPage />,
+  //     },
+  //     {
+  //       title: "EduWild",
+  //       href: "/eduwild",
+  //       description: "Viața si lumea animalelor",
+  //       icon: <SVGVideoCamera />,
+  //     },
+  //     {
+  //       title: "Arii Naturale & Specii Protejate",
+  //       href: "/zone-protejate",
+  //       description: "Obligații, statut de protecție",
+  //       icon: <SVGStar />,
+  //     },
+  //   ],
+  // },
+  // { title: "Despre noi", href: "/despre-noi" },
   { title: "Contact", href: "/contact" },
 ];
 
@@ -83,12 +83,12 @@ const actionItems: {
   variant: "neutral" | "primary" | "secondary" | "tertiary" | undefined;
   icon: JSX.Element;
 }[] = [
-  {
-    title: "Donează",
-    href: "/doneaza",
-    variant: "neutral",
-    icon: <SVGHeart />,
-  },
+  // {
+  //   title: "Donează",
+  //   href: "/doneaza",
+  //   variant: "neutral",
+  //   icon: <SVGHeart />,
+  // },
   {
     title: "Raportează incident",
     href: "/raporteaza-incident",

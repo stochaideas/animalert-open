@@ -93,12 +93,15 @@ export default async function Home() {
               bolnav, agresat) sau într-un mediu străin. Sprijină cercetarea
               științifică cu observațiile tale.
             </p>
-            <Link href="/raporteaza-incident">
+            {/* <Link href="/raporteaza-prezenta">
               <Button className="mt-8" variant="secondary" size="md">
                 <SVGPin />
                 Raportează prezență
               </Button>
-            </Link>
+            </Link> */}
+            <Button className="mt-8" variant="secondary" size="md">
+              Modul în lucru...
+            </Button>
           </article>
         </section>
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
@@ -117,13 +120,20 @@ export default async function Home() {
               <h3 className="text-heading-3 mt-8">{card.title}</h3>
               <p className="text-body-strong mt-2">{card.strong}</p>
               <p className="text-body mt-4">{card.body}</p>
-              <div className="mt-auto pt-8">
+              {/* <div className="mt-auto pt-8">
                 <Link href={card.href}>
                   <Button variant="tertiary" size="md">
                     {card.button}
                   </Button>
                 </Link>
+              </div> */}
+              {/* TODO: temporary!!! vvv */}
+              <div className="mt-auto pt-8">
+                <Button variant="tertiary" size="md">
+                  Modul în lucru...
+                </Button>
               </div>
+              {/* TODO: temporary!!! ^^^ */}
             </div>
           ))}
         </section>

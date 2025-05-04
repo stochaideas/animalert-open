@@ -92,8 +92,8 @@ export default function Footer() {
               Adresa: Cluj-Napoca, România
             </span>
             <span className="text-single-line-body-base">
-              <Link href="mailto:ancbp.cluj@gmail.com">
-                ancbp.cluj@gmail.com
+              <Link href="mailto:ancbp.cluj[at]gmail.com">
+                ancbp.cluj[at]gmail.com
               </Link>
             </span>
           </section>
