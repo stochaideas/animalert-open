@@ -35,14 +35,14 @@ export class IncidentService {
       lastName: string;
       phone: string;
       email?: string;
-      receiveOtherIncidentUpdates: boolean | null;
+      receiveOtherIncidentUpdates: boolean;
     };
     incident: {
       id?: string;
-      latitude: number;
-      longitude: number;
+      latitude?: number;
+      longitude?: number;
       receiveIncidentUpdates: boolean;
-      imageUrls: (File | undefined)[];
+      imageUrls: (string | undefined)[];
     };
   }) {
     return db.transaction(async (tx) => {
@@ -59,9 +59,9 @@ export class IncidentService {
           .update(incidents)
           .set({
             ...data.incident,
-            imageUrls: data.incident.imageUrls
-              .filter((url): url is File => url !== undefined)
-              .map((file) => file.name),
+            imageUrls: data.incident.imageUrls.filter(
+              (url): url is string => url !== undefined,
+            ),
           })
           .where(eq(incidents.id, data.incident.id))
           .returning();
