@@ -22,25 +22,25 @@ import { type incidentFormSchema } from "../_schemas/incident-form-schema";
 export default function Contact({
   handlePreviousPage,
   incidentForm,
-  contactImageFiles,
-  handleContactImageChange,
-  onContactSubmit,
+  incidentImageFiles,
+  handleIncidentImageChange,
+  onIncidentSubmit,
   isPending,
 }: {
   handlePreviousPage: () => void;
   incidentForm: ReturnType<typeof useForm<z.infer<typeof incidentFormSchema>>>;
-  contactImageFiles: {
+  incidentImageFiles: {
     image1: File | undefined;
     image2: File | undefined;
     image3: File | undefined;
     image4: File | undefined;
   };
-  handleContactImageChange: (
+  handleIncidentImageChange: (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => void;
-  onContactSubmit: (data: z.infer<typeof incidentFormSchema>) => void;
+  onIncidentSubmit: (data: z.infer<typeof incidentFormSchema>) => void;
   isPending?: boolean;
 }) {
   const ImageFormField: React.FC<{
@@ -48,8 +48,8 @@ export default function Contact({
   }> = ({ image }) => {
     let imageUrl: string | undefined;
 
-    if (contactImageFiles[image]) {
-      imageUrl = URL.createObjectURL(contactImageFiles[image]);
+    if (incidentImageFiles[image]) {
+      imageUrl = URL.createObjectURL(incidentImageFiles[image]);
     }
 
     return (
@@ -65,7 +65,7 @@ export default function Contact({
                 type="file"
                 accept="image/*"
                 onChange={(e) =>
-                  handleContactImageChange(e, image, field.onChange)
+                  handleIncidentImageChange(e, image, field.onChange)
                 }
               />
             </FormControl>
@@ -102,7 +102,7 @@ export default function Contact({
 
   return (
     <>
-      <form onSubmit={incidentForm.handleSubmit(onContactSubmit)}>
+      <form onSubmit={incidentForm.handleSubmit(onIncidentSubmit)}>
         <Form {...incidentForm}>
           <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Date contact</h3>
@@ -277,7 +277,7 @@ export default function Contact({
               fotografii atât cu animalul cât și cu incidentul.
             </p>
             <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-              {Object.keys(contactImageFiles).map((key) => (
+              {Object.keys(incidentImageFiles).map((key) => (
                 <ImageFormField
                   key={key}
                   image={key as "image1" | "image2" | "image3" | "image4"}

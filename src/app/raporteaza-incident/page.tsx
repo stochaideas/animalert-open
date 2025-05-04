@@ -26,8 +26,8 @@ export default function IncidentReport() {
   // DISCLAIMER
   const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
 
-  // CONTACT FORM
-  // Define contact form
+  // INCIDENT FORM
+  // Define incident form
   const incidentForm = useForm<z.infer<typeof incidentFormSchema>>({
     resolver: zodResolver(incidentFormSchema),
     defaultValues: {
@@ -47,7 +47,7 @@ export default function IncidentReport() {
     reValidateMode: "onChange",
   });
 
-  const [contactImageFiles, setContactImageFiles] = useState<{
+  const [incidentImageFiles, setIncidentImageFiles] = useState<{
     image1: File | undefined;
     image2: File | undefined;
     image3: File | undefined;
@@ -122,11 +122,11 @@ export default function IncidentReport() {
     }
   }
 
-  // Submit handler for the contact form
-  async function onContactSubmit(values: z.infer<typeof incidentFormSchema>) {
+  // Submit handler for the incident form
+  async function onIncidentSubmit(values: z.infer<typeof incidentFormSchema>) {
     try {
       const imageUrls = await handleImageUpload(
-        Object.values(contactImageFiles),
+        Object.values(incidentImageFiles),
       );
 
       const result = await mutateIncidentAsync({
@@ -174,14 +174,14 @@ export default function IncidentReport() {
     }
   }
 
-  const handleContactImageChange = (
+  const handleIncidentImageChange = (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
-      setContactImageFiles((prev) => ({
+      setIncidentImageFiles((prev) => ({
         ...prev,
         [name]: file,
       }));
@@ -240,9 +240,9 @@ export default function IncidentReport() {
           <Contact
             handlePreviousPage={handlePreviousPage}
             incidentForm={incidentForm}
-            contactImageFiles={contactImageFiles}
-            handleContactImageChange={handleContactImageChange}
-            onContactSubmit={onContactSubmit}
+            incidentImageFiles={incidentImageFiles}
+            handleIncidentImageChange={handleIncidentImageChange}
+            onIncidentSubmit={onIncidentSubmit}
             isPending={incidentIsPending}
           />
         );
@@ -251,7 +251,7 @@ export default function IncidentReport() {
           <Map
             handlePreviousPage={handlePreviousPage}
             onMapSubmit={async () =>
-              await onContactSubmit(incidentForm.getValues())
+              await onIncidentSubmit(incidentForm.getValues())
             }
             initialCoordinates={mapCoordinates}
             onCoordinatesChange={setMapCoordinates}

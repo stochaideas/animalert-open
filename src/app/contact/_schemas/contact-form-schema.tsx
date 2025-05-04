@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { COUNTIES } from "~/constants/counties";
 import { phoneNumberSchema } from "~/lib/phone";
 
 export const contactFormSchema = z.object({
@@ -9,12 +10,9 @@ export const contactFormSchema = z.object({
     message: "Prenumele este necesar",
   }),
   phone: phoneNumberSchema,
-  email: z
-    .string()
-    .email({
-      message: "Adresa de email nu este validă",
-    })
-    .optional(),
-  county: z.string().default("Cluj"),
+  email: z.string().email({
+    message: "Adresa de email nu este validă",
+  }),
+  county: z.enum(Object.keys(COUNTIES) as [string, ...string[]]),
   message: z.string(),
 });
