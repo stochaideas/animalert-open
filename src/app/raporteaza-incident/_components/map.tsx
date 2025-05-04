@@ -11,12 +11,12 @@ import type { Coordinates } from "../../../types/coordinates";
 
 export default function Map({
   handlePreviousPage,
-  handleNextPage,
+  onMapSubmit,
   initialCoordinates,
   onCoordinatesChange,
 }: {
   handlePreviousPage: () => void;
-  handleNextPage: () => void;
+  onMapSubmit: () => void;
   initialCoordinates?: Coordinates | null;
   onCoordinatesChange?: (pos: { lat: number; lng: number } | null) => void;
 }) {
@@ -88,7 +88,7 @@ export default function Map({
           variant="primary"
           size="md"
           type="submit"
-          onClick={handleNextPage}
+          onClick={onMapSubmit}
         >
           Salvează și continuă <SVGArrowRight />
         </Button>

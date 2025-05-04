@@ -125,7 +125,6 @@ export default function IncidentReport() {
   // Submit handler for the contact form
   async function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
     try {
-      // 1. Upload images first
       const imageUrls = await handleImageUpload(
         Object.values(contactImageFiles),
       );
@@ -251,7 +250,9 @@ export default function IncidentReport() {
         return (
           <Map
             handlePreviousPage={handlePreviousPage}
-            handleNextPage={handleNextPage}
+            onMapSubmit={async () =>
+              await onContactSubmit(contactForm.getValues())
+            }
             initialCoordinates={mapCoordinates}
             onCoordinatesChange={setMapCoordinates}
           />
