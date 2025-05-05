@@ -15,7 +15,7 @@ import { type z } from "zod";
 import type { Position } from "./_types/position";
 
 export default function IncidentReport() {
-  const [currentPage, setCurrentPage] = useState(3);
+  const [currentPage, setCurrentPage] = useState(0);
 
   // DISCLAIMER
   const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
