@@ -55,10 +55,10 @@ export default function Home() {
         <section className="text-neutral-foreground text-body-small bg-primary m-auto mt-6 w-[75%] self-center rounded-md px-6 py-3.5 opacity-50">
           <div className="m-auto text-center text-lg">
             <strong>
-              Aplicatia este in lucru, este posbil ca unele actiuni si
-              functionalitati sa nu fie complet disponibile. <br />
-              Va multumim pentru intelegere si va incurajam sa ne raportati
-              eventuale probleme in formularul
+              Aplicația este în lucru, este posibil ca unele acțiuni și
+              funcționalități să nu fie complet disponibile. <br />
+              Vă mulțumim pentru înțelegere și vă încurajăm să ne raportați
+              eventuale probleme în formularul. 😊
             </strong>
           </div>
         </section>
