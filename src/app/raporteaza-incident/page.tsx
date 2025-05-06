@@ -19,7 +19,7 @@ import { api } from "~/trpc/react";
 import { TRPCError } from "@trpc/server";
 
 export default function IncidentReport() {
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(3);
   const [incidentId, setIncidentId] = useState<string | undefined>(undefined);
   const [userId, setUserId] = useState<string | undefined>(undefined);
 
@@ -95,12 +95,25 @@ export default function IncidentReport() {
             throw new Error("User ID or Incident ID is not defined");
           }
 
-          const { url } = await mutateS3Async({
+          const response = await mutateS3Async({
             userId: userId,
             incidentId: incidentId,
             fileName: file.name,
             fileType: file.type,
           });
+
+          if (!response || typeof response.url !== "string") {
+            throw new Error("Failed to get a valid URL for the file upload");
+          }
+
+          if (!response?.url) {
+            throw new Error("Failed to get a valid URL for the file upload");
+          }
+
+          const url = response?.url;
+          if (!url) {
+            throw new Error("Failed to get a valid URL for the file upload");
+          }
 
           await fetch(url, {
             method: "PUT",
