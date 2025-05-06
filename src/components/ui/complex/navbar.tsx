@@ -5,7 +5,7 @@ import Link from "next/link";
 import React, { useState, type JSX } from "react";
 import {
   SVGAlert,
-  // SVGHeart,
+  SVGHeart,
   // SVGMessageBubble,
   // SVGPaperPage,
   SVGPhone,
@@ -83,12 +83,12 @@ const actionItems: {
   variant: "neutral" | "primary" | "secondary" | "tertiary" | undefined;
   icon: JSX.Element;
 }[] = [
-  // {
-  //   title: "Donează",
-  //   href: "/doneaza",
-  //   variant: "neutral",
-  //   icon: <SVGHeart />,
-  // },
+  {
+    title: "Donează",
+    href: "/doneaza",
+    variant: "neutral",
+    icon: <SVGHeart />,
+  },
   {
     title: "Raportează incident",
     href: "/raporteaza-incident",
