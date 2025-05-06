@@ -5,13 +5,13 @@ import Link from "next/link";
 import React, { useState, type JSX } from "react";
 import {
   SVGAlert,
-  SVGHeart,
-  SVGMessageBubble,
-  SVGPaperPage,
+  // SVGHeart,
+  // SVGMessageBubble,
+  // SVGPaperPage,
   SVGPhone,
-  SVGPin,
-  SVGVideoCamera,
-  SVGStar,
+  // SVGPin,
+  // SVGVideoCamera,
+  // SVGStar,
 } from "~/components/icons";
 import Hamburger from "~/components/icons/svgs/hamburger";
 import { Button } from "~/components/ui/simple/button";

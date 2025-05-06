@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SVGAlert, SVGPin } from "~/components/icons";
+import {
+  SVGAlert,
+  // SVGPin
+} from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 
 const cards = [

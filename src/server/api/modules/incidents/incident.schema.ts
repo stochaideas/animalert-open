@@ -1,9 +1,9 @@
 import { sql } from "drizzle-orm";
 import { pgTable, index } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 import { users } from "../users/user.schema";
 import { z } from "zod";
+import { phoneNumberRefine } from "~/lib/phone";
 
 export const incidents = pgTable(
   "incidents",
@@ -33,7 +33,7 @@ export const upsertIncidentWithUserSchema = z.object({
     id: z.string().optional(),
     firstName: z.string(),
     lastName: z.string(),
-    phone: z.string(),
+    phone: z.string().refine(phoneNumberRefine),
     email: z.string().optional(),
     receiveOtherIncidentUpdates: z.boolean().default(false),
   }),
@@ -42,11 +42,9 @@ export const upsertIncidentWithUserSchema = z.object({
     receiveIncidentUpdates: z.boolean().default(false),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
-    imageUrls: z.array(z.string().optional()),
+    imageUrls: z.string().array(),
   }),
 });
-export const insertIncidentSchema = createInsertSchema(incidents);
-export const selectIncidentSchema = createSelectSchema(incidents);
 
 // Types for TypeScript
 export type Incident = typeof incidents.$inferSelect;

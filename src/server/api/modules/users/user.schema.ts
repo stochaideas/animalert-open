@@ -1,8 +1,5 @@
 import { sql } from "drizzle-orm";
 import { pgTable, index } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "zod";
-import { phoneNumberRefine } from "~/lib/phone";
 
 export const users = pgTable(
   "users",
@@ -24,13 +21,3 @@ export const users = pgTable(
   }),
   (t) => [index("phone_idx").on(t.phone), index("email_idx").on(t.email)],
 );
-
-// Create Zod schemas for type validation
-export const insertUserSchema = createInsertSchema(users, {
-  phone: z.string().refine(phoneNumberRefine),
-});
-export const selectUserSchema = createSelectSchema(users);
-
-// Types for TypeScript
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;

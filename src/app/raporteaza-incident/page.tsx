@@ -19,7 +19,7 @@ import { api } from "~/trpc/react";
 import { TRPCError } from "@trpc/server";
 
 export default function IncidentReport() {
-  const [currentPage, setCurrentPage] = useState(3);
+  const [currentPage, setCurrentPage] = useState(0);
   const [incidentId, setIncidentId] = useState<string | undefined>(undefined);
   const [userId, setUserId] = useState<string | undefined>(undefined);
 
@@ -41,7 +41,7 @@ export default function IncidentReport() {
       image1: undefined,
       image2: undefined,
       image3: undefined,
-      image4: undefined,
+      video1: undefined,
     },
     mode: "onChange",
     reValidateMode: "onChange",
@@ -51,12 +51,12 @@ export default function IncidentReport() {
     image1: File | undefined;
     image2: File | undefined;
     image3: File | undefined;
-    image4: File | undefined;
+    video1: File | undefined;
   }>({
     image1: undefined,
     image2: undefined,
     image3: undefined,
-    image4: undefined,
+    video1: undefined,
   });
 
   // MAP
@@ -88,7 +88,7 @@ export default function IncidentReport() {
   async function handleImageUpload(files: (File | undefined)[]) {
     try {
       const urls = await Promise.all(
-        Array.from(files).map(async (file) => {
+        Array.from(files).map(async (file, index) => {
           if (!file) return null;
 
           if (!userId || !incidentId) {
@@ -96,10 +96,9 @@ export default function IncidentReport() {
           }
 
           const response = await mutateS3Async({
-            userId: userId,
-            incidentId: incidentId,
-            fileName: file.name,
+            fileName: `file_${index}`,
             fileType: file.type,
+            fileSize: file.size,
           });
 
           if (!response || typeof response.url !== "string") {
@@ -167,6 +166,8 @@ export default function IncidentReport() {
 
       handleNextPage();
     } catch (error) {
+      console.log(error);
+
       if (error instanceof TRPCError) {
         incidentForm.setError("root", {
           message: error.message,

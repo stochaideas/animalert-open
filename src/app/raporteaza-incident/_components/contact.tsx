@@ -33,7 +33,7 @@ export default function Contact({
     image1: File | undefined;
     image2: File | undefined;
     image3: File | undefined;
-    image4: File | undefined;
+    video1: File | undefined;
   };
   handleIncidentImageChange: (
     e: ChangeEvent<HTMLInputElement>,
@@ -43,33 +43,33 @@ export default function Contact({
   onIncidentSubmit: (data: z.infer<typeof incidentFormSchema>) => void;
   isPending?: boolean;
 }) {
-  const ImageFormField: React.FC<{
-    image: "image1" | "image2" | "image3" | "image4";
-  }> = ({ image }) => {
+  const FileFormField: React.FC<{
+    file: "image1" | "image2" | "image3" | "video1";
+  }> = ({ file }) => {
     let imageUrl: string | undefined;
 
-    if (incidentImageFiles[image]) {
-      imageUrl = URL.createObjectURL(incidentImageFiles[image]);
+    if (incidentImageFiles[file]) {
+      imageUrl = URL.createObjectURL(incidentImageFiles[file]);
     }
 
     return (
       <FormField
         control={incidentForm.control}
-        name={image}
+        name={file}
         render={({ field }) => (
           <FormItem className="flex-1">
             <FormControl>
               <Input
-                id={image}
+                id={file}
                 className="hidden"
                 type="file"
-                accept="image/*"
+                accept={file === "video1" ? "video/*" : "image/*"}
                 onChange={(e) =>
-                  handleIncidentImageChange(e, image, field.onChange)
+                  handleIncidentImageChange(e, file, field.onChange)
                 }
               />
             </FormControl>
-            <Label htmlFor={image}>
+            <Label htmlFor={file}>
               <div
                 style={{
                   position: "relative",
@@ -278,9 +278,9 @@ export default function Contact({
             </p>
             <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
               {Object.keys(incidentImageFiles).map((key) => (
-                <ImageFormField
+                <FileFormField
                   key={key}
-                  image={key as "image1" | "image2" | "image3" | "image4"}
+                  file={key as "image1" | "image2" | "image3" | "video1"}
                 />
               ))}
             </div>
