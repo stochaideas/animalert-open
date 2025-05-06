@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { COUNTIES } from "~/constants/counties";
 import { phoneNumberSchema } from "~/lib/phone";
+import { SOLICITATION_TYPES } from "../_constants/solicitationTypes";
 
 export const contactFormSchema = z.object({
   lastName: z.string().min(1, {
@@ -21,6 +22,12 @@ export const contactFormSchema = z.object({
   county: z.enum(Object.keys(COUNTIES) as [string, ...string[]], {
     errorMap: () => ({ message: "Județul este necesar" }),
   }),
+  solicitationType: z.enum(
+    Object.keys(SOLICITATION_TYPES) as [string, ...string[]],
+    {
+      errorMap: () => ({ message: "Tipul solicitării este necesar" }),
+    },
+  ),
   message: z.string().min(1, {
     message: "Mesajul este necesar",
   }),

@@ -25,6 +25,7 @@ import {
 import { COUNTIES } from "~/constants/counties";
 import { Button } from "~/components/ui/simple/button";
 import { SVGPaperPlane } from "~/components/icons";
+import { SOLICITATION_TYPES } from "./_constants/solicitationTypes";
 
 export default function Contact() {
   const contactForm = useForm<z.infer<typeof contactFormSchema>>({
@@ -35,6 +36,7 @@ export default function Contact() {
       phone: "",
       email: "",
       county: undefined,
+      solicitationType: "general",
       message: "",
     },
     mode: "onChange",
@@ -166,7 +168,10 @@ export default function Contact() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Adresă email</FormLabel>
+                      <FormLabel className="flex items-center gap-0">
+                        Adresă email
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Ex: cris.popescu@email.com"
@@ -185,8 +190,9 @@ export default function Contact() {
                   name="county"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
+                      <FormLabel className="flex items-center gap-0">
                         Localizare (zona în care poți să activezi)
+                        <span className="text-red-500">*</span>
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -216,13 +222,56 @@ export default function Contact() {
                   )}
                 />
               </div>
+
+              <div className="flex-1">
+                <FormField
+                  control={contactForm.control}
+                  name="solicitationType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-0">
+                        Alege tipul solicitării
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full p-6 hover:cursor-pointer">
+                            <SelectValue placeholder="Selectează tipul solicitării" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-neutral">
+                          {Object.entries(SOLICITATION_TYPES).map(
+                            ([solicitationTypeCode, solicitationTypeName]) => (
+                              <SelectItem
+                                className="hover:bg-neutral-hover hover:cursor-pointer"
+                                key={solicitationTypeCode}
+                                value={solicitationTypeCode}
+                              >
+                                {solicitationTypeName}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <div className="flex-1">
                 <FormField
                   control={contactForm.control}
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mesaj</FormLabel>
+                      <FormLabel className="flex items-center gap-0">
+                        Mesaj
+                        <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Scrie aici mesajul tău..."
