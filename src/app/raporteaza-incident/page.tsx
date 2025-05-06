@@ -91,10 +91,6 @@ export default function IncidentReport() {
         Array.from(files).map(async (file, index) => {
           if (!file) return null;
 
-          if (!userId || !incidentId) {
-            throw new Error("User ID or Incident ID is not defined");
-          }
-
           const response = await mutateS3Async({
             fileName: `file_${index}`,
             fileType: file.type,
@@ -118,6 +114,7 @@ export default function IncidentReport() {
             method: "PUT",
             body: file,
             headers: { "Content-Type": file.type },
+            mode: "cors",
           });
 
           return url.split("?")[0]; // Get permanent URL

@@ -43,6 +43,8 @@ export class S3Service {
     const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
     const publicUrl = `https://${env.AWS_S3_BUCKET_NAME}.s3.${env.AWS_REGION}.amazonaws.com/${key}`;
 
+    console.log(signedUrl, publicUrl);
+
     return { url: signedUrl, publicUrl };
   }
 }
