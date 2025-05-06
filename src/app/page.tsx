@@ -52,7 +52,7 @@ export default function Home() {
   return (
     <main className="bg-tertiary flex flex-col items-center justify-center gap-24 pb-24">
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero-sm.png)] bg-cover bg-[65%] bg-no-repeat md:bg-[url(/images/homepage-hero-lg.png)] md:bg-center">
-        <section className="text-neutral-foreground text-body-small bg-primary m-auto mt-6 w-[75%] self-center rounded-md px-6 py-3.5">
+        <section className="text-neutral-foreground text-body-small bg-primary m-auto mt-6 w-[75%] self-center rounded-md px-6 py-3.5 opacity-50">
           <div className="m-auto text-center text-lg">
             <strong>
               Aplicatia este in lucru, este posbil ca unele actiuni si
