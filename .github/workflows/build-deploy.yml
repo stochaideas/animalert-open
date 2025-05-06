@@ -35,12 +35,21 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
+        # The file exists only in the runner’s workspace; it’s never committed.
+      - name: Write .env for the build
+        run: |
+          cat > .env <<EOF
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ secrets.GOOGLE_MAPS_MAP_ID }}
+          EOF
       # --- 3. Build & push --------------------------------------------
       - name: Build, tag & push image to ECR
         id: build-image
         uses: docker/build-push-action@v5
         with:
+          build-args: |
+           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+           NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: ${{ secrets.GOOGLE_MAPS_MAP_ID }}
           context: .
           push: true
           tags: |
@@ -49,7 +58,7 @@ jobs:
       - name: Force new ECS deployment
         run: |
               aws ecs update-service \
-                --cluster  ${{ env.ECR_CLUSTER }} \
-                --service  ${{ env.ECR_SERVICE_NAME }} \
+                --cluster  ${{ env.CLUSTER_NAME }} \
+                --service  ${{ env.SERVICE_NAME }} \
                 --force-new-deployment \
                 --region   eu-central-1
