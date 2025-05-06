@@ -3,9 +3,9 @@ import Link from "next/link";
 
 export default function Doneaza() {
   return (
-    <main className="bg-tertiary px-6 pt-20 pb-40 md:px-20 lg:px-64">
-      <section className="grid grid-cols-1 gap-14 lg:grid-cols-[max-content_1fr]">
-        <div className="lg:col-span-2">
+    <main className="bg-tertiary px-6 pt-20 pb-40 md:px-20 2xl:px-64">
+      <section className="grid grid-cols-1 gap-14 2xl:grid-cols-[max-content_1fr]">
+        <div className="2xl:col-span-2">
           <div>
             <h1 className="text-heading-1 text-center">Donează</h1>
           </div>
@@ -64,7 +64,7 @@ export default function Doneaza() {
             </div>
           </div>
         </div>
-        <div className="relative aspect-[16/9] w-full lg:h-full lg:min-h-[400px]">
+        <div className="relative aspect-[16/9] w-full 2xl:h-full 2xl:min-h-[400px]">
           <Image
             src="/images/image-placeholder.png"
             alt="Image placeholder"
