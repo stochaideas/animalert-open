@@ -21,7 +21,7 @@ export class IncidentService {
       latitude?: number;
       longitude?: number;
       receiveIncidentUpdates: boolean;
-      imageUrls: (string | undefined)[];
+      imageUrls: string[];
     };
   }) {
     return db.transaction(async (tx) => {
@@ -92,6 +92,7 @@ export class IncidentService {
           latitude: data.incident.latitude,
           longitude: data.incident.longitude,
           receiveIncidentUpdates: data.incident.receiveIncidentUpdates,
+          imageUrls: data.incident.imageUrls,
         })
         .returning();
 
