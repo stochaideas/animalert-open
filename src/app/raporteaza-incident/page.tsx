@@ -163,8 +163,6 @@ export default function IncidentReport() {
 
       handleNextPage();
     } catch (error) {
-      console.log(error);
-
       if (error instanceof TRPCError) {
         incidentForm.setError("root", {
           message: error.message,
