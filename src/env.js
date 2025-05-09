@@ -7,15 +7,15 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url().optional(),
+    DATABASE_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
 
     AWS_ACCESS_KEY_ID: z.string().optional(),
     AWS_SECRET_ACCESS_KEY: z.string().optional(),
-    AWS_REGION: z.string().optional(),
-    AWS_S3_BUCKET_NAME: z.string().optional(),
+    AWS_REGION: z.string(),
+    AWS_S3_BUCKET_NAME: z.string(),
   },
 
   /**
@@ -25,8 +25,8 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
-    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),
-    NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: z.string().optional(),
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string(),
+    NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: z.string(),
   },
 
   /**
