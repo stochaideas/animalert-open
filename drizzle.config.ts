@@ -9,4 +9,5 @@ export default {
     url: env.DATABASE_URL,
   },
   tablesFilter: ["*"],
+  ssl: 'require',
 } satisfies Config;
