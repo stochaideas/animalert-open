@@ -17,90 +17,99 @@ import {
 import { Input } from "~/components/ui/simple/input";
 import { type ChangeEvent } from "react";
 import Image from "next/image";
-import { type contactFormSchema } from "../_utils/contact-form-schema";
+import { type incidentFormSchema } from "../_schemas/incident-form-schema";
 
 export default function Contact({
   handlePreviousPage,
-  contactForm,
-  contactImagePreviews,
-  handleContactImageChange,
-  onContactSubmit,
+  incidentForm,
+  incidentImageFiles,
+  handleIncidentImageChange,
+  onIncidentSubmit,
+  isPending,
 }: {
   handlePreviousPage: () => void;
-  contactForm: ReturnType<typeof useForm<z.infer<typeof contactFormSchema>>>;
-  contactImagePreviews: {
-    image1: string | undefined;
-    image2: string | undefined;
-    image3: string | undefined;
-    image4: string | undefined;
+  incidentForm: ReturnType<typeof useForm<z.infer<typeof incidentFormSchema>>>;
+  incidentImageFiles: {
+    image1: File | undefined;
+    image2: File | undefined;
+    image3: File | undefined;
+    video1: File | undefined;
   };
-  handleContactImageChange: (
+  handleIncidentImageChange: (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => void;
-  onContactSubmit: (data: z.infer<typeof contactFormSchema>) => void;
+  onIncidentSubmit: (data: z.infer<typeof incidentFormSchema>) => void;
+  isPending?: boolean;
 }) {
-  const ImageFormField: React.FC<{
-    image: "image1" | "image2" | "image3" | "image4";
-  }> = ({ image }) => (
-    <FormField
-      control={contactForm.control}
-      name={image}
-      render={({ field }) => (
-        <FormItem className="flex-1">
-          <FormControl>
-            <Input
-              id={image}
-              className="hidden"
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                handleContactImageChange(e, image, field.onChange)
-              }
-            />
-          </FormControl>
-          <Label htmlFor={image}>
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                height: "116px",
-                aspectRatio: "1/1", // or "16/9" or any aspect ratio you want
-                borderRadius: "8px", // optional, for rounded corners
-                overflow: "hidden", // optional, for clean edges
-              }}
-            >
-              <Image
-                alt="Imagine cu incidentul"
-                src={
-                  contactImagePreviews[image] ??
-                  "/images/incident-report-image-placeholder.png"
+  const FileFormField: React.FC<{
+    file: "image1" | "image2" | "image3" | "video1";
+  }> = ({ file }) => {
+    let imageUrl: string | undefined;
+
+    if (incidentImageFiles[file]) {
+      imageUrl = URL.createObjectURL(incidentImageFiles[file]);
+    }
+
+    return (
+      <FormField
+        control={incidentForm.control}
+        name={file}
+        render={({ field }) => (
+          <FormItem className="flex-1">
+            <FormControl>
+              <Input
+                id={file}
+                className="hidden"
+                type="file"
+                accept={file === "video1" ? "video/*" : "image/*"}
+                onChange={(e) =>
+                  handleIncidentImageChange(e, file, field.onChange)
                 }
-                fill
-                style={{
-                  objectFit: contactImagePreviews[image] ? "cover" : "contain",
-                  background: "#e3e3e3",
-                }}
               />
-            </div>
-          </Label>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
+            </FormControl>
+            <Label htmlFor={file}>
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  height: "116px",
+                  aspectRatio: "1/1", // or "16/9" or any aspect ratio you want
+                  borderRadius: "8px", // optional, for rounded corners
+                  overflow: "hidden", // optional, for clean edges
+                }}
+              >
+                <Image
+                  alt="Imagine cu incidentul"
+                  src={
+                    imageUrl ?? "/images/incident-report-image-placeholder.png"
+                  }
+                  fill
+                  style={{
+                    objectFit: imageUrl ? "cover" : "contain",
+                    background: "#e3e3e3",
+                  }}
+                />
+              </div>
+            </Label>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    );
+  };
 
   return (
     <>
-      <form onSubmit={contactForm.handleSubmit(onContactSubmit)}>
-        <Form {...contactForm}>
+      <form onSubmit={incidentForm.handleSubmit(onIncidentSubmit)}>
+        <Form {...incidentForm}>
           <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Date contact</h3>
             <section className="mb-4 grid grid-cols-1 gap-8 md:grid-cols-2">
               <div className="flex-1">
                 <FormField
-                  control={contactForm.control}
+                  control={incidentForm.control}
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
@@ -122,7 +131,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={contactForm.control}
+                  control={incidentForm.control}
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
@@ -144,7 +153,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={contactForm.control}
+                  control={incidentForm.control}
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
@@ -166,7 +175,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={contactForm.control}
+                  control={incidentForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -186,7 +195,7 @@ export default function Contact({
             </section>
             <div className="flex flex-col gap-2">
               <FormField
-                control={contactForm.control}
+                control={incidentForm.control}
                 name="confidentiality"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
@@ -201,7 +210,7 @@ export default function Contact({
                     <Label
                       htmlFor="confidentiality"
                       className={`text-body-small ${
-                        contactForm.formState.errors.confidentiality &&
+                        incidentForm.formState.errors.confidentiality &&
                         "text-red-500"
                       }`}
                     >
@@ -214,20 +223,20 @@ export default function Contact({
                 )}
               />
               <FormField
-                control={contactForm.control}
-                name="receiveOtherCaseUpdates"
+                control={incidentForm.control}
+                name="receiveOtherIncidentUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
                     <FormControl>
                       <Checkbox
                         className="mt-1"
-                        id="receiveOtherCaseUpdates"
+                        id="receiveOtherIncidentUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
                     <Label
-                      htmlFor="receiveOtherCaseUpdates"
+                      htmlFor="receiveOtherIncidentUpdates"
                       className="text-body-small"
                     >
                       Vreau să fiu contactat pe WhatsApp despre alte cazuri și
@@ -237,20 +246,20 @@ export default function Contact({
                 )}
               />
               <FormField
-                control={contactForm.control}
-                name="receiveCaseUpdates"
+                control={incidentForm.control}
+                name="receiveIncidentUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
                     <FormControl>
                       <Checkbox
                         className="mt-1"
-                        id="receiveCaseUpdates"
+                        id="receiveIncidentUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
                     <Label
-                      htmlFor="receiveCaseUpdates"
+                      htmlFor="receiveIncidentUpdates"
                       className="text-body-small"
                     >
                       Vreau să primesc update pe email despre caz
@@ -268,10 +277,10 @@ export default function Contact({
               fotografii atât cu animalul cât și cu incidentul.
             </p>
             <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-              {Object.keys(contactImagePreviews).map((key) => (
-                <ImageFormField
+              {Object.keys(incidentImageFiles).map((key) => (
+                <FileFormField
                   key={key}
-                  image={key as "image1" | "image2" | "image3" | "image4"}
+                  file={key as "image1" | "image2" | "image3" | "video1"}
                 />
               ))}
             </div>
@@ -282,8 +291,15 @@ export default function Contact({
               variant="primary"
               size="md"
               type="submit"
+              disabled={isPending}
             >
-              Salvează și continuă <SVGArrowRight />
+              {isPending ? (
+                <>Se salvează</>
+              ) : (
+                <>
+                  Salvează și continuă <SVGArrowRight />
+                </>
+              )}
             </Button>
             <Button
               className="m-0 w-full sm:w-auto"

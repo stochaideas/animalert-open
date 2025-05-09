@@ -1,23 +1,23 @@
 // src/hooks/useGeolocation.ts
 import { useEffect, useState } from "react";
-import type { Position } from "~/app/raporteaza-incident/_types/position";
+import type { Coordinates } from "~/types/coordinates";
 
-export const useGeolocation = (initialPosition?: Position | null) => {
-  const [position, setPosition] = useState<Position | null>(
-    initialPosition ?? null,
+export const useGeolocation = (initialCoordinates?: Coordinates | null) => {
+  const [coordinates, setCoordinates] = useState<Coordinates | null>(
+    initialCoordinates ?? null,
   );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only fetch geolocation if no initial position provided
-    if (!initialPosition) {
+    // Only fetch geolocation if no initial coordinates provided
+    if (!initialCoordinates) {
       if (!navigator.geolocation) {
         setError("Geolocation is not supported by your browser");
         return;
       }
 
       const success = (pos: GeolocationPosition) => {
-        setPosition({
+        setCoordinates({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         });
@@ -33,12 +33,12 @@ export const useGeolocation = (initialPosition?: Position | null) => {
         maximumAge: 0,
       });
     }
-  }, [initialPosition]); // Re-run if initialPosition changes
+  }, [initialCoordinates]); // Re-run if initialCoordinates changes
 
   return {
-    position,
-    setPosition,
+    coordinates,
+    setCoordinates,
     error,
-    isUsingInitialPosition: !!initialPosition,
+    isUsingInitialCoordinates: !!initialCoordinates,
   };
 };
