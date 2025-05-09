@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    name: Build and Deploy
+    name: Build Image and Push
     runs-on: ubuntu-latest
 
     permissions:
@@ -58,8 +58,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-       - name: Force new ECS deployment
-         run: |
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
+          aws-region:     ${{ env.AWS_REGION }}
+      - name: Force new ECS deployment
+        run: |
                aws ecs update-service \
                  --cluster  ${{ env.CLUSTER_NAME }} \
                  --service  ${{ env.SERVICE_NAME }} \
