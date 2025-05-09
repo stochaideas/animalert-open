@@ -1,5 +1,5 @@
-export const IMAGE_MAX_SIZE = 8 * 1024 * 1024; // 8MB
-export const VIDEO_MAX_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+export const IMAGE_MAX_SIZE = 10 * 1024 * 1024; // 10MB
+export const VIDEO_MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
 export const ACCEPTED_IMAGE_TYPES = [
   "image/png",
