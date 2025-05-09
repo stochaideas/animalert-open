@@ -54,6 +54,9 @@ jobs:
 
           
   deploy:
+    permissions:
+      id-token: write        # for OIDC
+      contents: read
     name: Deploy ECS
     needs: build
     runs-on: ubuntu-latest
