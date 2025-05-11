@@ -1,19 +1,12 @@
 "use client";
 
+import React, { useEffect, useState, type JSX } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState, type JSX } from "react";
-import {
-  SVGAlert,
-  SVGHeart,
-  // SVGMessageBubble,
-  // SVGPaperPage,
-  SVGPhone,
-  // SVGPin,
-  // SVGVideoCamera,
-  // SVGStar,
-} from "~/components/icons";
+import { usePathname } from "next/navigation";
+
 import Hamburger from "~/components/icons/svgs/hamburger";
+import { SVGAlert, SVGHeart, SVGPhone } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import {
   NavigationMenu,
@@ -24,6 +17,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "~/components/ui/simple/navigation-menu";
+
 import { cn } from "~/lib/utils";
 
 const navItems: {
@@ -98,7 +92,15 @@ const actionItems: {
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+    window.scrollTo({
+      top: 0,
+    });
+  }, [pathname]);
 
   const toggleMenu = () => {
     setIsOpen((prev) => !prev);
