@@ -58,7 +58,11 @@ export default function Home() {
               Aplicația este în lucru, este posibil ca unele acțiuni și
               funcționalități să nu fie complet disponibile. <br />
               Vă mulțumim pentru înțelegere și vă încurajăm să ne raportați
-              eventuale probleme în formularul de contact. 😊
+              eventuale probleme în{" "}
+              <Link className="text-blue-700 underline" href="/contact">
+                formularul de contact
+              </Link>
+              . 😊
             </strong>
           </div>
         </section>
