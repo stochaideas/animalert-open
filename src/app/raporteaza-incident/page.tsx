@@ -1,22 +1,25 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
-import { redirect } from "next/navigation";
+
+import { TRPCError } from "@trpc/server";
+
+import { api } from "~/trpc/react";
+import type { Coordinates } from "~/types/coordinates";
+
+import { incidentFormSchema } from "./_schemas/incident-form-schema";
 
 import Disclaimer from "./_components/disclaimer";
 import Contact from "./_components/contact";
 import Map from "./_components/map";
 import ChatBot from "./_components/chat-bot";
-import { Button } from "~/components/ui/simple/button";
-import { MaterialStepper } from "../../components/ui/complex/stepper";
 
-import { incidentFormSchema } from "./_schemas/incident-form-schema";
-import type { Coordinates } from "../../types/coordinates";
-import { api } from "~/trpc/react";
-import { TRPCError } from "@trpc/server";
+import { Button } from "~/components/ui/simple/button";
+import { MaterialStepper } from "~/components/ui/complex/stepper";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);

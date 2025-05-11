@@ -196,7 +196,7 @@ export default function ChatBot() {
               className="bg-secondary text-secondary-foreground hover:bg-secondary-hover rounded px-4 py-2"
               onClick={() => router.push("/")}
             >
-              OK
+              Întoarce-te acasă
             </Button>
           </DialogFooter>
         </DialogContent>
