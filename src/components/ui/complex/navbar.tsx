@@ -218,12 +218,12 @@ export default function Navbar() {
           </NavigationMenuList>
         </NavigationMenu>
       </nav>
-      <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-6 py-3.5">
+      <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-3 py-1.5 md:px-6 md:py-3.5">
         <div className="m-auto text-center">
           <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
-          imediat la <b>112</b>, dacă ești în pericol sau vezi un animal
-          sălbatic rănit și nu îl poți duce la o clinică (ex: vulpe, căprior,
-          mistreț, urs).
+          imediat la <b>112</b>, dacă te afli în pericol sau sau dacă observi un
+          animal de talie rănit de talie mai mare (caprior, cerb, vulpe, lup,
+          urs).
         </div>
       </section>
     </div>

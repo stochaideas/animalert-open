@@ -52,13 +52,13 @@ export default function Home() {
   return (
     <main className="bg-tertiary flex flex-col items-center justify-center gap-24 pb-24">
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero-sm.png)] bg-cover bg-[65%] bg-no-repeat md:bg-[url(/images/homepage-hero-lg.png)] md:bg-center">
-        <section className="text-neutral-foreground text-body-small bg-primary m-auto mt-6 w-[75%] self-center rounded-md px-6 py-3.5 opacity-50">
-          <div className="m-auto text-center text-lg">
+        <section className="text-neutral-foreground text-body-small bg-primary m-auto mt-6 w-[75%] self-center rounded-md px-3 py-1.5 opacity-50 md:px-6 md:py-3.5">
+          <div className="text-md text-body m-auto text-center">
             <strong>
               Aplicația este în lucru, este posibil ca unele acțiuni și
               funcționalități să nu fie complet disponibile. <br />
               Vă mulțumim pentru înțelegere și vă încurajăm să ne raportați
-              eventuale probleme în formularul. 😊
+              eventuale probleme în formularul de contact. 😊
             </strong>
           </div>
         </section>
