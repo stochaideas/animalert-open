@@ -1,0 +1,140 @@
+import Image from "next/image";
+
+const partner_cards = [
+  {
+    img: "/images/about-us-photo.png",
+    alt: "Foto",
+    title: "Foto",
+    strong: "Lonay Arthur",
+  },
+  {
+    img: "/images/about-us-uiux.png",
+    alt: "Design UI/UX",
+    title: "Design UI/UX",
+    strong: "Iulia Beches",
+  },
+  {
+    img: "/images/image-placeholder.png",
+    alt: "X",
+    title: "X",
+    strong: "X",
+  },
+  {
+    img: "/images/image-placeholder.png",
+    alt: "X",
+    title: "X",
+    strong: "X",
+  },
+];
+
+export default function AboutPage() {
+  return (
+    <main className="bg-tertiary flex flex-col gap-24 px-6 pt-20 pb-40 xl:gap-14 2xl:px-96 2xl:pt-24 2xl:pb-52">
+      <section className="flex flex-col gap-16 lg:flex-row lg:items-start lg:gap-14">
+        <div className="flex flex-1 flex-col gap-8">
+          <div>
+            <h1 className="text-heading-1 mb-2">Despre AnimAlert</h1>
+            <h3 className="text-subheading">
+              De ce am creat AnimAlert și cu ce ajută comunitatea?
+            </h3>
+          </div>
+          <div>
+            <p className="text-body-strong mb-2">
+              Integer mi id in dolor gravida ac quis fames sit. Vitae enim
+              posuere interdum ultrices nibh. Ultrices integer orci nam arcu
+              etiam viverra id habitasse et. A porttitor tesque nisl enim
+              feugiat amet pretium. Diam congue quam justo lorem viverra.
+            </p>
+            <ul className="list-disc pl-5">
+              <li>
+                Elit consequat malesuada in aenean tristique venenatis phasellus
+                enim.
+              </li>
+              <li>Consectetur ullamcorper ut turpis egestas netus.</li>
+              <li>
+                Risus nunc lobortis facilisi arcu donec sed imperdiet
+                pellentesque scelerisque.
+              </li>
+              <li>Integer at sit nulla tempor quisque.</li>
+              <li>Dapibus non at pretium viverra turpis quam venenatis.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="relative aspect-[4/3] max-h-[420px] w-full lg:w-1/2">
+          <Image
+            alt="Despre noi"
+            src="/images/image-placeholder.png"
+            fill
+            sizes="(max-width: 1280px) 100vw, 50vw"
+            className="rounded-md object-cover"
+            priority
+          />
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-8 rounded-md bg-[#C4CEB3] p-8 md:items-end md:p-12 xl:flex-row-reverse xl:items-center xl:justify-between xl:gap-14 xl:px-24 xl:py-11">
+        <div className="flex flex-1 flex-col text-right text-[#395A03] xl:order-1">
+          <h1 className="text-heading-1 mb-2">AnimAlert</h1>
+          <h3 className="text-subheading">
+            Împreună protejăm și ajutăm fauna sălbatică
+          </h3>
+        </div>
+        <div className="flex flex-1 items-center justify-between gap-6 xl:order-2 xl:gap-14">
+          <div className="relative aspect-[180/72] w-1/3 max-w-[220px]">
+            <Image
+              alt="Lup"
+              src="/images/wolf.svg"
+              fill
+              className="object-contain"
+              priority
+              sizes="(max-width: 768px) 66px, (max-width: 1280px) 33vw, 220px"
+              unoptimized
+            />
+          </div>
+          <div className="relative aspect-[70/82] w-1/4 max-w-[90px]">
+            <Image
+              alt="Iepure"
+              src="/images/bunny.svg"
+              fill
+              className="object-contain"
+              priority
+              sizes="(max-width: 768px) 32px, (max-width: 1280px) 25vw, 90px"
+              unoptimized
+            />
+          </div>
+          <div className="relative aspect-[147/95] w-1/4 max-w-[110px]">
+            <Image
+              alt="Pasare"
+              src="/images/bird.svg"
+              fill
+              className="object-contain"
+              priority
+              sizes="(max-width: 768px) 56px, (max-width: 1280px) 25vw, 110px"
+              unoptimized
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {partner_cards.map((card, i) => (
+          <div
+            key={i}
+            className="border-tertiary-border flex min-w-0 flex-col rounded-md border-[1px] bg-white p-8"
+          >
+            <Image
+              src={card.img}
+              alt={card.alt}
+              width={272}
+              height={160}
+              className="h-auto w-full object-cover"
+            />
+            <h3 className="text-heading-3 mt-8 text-center">{card.title}</h3>
+            <p className="text-body-strong mt-2 text-center">{card.strong}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+  );
+}

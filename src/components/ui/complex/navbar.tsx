@@ -67,7 +67,7 @@ const navItems: {
   //     },
   //   ],
   // },
-  // { title: "Despre noi", href: "/despre-noi" },
+  { title: "Despre noi", href: "/despre-noi" },
   { title: "Contact", href: "/contact" },
 ];
 
