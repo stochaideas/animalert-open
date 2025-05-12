@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { pgTable, index } from "drizzle-orm/pg-core";
 
-import { users } from "../users/user.schema";
+import { users } from "../user/user.schema";
 import { z } from "zod";
 import { phoneNumberRefine } from "~/lib/phone";
 

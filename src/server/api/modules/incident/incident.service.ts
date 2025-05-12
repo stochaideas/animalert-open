@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
 import { incidents } from "./incident.schema";
-import { users } from "../users/user.schema";
+import { users } from "../user/user.schema";
 import { TRPCError } from "@trpc/server";
 import { normalizePhoneNumber } from "~/lib/phone";
 import { EmailService } from "../email/email.service";

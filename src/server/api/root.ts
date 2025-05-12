@@ -1,7 +1,7 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 import { geolocationRouter } from "./modules/geolocation/geolocation.router";
-import { incidentRouter } from "./modules/incidents/incident.router";
+import { incidentRouter } from "./modules/incident/incident.router";
 import { s3Router } from "./modules/s3/s3.router";
 
 /**
