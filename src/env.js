@@ -18,6 +18,7 @@ export const env = createEnv({
     AWS_S3_BUCKET_NAME: z.string(),
 
     NODEMAILER_SERVICE: z.string(),
+    EMAIL_ADMIN: z.string().email(),
     EMAIL_USER: z.string().email(),
     EMAIL_PASS: z.string(),
     EMAIL_FROM: z.string(),
@@ -48,6 +49,7 @@ export const env = createEnv({
     AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME,
 
     NODEMAILER_SERVICE: process.env.NODEMAILER_SERVICE,
+    EMAIL_ADMIN: process.env.EMAIL_ADMIN,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
     EMAIL_FROM: process.env.EMAIL_FROM,

@@ -37,7 +37,7 @@ export default function IncidentReport() {
       lastName: "",
       firstName: "",
       phone: "",
-      email: undefined,
+      email: "",
       confidentiality: false,
       receiveIncidentUpdates: false,
       receiveOtherIncidentUpdates: false,
