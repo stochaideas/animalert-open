@@ -14,11 +14,13 @@ export default function Map({
   onMapSubmit,
   initialCoordinates,
   onCoordinatesChange,
+  isPending,
 }: {
   handlePreviousPage: () => void;
   onMapSubmit: () => void;
   initialCoordinates?: Coordinates | null;
   onCoordinatesChange?: (pos: { lat: number; lng: number } | null) => void;
+  isPending?: boolean;
 }) {
   const { coordinates, setCoordinates, error } =
     useGeolocation(initialCoordinates);
@@ -89,8 +91,15 @@ export default function Map({
           size="md"
           type="submit"
           onClick={onMapSubmit}
+          disabled={isPending}
         >
-          Salvează și continuă <SVGArrowRight />
+          {isPending ? (
+            <>Se salvează</>
+          ) : (
+            <>
+              Salvează și continuă <SVGArrowRight />
+            </>
+          )}
         </Button>
         <Button
           className="m-0 w-full sm:w-auto"

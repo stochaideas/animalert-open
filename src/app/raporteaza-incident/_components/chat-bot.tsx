@@ -14,7 +14,11 @@ import { Button } from "~/components/ui/simple/button";
 import { Input } from "~/components/ui/simple/input";
 import { Checkbox } from "~/components/ui/simple/checkbox";
 
-export default function ChatBot() {
+export default function ChatBot({
+  incidentReportNumber,
+}: {
+  incidentReportNumber?: number;
+}) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<(string | string[])[]>([]);
   const [multiSelect, setMultiSelect] = useState<string[]>([]);
@@ -23,10 +27,6 @@ export default function ChatBot() {
   const currentStep = CONVERSATION[step];
 
   const router = useRouter();
-  const incidentNumber = React.useMemo(
-    () => Math.floor(Math.random() * (99999 - 20001 + 1)) + 20001,
-    [],
-  );
 
   // For single choice
   const handleOptionChange = (option: string) => {
@@ -188,7 +188,7 @@ export default function ChatBot() {
             <DialogTitle>Incident înregistrat</DialogTitle>
           </DialogHeader>
           <div>
-            Incidentul cu numărul <strong>{incidentNumber}</strong> a fost
+            Incidentul cu numărul <strong>{incidentReportNumber}</strong> a fost
             înregistrat cu succes.
           </div>
           <DialogFooter>

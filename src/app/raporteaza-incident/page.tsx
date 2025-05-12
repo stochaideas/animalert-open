@@ -23,8 +23,11 @@ import { MaterialStepper } from "~/components/ui/complex/stepper";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
-  const [incidentId, setIncidentId] = useState<string | undefined>(undefined);
-  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [incidentId, setIncidentId] = useState<string | undefined>();
+  const [incidentReportNumber, setIncidentReportNumber] = useState<
+    number | undefined
+  >();
+  const [userId, setUserId] = useState<string | undefined>();
 
   // DISCLAIMER
   const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
@@ -80,7 +83,7 @@ export default function IncidentReport() {
 
   const {
     mutateAsync: mutateS3Async,
-    // isPending: s3IsPending,
+    isPending: s3IsPending,
     // error: s3Error,
   } = api.s3.getPresignedUrl.useMutation({
     onSuccess: () => {
@@ -161,6 +164,7 @@ export default function IncidentReport() {
 
       if (!incidentId) {
         setIncidentId(result?.incident?.id);
+        setIncidentReportNumber(result?.incident?.incidentReportNumber);
         setUserId(result?.user?.id);
       }
 
@@ -255,7 +259,7 @@ export default function IncidentReport() {
             incidentImageFiles={incidentImageFiles}
             handleIncidentImageChange={handleIncidentImageChange}
             onIncidentSubmit={onIncidentSubmit}
-            isPending={incidentIsPending}
+            isPending={incidentIsPending || s3IsPending}
           />
         );
       case 2:
@@ -267,10 +271,11 @@ export default function IncidentReport() {
             }
             initialCoordinates={mapCoordinates}
             onCoordinatesChange={setMapCoordinates}
+            isPending={incidentIsPending || s3IsPending}
           />
         );
       case 3:
-        return <ChatBot />;
+        return <ChatBot incidentReportNumber={incidentReportNumber} />;
       default:
         redirect("/");
     }
