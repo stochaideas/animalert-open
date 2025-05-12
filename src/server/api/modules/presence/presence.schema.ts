@@ -58,11 +58,11 @@ export const presenceReports = pgTable(
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
   (t) => [
-    index("presence_reports_presence_report_number_idx").on(
+    index("presence_presence_reports_presence_report_number_idx").on(
       t.presenceReportNumber,
     ),
-    index("created_at_idx").on(t.createdAt),
-    index("updated_at_idx").on(t.updatedAt),
+    index("presence_created_at_idx").on(t.createdAt),
+    index("presence_updated_at_idx").on(t.updatedAt),
   ],
 );
 

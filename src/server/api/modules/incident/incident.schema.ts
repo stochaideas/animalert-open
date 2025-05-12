@@ -27,10 +27,10 @@ export const incidents = pgTable(
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
   (t) => [
-    index("user_idx").on(t.userId),
-    index("incident_report_number_idx").on(t.incidentReportNumber),
-    index("created_at_idx").on(t.createdAt),
-    index("updated_at_idx").on(t.updatedAt),
+    index("incidents_user_idx").on(t.userId),
+    index("incidents_incident_report_number_idx").on(t.incidentReportNumber),
+    index("incidents_created_at_idx").on(t.createdAt),
+    index("incidents_updated_at_idx").on(t.updatedAt),
   ],
 );
 
