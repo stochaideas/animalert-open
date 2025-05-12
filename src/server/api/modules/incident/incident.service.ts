@@ -31,10 +31,10 @@ export class IncidentService {
       imageUrls: string[];
     };
   }) {
+    let isUpdate = false;
+
     const result = await db.transaction(async (tx) => {
-      let incident,
-        user,
-        isUpdate = false;
+      let incident, user;
 
       if (data.incident.id) {
         isUpdate = true;
@@ -44,7 +44,13 @@ export class IncidentService {
             message: "User ID is required for updating the user",
           });
         }
-        await tx.update(users).set(data.user).where(eq(users.id, data.user.id));
+
+        const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
+        await tx
+          .update(users)
+          .set({ ...data.user, phone: normalizedPhoneNumber })
+          .where(eq(users.id, data.user.id));
+
         [incident] = await tx
           .update(incidents)
           .set({
@@ -105,17 +111,25 @@ export class IncidentService {
           .returning();
       }
 
-      if (user && incident) {
-        const { latitude, longitude } = incident;
-        const mapsUrl =
-          latitude && longitude
-            ? `https://www.google.com/maps?q=${latitude},${longitude}`
-            : null;
+      return {
+        user,
+        incident,
+      };
+    });
 
-        const actionType = isUpdate ? "actualizat" : "nou creat";
-        const imagesCount = incident.imageUrls?.length;
+    const { user, incident } = result;
 
-        const html = `
+    if (user && incident) {
+      const { latitude, longitude } = incident;
+      const mapsUrl =
+        latitude && longitude
+          ? `https://www.google.com/maps?q=${latitude},${longitude}`
+          : null;
+
+      const actionType = isUpdate ? "actualizat" : "nou creat";
+      const imagesCount = incident.imageUrls?.length;
+
+      const html = `
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -214,11 +228,11 @@ export class IncidentService {
 </html>
 `.trim();
 
-        await this.emailService.sendEmail({
-          to: env.EMAIL_ADMIN,
-          subject: `🚨 Raport ${actionType.toUpperCase()} - ${user.firstName} ${user.lastName}`,
-          html,
-          text: `
+      await this.emailService.sendEmail({
+        to: env.EMAIL_ADMIN,
+        subject: `🚨 Raport ${actionType.toUpperCase()} - ${user.firstName} ${user.lastName}`,
+        html,
+        text: `
 Raport ${actionType}
 ----------------
 Utilizator: ${user.firstName} ${user.lastName}
@@ -232,10 +246,9 @@ Coordonate: ${latitude ?? "N/A"}, ${longitude ?? "N/A"}
 ${mapsUrl ? `Harta: ${mapsUrl}` : ""}
 Imagini: ${imagesCount} fișiere atașate
           `.trim(),
-        });
-      }
-    });
+      });
 
-    return result;
+      return result;
+    }
   }
 }
