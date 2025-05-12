@@ -5,8 +5,15 @@ import { incidents } from "./incident.schema";
 import { users } from "../users/user.schema";
 import { TRPCError } from "@trpc/server";
 import { normalizePhoneNumber } from "~/lib/phone";
+import { EmailService } from "../email/email.service";
 
 export class IncidentService {
+  private emailService: EmailService;
+
+  constructor() {
+    this.emailService = new EmailService();
+  }
+
   async upsertIncidentWithUser(data: {
     user: {
       id?: string;
@@ -24,7 +31,7 @@ export class IncidentService {
       imageUrls: string[];
     };
   }) {
-    return db.transaction(async (tx) => {
+    const result = db.transaction(async (tx) => {
       if (data.incident.id) {
         if (!data.user.id) {
           throw new TRPCError({
@@ -98,5 +105,13 @@ export class IncidentService {
 
       return incident;
     });
+
+    await this.emailService.sendEmail({
+      to: "tuborg.bere3080@gmail.com",
+      subject: "TEST AnimAlert notification",
+      text: "Test text",
+    });
+
+    return result;
   }
 }
