@@ -19,5 +19,10 @@ export const users = pgTable(
     createdAt: d.timestamp({ withTimezone: true }).defaultNow(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
-  (t) => [index("phone_idx").on(t.phone), index("email_idx").on(t.email)],
+  (t) => [
+    index("phone_idx").on(t.phone),
+    index("email_idx").on(t.email),
+    index("created_at_idx").on(t.createdAt),
+    index("updated_at_idx").on(t.updatedAt),
+  ],
 );

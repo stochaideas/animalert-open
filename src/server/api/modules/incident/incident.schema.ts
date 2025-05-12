@@ -12,6 +12,7 @@ export const incidents = pgTable(
       .uuid()
       .primaryKey()
       .default(sql`gen_random_uuid()`),
+    incidentReportNumber: d.serial().unique(),
     userId: d
       .uuid()
       .notNull()
@@ -25,7 +26,12 @@ export const incidents = pgTable(
     createdAt: d.timestamp({ withTimezone: true }).defaultNow(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
-  (t) => [index("user_idx").on(t.userId)],
+  (t) => [
+    index("user_idx").on(t.userId),
+    index("incident_report_number_idx").on(t.incidentReportNumber),
+    index("created_at_idx").on(t.createdAt),
+    index("updated_at_idx").on(t.updatedAt),
+  ],
 );
 
 export const upsertIncidentWithUserSchema = z.object({
