@@ -37,25 +37,27 @@ export const presenceReports = pgTable(
   "presence_reports",
   (d) => ({
     id: d
-      .uuid()
+      .uuid("id")
       .primaryKey()
       .default(sql`gen_random_uuid()`),
-    presenceReportNumber: d.serial().unique(),
-    observedAnimalType: d.text().notNull(),
+    presenceReportNumber: d.serial("presence_report_number").unique(),
+    observedAnimalType: d.text("observed_animal_type").notNull(),
     locationFound: locationFoundEnum("location_found").notNull(),
-    locationDetails: d.text(),
+    locationDetails: d.text("location_details"),
     isAnimalInjured: isAnimalInjuredEnum("is_animal_injured").notNull(),
     observedSigns: observedSignsEnum("observed_signs").array().notNull(),
-    observedSignsDetails: d.text(),
+    observedSignsDetails: d.text("observed_signs_details"),
     isInDangerousEnvironment: isInDangerousEnvironmentEnum(
       "is_in_dangerous_environment",
     ).notNull(),
-    observationDatetime: d.text().notNull(),
-    hasMedia: d.boolean().notNull(),
+    observationDatetime: d.text("observation_datetime").notNull(),
+    hasMedia: d.boolean("has_media").notNull(),
     wantsUpdates: wantsUpdatesEnum("wants_updates").array().notNull(),
-    contactDetails: d.text(),
-    createdAt: d.timestamp({ withTimezone: true }).defaultNow(),
-    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+    contactDetails: d.text("contact_details"),
+    createdAt: d.timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: d
+      .timestamp("updated_at", { withTimezone: true })
+      .$onUpdate(() => new Date()),
   }),
   (t) => [
     index("presence_presence_reports_presence_report_number_idx").on(

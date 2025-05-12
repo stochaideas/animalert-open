@@ -9,22 +9,26 @@ export const incidents = pgTable(
   "incidents",
   (d) => ({
     id: d
-      .uuid()
+      .uuid("id")
       .primaryKey()
       .default(sql`gen_random_uuid()`),
-    incidentReportNumber: d.serial().unique(),
+    incidentReportNumber: d.serial("incident_report_number").unique(),
     userId: d
-      .uuid()
+      .uuid("user_id")
       .notNull()
       .references(() => users.id, {
         onDelete: "cascade",
       }),
-    receiveIncidentUpdates: d.boolean().default(false),
-    latitude: d.doublePrecision(),
-    longitude: d.doublePrecision(),
-    imageUrls: d.text().array(),
-    createdAt: d.timestamp({ withTimezone: true }).defaultNow(),
-    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+    receiveIncidentUpdates: d
+      .boolean("receive_incident_updates")
+      .default(false),
+    latitude: d.doublePrecision("latitude"),
+    longitude: d.doublePrecision("longitude"),
+    imageUrls: d.text("image_urls").array(),
+    createdAt: d.timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: d
+      .timestamp("updated_at", { withTimezone: true })
+      .$onUpdate(() => new Date()),
   }),
   (t) => [
     index("incidents_user_idx").on(t.userId),

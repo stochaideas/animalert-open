@@ -160,8 +160,8 @@ export default function IncidentReport() {
       });
 
       if (!incidentId) {
-        setIncidentId(result?.id);
-        setUserId(result?.userId);
+        setIncidentId(result.id);
+        setUserId(result.userId);
       }
 
       handleNextPage();
