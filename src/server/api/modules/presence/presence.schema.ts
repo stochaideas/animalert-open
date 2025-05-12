@@ -1,31 +1,36 @@
 import { sql } from "drizzle-orm";
-import { pgTable, index } from "drizzle-orm/pg-core";
+import { pgTable, index, pgEnum } from "drizzle-orm/pg-core";
+
 import { IS_ANIMAL_INJURED_OPTIONS } from "~/app/raporteaza-prezenta/_constants/is-animal-injured-options";
 import { IS_IN_DANGEROUS_ENVIRONMENT_OPTIONS } from "~/app/raporteaza-prezenta/_constants/is-in-dangerous-environment";
 import { LOCATION_FOUND_OPTIONS } from "~/app/raporteaza-prezenta/_constants/location-found-options";
 import { OBSERVED_SIGNS_OPTIONS } from "~/app/raporteaza-prezenta/_constants/observed-signs-options";
 import { WANTS_UPDATES_OPTIONS } from "~/app/raporteaza-prezenta/_constants/wants-updates-options";
 
-// Enums for DB (should match your frontend enums)
-export const LOCATION_FOUND_OPTIONS_DB = Object.keys(
-  LOCATION_FOUND_OPTIONS,
-) as [keyof typeof LOCATION_FOUND_OPTIONS];
+export const locationFoundEnum = pgEnum(
+  "location_found",
+  Object.keys(LOCATION_FOUND_OPTIONS) as [string, ...string[]],
+);
 
-export const IS_ANIMAL_INJURED_OPTIONS_DB = Object.keys(
-  IS_ANIMAL_INJURED_OPTIONS,
-) as [keyof typeof IS_ANIMAL_INJURED_OPTIONS];
+export const isAnimalInjuredEnum = pgEnum(
+  "is_animal_injured",
+  Object.keys(IS_ANIMAL_INJURED_OPTIONS) as [string, ...string[]],
+);
 
-export const OBSERVED_SIGNS_OPTIONS_DB = Object.keys(
-  OBSERVED_SIGNS_OPTIONS,
-) as [keyof typeof OBSERVED_SIGNS_OPTIONS];
+export const observedSignsEnum = pgEnum(
+  "observed_signs",
+  Object.keys(OBSERVED_SIGNS_OPTIONS) as [string, ...string[]],
+);
 
-export const IS_IN_DANGEROUS_ENVIRONMENT_OPTIONS_DB = Object.keys(
-  IS_IN_DANGEROUS_ENVIRONMENT_OPTIONS,
-) as [keyof typeof IS_IN_DANGEROUS_ENVIRONMENT_OPTIONS];
+export const isInDangerousEnvironmentEnum = pgEnum(
+  "is_in_dangerous_environment",
+  Object.keys(IS_IN_DANGEROUS_ENVIRONMENT_OPTIONS) as [string, ...string[]],
+);
 
-export const WANTS_UPDATES_OPTIONS_DB = Object.keys(WANTS_UPDATES_OPTIONS) as [
-  keyof typeof WANTS_UPDATES_OPTIONS,
-];
+export const wantsUpdatesEnum = pgEnum(
+  "wants_updates",
+  Object.keys(WANTS_UPDATES_OPTIONS) as [string, ...string[]],
+);
 
 // Drizzle schema
 export const presenceReports = pgTable(
@@ -37,24 +42,17 @@ export const presenceReports = pgTable(
       .default(sql`gen_random_uuid()`),
     presenceReportNumber: d.serial().unique(),
     observedAnimalType: d.text().notNull(),
-    locationFound: d
-      .text()
-      .notNull()
-      .$type<(typeof LOCATION_FOUND_OPTIONS_DB)[number]>(),
+    locationFound: locationFoundEnum("location_found").notNull(),
     locationDetails: d.text(),
-    isAnimalInjured: d
-      .text()
-      .notNull()
-      .$type<(typeof IS_ANIMAL_INJURED_OPTIONS_DB)[number]>(),
-    observedSigns: d.text().array().notNull(), // Array of enum strings
+    isAnimalInjured: isAnimalInjuredEnum("is_animal_injured").notNull(),
+    observedSigns: observedSignsEnum("observed_signs").array().notNull(),
     observedSignsDetails: d.text(),
-    isInDangerousEnvironment: d
-      .text()
-      .notNull()
-      .$type<(typeof IS_IN_DANGEROUS_ENVIRONMENT_OPTIONS_DB)[number]>(),
+    isInDangerousEnvironment: isInDangerousEnvironmentEnum(
+      "is_in_dangerous_environment",
+    ).notNull(),
     observationDatetime: d.text().notNull(),
     hasMedia: d.boolean().notNull(),
-    wantsUpdates: d.text().array().notNull(),
+    wantsUpdates: wantsUpdatesEnum("wants_updates").array().notNull(),
     contactDetails: d.text(),
     createdAt: d.timestamp({ withTimezone: true }).defaultNow(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
