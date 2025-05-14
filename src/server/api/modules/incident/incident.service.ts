@@ -30,6 +30,7 @@ export class IncidentService {
       receiveIncidentUpdates: boolean;
       imageKeys: string[];
       conversation: string;
+      address: string;
     };
   }) {
     let isUpdate = false;
@@ -156,131 +157,94 @@ export class IncidentService {
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body style="margin:0;padding:0;background:#f6f6f6;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f6f6f6;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);font-family:'Poppins',Arial,sans-serif;overflow:hidden;">
-          <tr>
-            <td style="background:oklch(84.42% 0.172 84.93);padding:32px 0;text-align:center;">
-              <span style="font-family:'Baloo 2',Arial,sans-serif;font-size:2rem;font-weight:800;color:oklch(22.64% 0 0);letter-spacing:-1px;">
-                📋 Raport ${actionType} - AnimAlert
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:32px;">
-              <!-- User Table -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-                <tr>
-                  <td colspan="2" style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-                    👤 Informații utilizator
-                  </td>
-                </tr>
-                <tr>
-                  <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);">Nume complet:</td>
-                  <td style="padding:6px 0;">${user.firstName} ${user.lastName}</td>
-                </tr>
-                <tr>
-                  <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);">Telefon:</td>
-                  <td style="padding:6px 0;">
-                    <a href="tel:${user.phone}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${user.phone}</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);">Email:</td>
-                  <td style="padding:6px 0;">${user.email ?? "Nespecificat"}</td>
-                </tr>
-                <tr>
-                  <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);">Primește alte actualizări:</td>
-                  <td style="padding:6px 0;">${user.receiveOtherIncidentUpdates ? "Da" : "Nu"}</td>
-                </tr>
-              </table>
-              <!-- Incident Table -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-                <tr>
-                  <td colspan="2" style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-                    📍 Detalii incident
-                  </td>
-                </tr>
-                <tr>
-                  <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);">Status actualizări:</td>
-                  <td style="padding:6px 0;">${incident.receiveIncidentUpdates ? "Activat" : "Dezactivat"}</td>
-                </tr>
-                <tr>
-                  <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);">Coordonate:</td>
-                  <td style="padding:6px 0;">
-                    ${incident.latitude ?? "N/A"}, ${incident.longitude ?? "N/A"}
-                    ${incident.latitude && incident.longitude ? `<br><a href="https://www.google.com/maps?q=${incident.latitude},${incident.longitude}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">🗺️ Vezi pe Google Maps</a>` : ""}
-                  </td>
-                </tr>
-                <tr>
-                  <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);vertical-align:top;">Imagini atașate:</td>
-                  <td style="padding:6px 0;">
-                    ${
-                      incident.imageKeys && incident.imageKeys.length > 0
-                        ? `<ul style="padding-left:18px;margin:0;">${incident.imageKeys.map((url) => `<li style="margin-bottom:4px;"><a href="${url}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${url.split("/").pop()}</a></li>`).join("")}</ul>`
-                        : "Nicio imagine atașată"
-                    }
-                  </td>
-                </tr>
-                <tr>
-                  <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);">Data creării:</td>
-                  <td style="padding:6px 0;">${incident.createdAt ? new Date(incident.createdAt).toLocaleString("ro-RO") : "N/A"}</td>
-                </tr>
-                <tr>
-                  <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);">Ultima actualizare:</td>
-                  <td style="padding:6px 0;">${incident.updatedAt ? new Date(incident.updatedAt).toLocaleString("ro-RO") : "N/A"}</td>
-                </tr>
-              </table>
-
-              <!-- Chatbot Conversation as List -->
-              <div style="margin-bottom:24px;">
-                <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-                  💬 Răspunsuri utilizator (chat-bot)
-                </div>
-                <ul style="padding-left:18px;margin:0;">
-                  ${
-                    conversationArray.length > 0
-                      ? conversationArray
-                          .map(
-                            (item, idx) => `
-                              <li style="margin-bottom:12px;">
-                                <div style="font-weight:600;color:oklch(42.58% 0.113 130.14);margin-bottom:4px;">
-                                  ${item?.question ?? `Pasul ${idx + 1}`}
-                                </div>
-                                <div>
-                                  ${
-                                    Array.isArray(item.answer)
-                                      ? item.answer
-                                          .map(
-                                            (a) =>
-                                              `<span style="display:inline-block;margin-right:8px;">${a}</span>`,
-                                          )
-                                          .join("")
-                                      : item.answer
-                                  }
-                                </div>
-                              </li>
-                            `,
-                          )
-                          .join("")
-                      : `<li style="padding:6px 0;">Nicio răspuns înregistrat.</li>`
-                  }
-                </ul>
-              </div>
-
-              <div style="font-size:0.95rem;color:#888;text-align:center;margin-top:32px;">
-                Mulțumim pentru implicare!<br>Echipa AnimAlert
-              </div>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
+  <div style="max-width:600px;margin:24px auto;background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);font-family:'Poppins',Arial,sans-serif;overflow:hidden;">
+    <div style="background:oklch(84.42% 0.172 84.93);padding:32px 0;text-align:center;">
+      <span style="font-family:'Baloo 2',Arial,sans-serif;font-size:2rem;font-weight:800;color:oklch(22.64% 0 0);letter-spacing:-1px;">
+        📋 Raport ${actionType} - AnimAlert
+      </span>
+    </div>
+    <div style="padding:32px;">
+      <!-- User Info -->
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
+          👤 Informații utilizator
+        </div>
+        <ul style="padding-left:18px;margin:0;list-style-type:none;">
+          <li><strong>Nume complet:</strong> ${user.lastName} ${user.firstName}</li>
+          <li><strong>Telefon:</strong> <a href="tel:${user.phone}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${user.phone}</a></li>
+          <li><strong>Email:</strong> ${user.email ?? "Nespecificat"}</li>
+          <li><strong>Primește alte actualizări:</strong> ${user.receiveOtherIncidentUpdates ? "Da" : "Nu"}</li>
+        </ul>
+      </div>
+      <!-- Incident Info -->
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
+          📍 Detalii incident
+        </div>
+        <ul style="padding-left:18px;margin:0;list-style-type:none;">
+          <li><strong>Status actualizări:</strong> ${incident.receiveIncidentUpdates ? "Activat" : "Dezactivat"}</li>
+          <li>
+            <strong>Adresă:</strong> ${incident.address ?? "Nespecificată"}
+            ${
+              incident.latitude && incident.longitude
+                ? `<br><a href="https://www.google.com/maps?q=${incident.latitude},${incident.longitude}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">🗺️ Vezi pe Google Maps</a>`
+                : ""
+            }
+          </li>
+          <li>
+            <strong>Imagini atașate:</strong>
+            ${
+              incident.imageKeys && incident.imageKeys.length > 0
+                ? `<ul style="padding-left:18px;margin:0;">${incident.imageKeys.map((url) => `<li style="margin-bottom:4px;"><a href="${url}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${url.split("/").pop()}</a></li>`).join("")}</ul>`
+                : "Nicio imagine atașată"
+            }
+          </li>
+          <li><strong>Data creării:</strong> ${incident.createdAt ? new Date(incident.createdAt).toLocaleString("ro-RO") : "N/A"}</li>
+          <li><strong>Ultima actualizare:</strong> ${incident.updatedAt ? new Date(incident.updatedAt).toLocaleString("ro-RO") : "N/A"}</li>
+        </ul>
+      </div>
+      <!-- Chatbot Conversation as List -->
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
+          💬 Răspunsuri utilizator (chat-bot)
+        </div>
+        <ul style="padding-left:18px;margin:0;">
+          ${
+            conversationArray.length > 0
+              ? conversationArray
+                  .map(
+                    (item, idx) => `
+                      <li style="margin-bottom:12px;">
+                        <div style="font-weight:600;color:oklch(42.58% 0.113 130.14);margin-bottom:4px;">
+                          ${item?.question ?? `Pasul ${idx + 1}`}
+                        </div>
+                        <div>
+                          ${
+                            Array.isArray(item.answer)
+                              ? item.answer
+                                  .map(
+                                    (a) =>
+                                      `<span style="display:inline-block;margin-right:8px;">${a}</span>`,
+                                  )
+                                  .join("")
+                              : item.answer
+                          }
+                        </div>
+                      </li>
+                    `,
+                  )
+                  .join("")
+              : `<li style="padding:6px 0;">Nicio răspuns înregistrat.</li>`
+          }
+        </ul>
+      </div>
+      <div style="font-size:0.95rem;color:#888;text-align:center;margin-top:32px;">
+        Mulțumim pentru implicare!<br>Echipa AnimAlert
+      </div>
+    </div>
+  </div>
 </body>
 </html>
-
 `.trim();
 
       await this.emailService.sendEmail({
@@ -290,7 +254,7 @@ export class IncidentService {
         text: `
 Raport ${actionType}
 ----------------
-Utilizator: ${user.firstName} ${user.lastName}
+Utilizator: ${user.lastName} ${user.firstName}
 Telefon: ${user.phone}
 Email: ${user.email ?? "Nespecificat"}
 Actualizări: ${user.receiveOtherIncidentUpdates ? "Da" : "Nu"}

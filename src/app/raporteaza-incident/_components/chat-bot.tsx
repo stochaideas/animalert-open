@@ -1,4 +1,5 @@
 import React, {
+  useEffect,
   useState,
   type Dispatch,
   type MouseEventHandler,
@@ -45,6 +46,17 @@ export default function ChatBot({
 
   const currentStep = CONVERSATION[step];
 
+  useEffect(() => {
+    // Only run when both step and answers are at the end
+    if (
+      step === CONVERSATION.length &&
+      answers.length === CONVERSATION.length &&
+      handleChatFinish
+    ) {
+      handleChatFinish();
+    }
+  }, [step, answers, handleChatFinish]);
+
   // For single choice
   const handleOptionChange = (option: string) => {
     if (currentStep) {
@@ -54,9 +66,9 @@ export default function ChatBot({
       setStep(nextStep);
       setMultiSelect([]);
       setInputValue("");
-      if (nextStep === CONVERSATION.length && handleChatFinish) {
-        handleChatFinish();
-      }
+      // if (nextStep === CONVERSATION.length && handleChatFinish) {
+      //   handleChatFinish();
+      // }
     }
   };
 
@@ -78,9 +90,9 @@ export default function ChatBot({
       setStep(nextStep);
       setMultiSelect([]);
       setInputValue("");
-      if (nextStep === CONVERSATION.length && handleChatFinish) {
-        handleChatFinish();
-      }
+      // if (nextStep === CONVERSATION.length && handleChatFinish) {
+      //   handleChatFinish();
+      // }
     }
   };
 
@@ -97,9 +109,9 @@ export default function ChatBot({
       setStep(nextStep);
       setMultiSelect([]);
       setInputValue("");
-      if (nextStep === CONVERSATION.length && handleChatFinish) {
-        handleChatFinish();
-      }
+      // if (nextStep === CONVERSATION.length && handleChatFinish) {
+      //   handleChatFinish();
+      // }
     }
   };
 

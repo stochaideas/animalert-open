@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SVGAlert, SVGPin } from "~/components/icons";
+import {
+  SVGAlert,
+  // SVGPin
+} from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 
 const cards = [
@@ -107,12 +110,17 @@ export default function Home() {
               bolnav, agresat) sau într-un mediu străin. Sprijină cercetarea
               științifică cu observațiile tale.
             </p>
-            <Link href="/raporteaza-prezenta">
+            {/* <Link href="/raporteaza-prezenta">
               <Button className="mt-8" variant="secondary" size="md">
                 <SVGPin />
                 Raportează prezență
               </Button>
-            </Link>
+            </Link> */}
+            <div className="mt-auto pt-8">
+              <Button variant="secondary" size="md">
+                Modul în lucru...
+              </Button>
+            </div>
           </article>
         </section>
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">

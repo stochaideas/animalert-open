@@ -1,5 +1,5 @@
 import { Label } from "@radix-ui/react-label";
-import { useEffect, useState } from "react";
+import { useEffect, type Dispatch, type SetStateAction } from "react";
 import { GoogleMap } from "~/components/ui/complex/google-map";
 import { SVGArrowLeft, SVGArrowRight } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
@@ -10,12 +10,16 @@ import type { Coordinates } from "../../../types/coordinates";
 // import AddressplaceAutocomplete from "./address-predictions";
 
 export default function Map({
+  address,
+  setAddress,
   handlePreviousPage,
   onMapSubmit,
   initialCoordinates,
   onCoordinatesChange,
   isPending,
 }: {
+  address?: string;
+  setAddress: Dispatch<SetStateAction<string | undefined>>;
   handlePreviousPage: () => void;
   onMapSubmit: () => void;
   initialCoordinates?: Coordinates | null;
@@ -24,7 +28,6 @@ export default function Map({
 }) {
   const { coordinates, setCoordinates, error } =
     useGeolocation(initialCoordinates);
-  const [address, setAddress] = useState<string | null>(null);
 
   useEffect(() => {
     if (onCoordinatesChange) {
@@ -41,7 +44,7 @@ export default function Map({
     if (fetchedAddress.data) {
       setAddress(fetchedAddress.data.formattedAddress);
     }
-  }, [fetchedAddress.data]);
+  }, [setAddress, fetchedAddress.data]);
 
   if (error) return <div>Error: {error}</div>;
 

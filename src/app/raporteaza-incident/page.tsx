@@ -69,6 +69,7 @@ export default function IncidentReport() {
   const [mapCoordinates, setMapCoordinates] = useState<Coordinates | null>(
     null,
   );
+  const [address, setAddress] = useState<string>();
 
   // CHAT BOT
   const [answers, setAnswers] = useState<
@@ -149,13 +150,15 @@ export default function IncidentReport() {
         Object.values(incidentImageFiles),
       );
 
+      const email = values.email === "" ? undefined : values.email;
+
       const result = await mutateIncidentAsync({
         user: {
           id: userId,
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
-          email: values.email,
+          email: email,
           receiveOtherIncidentUpdates: values.receiveOtherIncidentUpdates,
         },
         incident: {
@@ -165,6 +168,7 @@ export default function IncidentReport() {
           longitude: mapCoordinates?.lng,
           imageKeys: imageKeys?.filter((url): url is string => !!url) ?? [],
           conversation: JSON.stringify(answers),
+          address: address,
         },
       });
 
@@ -212,11 +216,13 @@ export default function IncidentReport() {
   };
 
   const handleNextPage = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-    setCurrentPage((prevPage) => prevPage + 1);
+    if (currentPage < 3) {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
   };
 
   const handlePreviousPage = () => {
@@ -271,6 +277,8 @@ export default function IncidentReport() {
       case 2:
         return (
           <Map
+            address={address}
+            setAddress={setAddress}
             handlePreviousPage={handlePreviousPage}
             onMapSubmit={async () =>
               await onIncidentSubmit(incidentForm.getValues())
@@ -294,7 +302,7 @@ export default function IncidentReport() {
           />
         );
       default:
-        redirect("/");
+        break;
     }
   };
 

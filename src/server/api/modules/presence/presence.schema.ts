@@ -1,11 +1,11 @@
 import { sql } from "drizzle-orm";
 import { pgTable, index, pgEnum } from "drizzle-orm/pg-core";
 
-import { IS_ANIMAL_INJURED_OPTIONS } from "~/app/raporteaza-prezenta/_constants/is-animal-injured-options";
-import { IS_IN_DANGEROUS_ENVIRONMENT_OPTIONS } from "~/app/raporteaza-prezenta/_constants/is-in-dangerous-environment";
-import { LOCATION_FOUND_OPTIONS } from "~/app/raporteaza-prezenta/_constants/location-found-options";
-import { OBSERVED_SIGNS_OPTIONS } from "~/app/raporteaza-prezenta/_constants/observed-signs-options";
-import { WANTS_UPDATES_OPTIONS } from "~/app/raporteaza-prezenta/_constants/wants-updates-options";
+import { IS_ANIMAL_INJURED_OPTIONS } from "~/app/_raporteaza-prezenta/_constants/is-animal-injured-options";
+import { IS_IN_DANGEROUS_ENVIRONMENT_OPTIONS } from "~/app/_raporteaza-prezenta/_constants/is-in-dangerous-environment";
+import { LOCATION_FOUND_OPTIONS } from "~/app/_raporteaza-prezenta/_constants/location-found-options";
+import { OBSERVED_SIGNS_OPTIONS } from "~/app/_raporteaza-prezenta/_constants/observed-signs-options";
+import { WANTS_UPDATES_OPTIONS } from "~/app/_raporteaza-prezenta/_constants/wants-updates-options";
 
 export const locationFoundEnum = pgEnum(
   "location_found",
