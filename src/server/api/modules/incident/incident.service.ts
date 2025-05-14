@@ -29,8 +29,8 @@ export class IncidentService {
       longitude?: number;
       receiveIncidentUpdates: boolean;
       imageKeys: string[];
-      conversation: string;
-      address: string;
+      conversation?: string;
+      address?: string;
     };
   }) {
     let isUpdate = false;

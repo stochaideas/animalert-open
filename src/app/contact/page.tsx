@@ -26,8 +26,21 @@ import { COUNTIES } from "~/constants/counties";
 import { Button } from "~/components/ui/simple/button";
 import { SVGPaperPlane } from "~/components/icons";
 import { SOLICITATION_TYPES } from "./_constants/solicitationTypes";
+import { api } from "~/trpc/react";
 
 export default function Contact() {
+  const utils = api.useUtils();
+
+  const {
+    mutateAsync: mutateContactAsync,
+    isPending: contactIsPending,
+    // error: contactError,
+  } = api.contact.create.useMutation({
+    onSuccess: () => {
+      void utils.contact.invalidate();
+    },
+  });
+
   const contactForm = useForm<z.infer<typeof contactFormSchema>>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -43,8 +56,8 @@ export default function Contact() {
     reValidateMode: "onChange",
   });
 
-  function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
-    console.log(values);
+  async function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
+    await mutateContactAsync(values);
   }
 
   return (
@@ -289,8 +302,17 @@ export default function Contact() {
                 variant="secondary"
                 size="md"
                 type="submit"
+                disabled={contactIsPending}
               >
-                <SVGPaperPlane /> Trimite Mesaj
+                {contactIsPending ? (
+                  <>
+                    <SVGPaperPlane /> Mesajul se trimite
+                  </>
+                ) : (
+                  <>
+                    <SVGPaperPlane /> Trimite Mesaj
+                  </>
+                )}
               </Button>
             </section>
           </section>
