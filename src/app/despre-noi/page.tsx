@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+import { Button } from "~/components/ui/simple/button";
 
 const partner_cards = [
   {
@@ -27,9 +29,48 @@ const partner_cards = [
   },
 ];
 
+const media_cards = [
+  {
+    img: "/images/about-us-tvr.png",
+    alt: "Publicatie",
+    title: "Publicatie",
+    date: "30 Aprilie 2025",
+    body: "La Cluj urmeaza sa fie lansata o aplicație prin care poate fi semnalată prezența animalelor sălbatice. De la cele care ar putea crea probleme in oras, cele care pur si",
+    button: "Vezi material",
+    link: "https://www.facebook.com/watch/?v=494823710381045&rdid=epj1nxooXPsMoEwF",
+  },
+  {
+    img: "/images/image-placeholder.png",
+    alt: "Et imperdiet",
+    title: "Et imperdiet",
+    date: "30 Aprilie 2025",
+    body: "Quis egestas mauris amet turpis odio sit neque at. Sed lobortis a ultrices mattis blandit faucibus mauris.",
+    button: "Vezi material",
+    link: "",
+  },
+  {
+    img: "/images/image-placeholder.png",
+    alt: "Et imperdiet",
+    title: "Et imperdiet",
+    date: "30 Aprilie 2025",
+    body: "Quis egestas mauris amet turpis odio sit neque at. Sed lobortis a ultrices mattis blandit faucibus mauris.",
+    button: "Vezi material",
+    link: "",
+  },
+  {
+    img: "/images/image-placeholder.png",
+    alt: "Et imperdiet",
+    title: "Et imperdiet",
+    date: "30 Aprilie 2025",
+    body: "Quis egestas mauris amet turpis odio sit neque at. Sed lobortis a ultrices mattis blandit faucibus mauris.",
+    button: "Vezi material",
+    link: "",
+  },
+];
+
 export default function AboutPage() {
   return (
-    <main className="bg-tertiary flex flex-col gap-24 px-6 pt-20 pb-40 xl:gap-14 2xl:px-96 2xl:pt-24 2xl:pb-52">
+    <main className="bg-tertiary flex flex-col gap-24 px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
       <section className="flex flex-col gap-16 lg:flex-row lg:items-start lg:gap-14">
         <div className="flex flex-1 flex-col gap-8">
           <div>
@@ -117,23 +158,69 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {partner_cards.map((card, i) => (
-          <div
-            key={i}
-            className="border-tertiary-border flex min-w-0 flex-col rounded-md border-[1px] bg-white p-8"
-          >
-            <Image
-              src={card.img}
-              alt={card.alt}
-              width={272}
-              height={160}
-              className="h-auto w-full object-cover"
-            />
-            <h3 className="text-heading-3 mt-8 text-center">{card.title}</h3>
-            <p className="text-body-strong mt-2 text-center">{card.strong}</p>
-          </div>
-        ))}
+      <section>
+        <div className="mb-12">
+          <h1 className="text-heading-1 mb-2 text-center">Partenerii noștri</h1>
+          <h3 className="text-subheading text-center">
+            AnimAlert nu ar fi fost posibilă fără sprijinul partenerilor noștri
+            dedicați.
+            <br />
+            Mulțumim celor care au contribuit pentru a crea această platformă
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {partner_cards.map((card, i) => (
+            <div
+              key={i}
+              className="border-tertiary-border flex min-w-0 flex-col rounded-md border-[1px] bg-white p-8"
+            >
+              <Image
+                src={card.img}
+                alt={card.alt}
+                width={272}
+                height={160}
+                className="h-auto w-full object-cover"
+              />
+              <h3 className="text-heading-3 mt-8 text-center">{card.title}</h3>
+              <p className="text-body-strong mt-2 text-center">{card.strong}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-12">
+          <h1 className="text-heading-1 mb-2 text-center">Aparitii publice</h1>
+          <h3 className="text-subheading text-center">
+            Mass-media, presa, social media
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {media_cards.map((card, i) => (
+            <div
+              key={i}
+              className="border-tertiary-border flex min-w-0 flex-col justify-between rounded-md border-[1px] bg-white p-8"
+            >
+              <Image
+                src={card.img}
+                alt={card.alt}
+                width={272}
+                height={160}
+                className="h-auto w-full object-cover"
+              />
+              <div>
+                <h3 className="text-heading-3 mt-8">{card.title}</h3>
+                <span className="text-body-small mt-2">{card.date}</span>
+                <p className="text-body mt-2 line-clamp-3">{card.body}</p>
+                <Link href={card.link} target="_blank">
+                  <Button className="mt-8 w-full" variant="tertiary" size="md">
+                    {card.button}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
     </main>
   );
