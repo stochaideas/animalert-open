@@ -20,6 +20,7 @@ export const incidentFormSchema = z.object({
     .email({
       message: "Adresa de email nu este validă",
     })
+    .or(z.literal(""))
     .optional(),
   confidentiality: z.boolean().refine((val) => val === true, {
     message: "Trebuie să accepți Politica de confidențialitate",

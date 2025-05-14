@@ -1,18 +1,21 @@
-import Link from "next/link";
 import React, { useState } from "react";
-import { SVGBotAvatar, SVGCross } from "~/components/icons";
-import { CONVERSATION } from "../_constants/chat-bot-conversation";
+
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+import { CONVERSATION } from "../_constants/chat-bot-conversation";
+import { SVGBotAvatar, SVGCross } from "~/components/icons";
+
+import { Button } from "~/components/ui/simple/button";
+import { Checkbox } from "~/components/ui/simple/checkbox";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "~/components/ui/simple/dialog";
-import { Button } from "~/components/ui/simple/button";
 import { Input } from "~/components/ui/simple/input";
-import { Checkbox } from "~/components/ui/simple/checkbox";
 
 export default function ChatBot({
   incidentReportNumber,
@@ -194,7 +197,10 @@ export default function ChatBot({
           <DialogFooter>
             <Button
               className="bg-secondary text-secondary-foreground hover:bg-secondary-hover rounded px-4 py-2"
-              onClick={() => router.push("/")}
+              onClick={() => {
+                console.log(answers);
+                router.push("/");
+              }}
             >
               Întoarce-te acasă
             </Button>
