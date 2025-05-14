@@ -234,7 +234,7 @@ export class IncidentService {
                     `,
                   )
                   .join("")
-              : `<li style="padding:6px 0;">Nicio răspuns înregistrat.</li>`
+              : `<li style="padding:6px 0;">Niciun răspuns înregistrat.</li>`
           }
         </ul>
       </div>

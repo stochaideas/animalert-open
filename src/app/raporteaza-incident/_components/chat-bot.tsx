@@ -1,5 +1,4 @@
 import React, {
-  useEffect,
   useState,
   type Dispatch,
   type MouseEventHandler,
@@ -36,7 +35,9 @@ export default function ChatBot({
     SetStateAction<{ question: string; answer: string | string[] }[]>
   >;
   incidentReportNumber?: number;
-  handleChatFinish?: () => void;
+  handleChatFinish?: (
+    answers: { question: string; answer: string | string[] }[],
+  ) => void;
   handleDialogClose?: MouseEventHandler<HTMLButtonElement>;
   isPending: boolean;
 }) {
@@ -46,29 +47,19 @@ export default function ChatBot({
 
   const currentStep = CONVERSATION[step];
 
-  useEffect(() => {
-    // Only run when both step and answers are at the end
-    if (
-      step === CONVERSATION.length &&
-      answers.length === CONVERSATION.length &&
-      handleChatFinish
-    ) {
-      handleChatFinish();
-    }
-  }, [step, answers, handleChatFinish]);
-
   // For single choice
   const handleOptionChange = (option: string) => {
     if (currentStep) {
       const newEntry = { question: currentStep.question, answer: option };
-      setAnswers([...answers, newEntry]);
+      const newAnswers = [...answers, newEntry];
+      setAnswers(newAnswers);
       const nextStep = step + 1;
       setStep(nextStep);
       setMultiSelect([]);
       setInputValue("");
-      // if (nextStep === CONVERSATION.length && handleChatFinish) {
-      //   handleChatFinish();
-      // }
+      if (nextStep === CONVERSATION.length && handleChatFinish) {
+        handleChatFinish(newAnswers);
+      }
     }
   };
 
@@ -85,14 +76,15 @@ export default function ChatBot({
     if (currentStep) {
       if (multiSelect.length === 0) return;
       const newEntry = { question: currentStep.question, answer: multiSelect };
-      setAnswers([...answers, newEntry]);
+      const newAnswers = [...answers, newEntry];
+      setAnswers(newAnswers);
       const nextStep = step + 1;
       setStep(nextStep);
       setMultiSelect([]);
       setInputValue("");
-      // if (nextStep === CONVERSATION.length && handleChatFinish) {
-      //   handleChatFinish();
-      // }
+      if (nextStep === CONVERSATION.length && handleChatFinish) {
+        handleChatFinish(newAnswers);
+      }
     }
   };
 
@@ -104,14 +96,15 @@ export default function ChatBot({
         question: currentStep.question,
         answer: inputValue.trim(),
       };
-      setAnswers([...answers, newEntry]);
+      const newAnswers = [...answers, newEntry];
+      setAnswers(newAnswers);
       const nextStep = step + 1;
       setStep(nextStep);
       setMultiSelect([]);
       setInputValue("");
-      // if (nextStep === CONVERSATION.length && handleChatFinish) {
-      //   handleChatFinish();
-      // }
+      if (nextStep === CONVERSATION.length && handleChatFinish) {
+        handleChatFinish(newAnswers);
+      }
     }
   };
 
