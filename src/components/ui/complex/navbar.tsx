@@ -223,9 +223,8 @@ export default function Navbar() {
       <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-3 py-1.5 md:px-6 md:py-3.5">
         <div className="m-auto text-center">
           <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
-          imediat la <b>112</b>, dacă te afli în pericol sau sau dacă observi un
-          animal de talie rănit de talie mai mare (caprior, cerb, vulpe, lup,
-          urs).
+          imediat la <b>112</b>, dacă te afli în pericol sau dacă observi un
+          animal rănit de talie mai mare (căprior, cerb, vulpe, lup, urs).
         </div>
       </section>
     </div>
