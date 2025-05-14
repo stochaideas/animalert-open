@@ -24,7 +24,8 @@ export const incidents = pgTable(
       .default(false),
     latitude: d.doublePrecision("latitude"),
     longitude: d.doublePrecision("longitude"),
-    imageUrls: d.text("image_urls").array(),
+    imageKeys: d.text("image_keys").array(),
+    conversation: d.text("conversation"),
     createdAt: d.timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: d
       .timestamp("updated_at", { withTimezone: true })
@@ -52,7 +53,8 @@ export const upsertIncidentWithUserSchema = z.object({
     receiveIncidentUpdates: z.boolean().default(false),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
-    imageUrls: z.string().array(),
+    imageKeys: z.string().array(),
+    conversation: z.string().optional(),
   }),
 });
 

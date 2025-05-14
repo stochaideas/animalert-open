@@ -70,6 +70,11 @@ export default function IncidentReport() {
     null,
   );
 
+  // CHAT BOT
+  const [answers, setAnswers] = useState<
+    { question: string; answer: string | string[] }[]
+  >([]);
+
   const utils = api.useUtils();
   const {
     mutateAsync: mutateIncidentAsync,
@@ -140,7 +145,7 @@ export default function IncidentReport() {
   // Submit handler for the incident form
   async function onIncidentSubmit(values: z.infer<typeof incidentFormSchema>) {
     try {
-      const imageUrls = await handleImageUpload(
+      const imageKeys = await handleImageUpload(
         Object.values(incidentImageFiles),
       );
 
@@ -158,7 +163,8 @@ export default function IncidentReport() {
           receiveIncidentUpdates: values.receiveIncidentUpdates,
           latitude: mapCoordinates?.lat,
           longitude: mapCoordinates?.lng,
-          imageUrls: imageUrls?.filter((url): url is string => !!url) ?? [],
+          imageKeys: imageKeys?.filter((url): url is string => !!url) ?? [],
+          conversation: JSON.stringify(answers),
         },
       });
 
@@ -275,7 +281,18 @@ export default function IncidentReport() {
           />
         );
       case 3:
-        return <ChatBot incidentReportNumber={incidentReportNumber} />;
+        return (
+          <ChatBot
+            answers={answers}
+            setAnswers={setAnswers}
+            incidentReportNumber={incidentReportNumber}
+            handleChatFinish={async () => {
+              await onIncidentSubmit(incidentForm.getValues());
+            }}
+            handleDialogClose={() => redirect("/")}
+            isPending={incidentIsPending || s3IsPending}
+          />
+        );
       default:
         redirect("/");
     }

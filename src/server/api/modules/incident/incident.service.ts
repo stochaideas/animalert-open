@@ -28,7 +28,8 @@ export class IncidentService {
       latitude?: number;
       longitude?: number;
       receiveIncidentUpdates: boolean;
-      imageUrls: string[];
+      imageKeys: string[];
+      conversation: string;
     };
   }) {
     let isUpdate = false;
@@ -55,7 +56,7 @@ export class IncidentService {
           .update(incidents)
           .set({
             ...data.incident,
-            imageUrls: data.incident.imageUrls.filter(
+            imageKeys: data.incident.imageKeys.filter(
               (url): url is string => url !== undefined,
             ),
           })
@@ -106,7 +107,8 @@ export class IncidentService {
             latitude: data.incident.latitude,
             longitude: data.incident.longitude,
             receiveIncidentUpdates: data.incident.receiveIncidentUpdates,
-            imageUrls: data.incident.imageUrls,
+            imageKeys: data.incident.imageKeys,
+            conversation: data.incident.conversation,
           })
           .returning();
       }
@@ -120,14 +122,29 @@ export class IncidentService {
     const { user, incident } = result;
 
     if (user && incident) {
-      const { latitude, longitude } = incident;
+      const { latitude, longitude, conversation } = incident;
+
+      let conversationArray: { question: string; answer: string | string[] }[] =
+        [];
+      if (conversation) {
+        try {
+          conversationArray = JSON.parse(conversation) as {
+            question: string;
+            answer: string | string[];
+          }[];
+        } catch {
+          // Optionally log the error or handle it as needed
+          conversationArray = [];
+        }
+      }
+
       const mapsUrl =
         latitude && longitude
           ? `https://www.google.com/maps?q=${latitude},${longitude}`
           : null;
 
       const actionType = isUpdate ? "actualizat" : "nou creat";
-      const imagesCount = incident.imageUrls?.length;
+      const imagesCount = incident.imageKeys?.length;
 
       const html = `
 <!DOCTYPE html>
@@ -200,8 +217,8 @@ export class IncidentService {
                   <td style="font-weight:600;padding:6px 0;color:oklch(42.58% 0.113 130.14);vertical-align:top;">Imagini atașate:</td>
                   <td style="padding:6px 0;">
                     ${
-                      incident.imageUrls && incident.imageUrls.length > 0
-                        ? `<ul style="padding-left:18px;margin:0;">${incident.imageUrls.map((url) => `<li style="margin-bottom:4px;"><a href="${url}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${url.split("/").pop()}</a></li>`).join("")}</ul>`
+                      incident.imageKeys && incident.imageKeys.length > 0
+                        ? `<ul style="padding-left:18px;margin:0;">${incident.imageKeys.map((url) => `<li style="margin-bottom:4px;"><a href="${url}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${url.split("/").pop()}</a></li>`).join("")}</ul>`
                         : "Nicio imagine atașată"
                     }
                   </td>
@@ -215,6 +232,43 @@ export class IncidentService {
                   <td style="padding:6px 0;">${incident.updatedAt ? new Date(incident.updatedAt).toLocaleString("ro-RO") : "N/A"}</td>
                 </tr>
               </table>
+
+              <!-- Chatbot Conversation as List -->
+              <div style="margin-bottom:24px;">
+                <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
+                  💬 Răspunsuri utilizator (chat-bot)
+                </div>
+                <ul style="padding-left:18px;margin:0;">
+                  ${
+                    conversationArray.length > 0
+                      ? conversationArray
+                          .map(
+                            (item, idx) => `
+                              <li style="margin-bottom:12px;">
+                                <div style="font-weight:600;color:oklch(42.58% 0.113 130.14);margin-bottom:4px;">
+                                  ${item?.question ?? `Pasul ${idx + 1}`}
+                                </div>
+                                <div>
+                                  ${
+                                    Array.isArray(item.answer)
+                                      ? item.answer
+                                          .map(
+                                            (a) =>
+                                              `<span style="display:inline-block;margin-right:8px;">${a}</span>`,
+                                          )
+                                          .join("")
+                                      : item.answer
+                                  }
+                                </div>
+                              </li>
+                            `,
+                          )
+                          .join("")
+                      : `<li style="padding:6px 0;">Nicio răspuns înregistrat.</li>`
+                  }
+                </ul>
+              </div>
+
               <div style="font-size:0.95rem;color:#888;text-align:center;margin-top:32px;">
                 Mulțumim pentru implicare!<br>Echipa AnimAlert
               </div>
@@ -226,11 +280,12 @@ export class IncidentService {
   </table>
 </body>
 </html>
+
 `.trim();
 
       await this.emailService.sendEmail({
         to: env.EMAIL_ADMIN,
-        subject: `🚨 Raport ${actionType.toUpperCase()} - ${user.firstName} ${user.lastName}`,
+        subject: `🚨 Raport ${actionType.toUpperCase()} - ${incident.incidentReportNumber}`,
         html,
         text: `
 Raport ${actionType}

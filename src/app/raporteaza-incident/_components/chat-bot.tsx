@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+  type Dispatch,
+  type MouseEventHandler,
+  type SetStateAction,
+} from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { CONVERSATION } from "../_constants/chat-bot-conversation";
 import { SVGBotAvatar, SVGCross } from "~/components/icons";
@@ -11,6 +15,7 @@ import { Checkbox } from "~/components/ui/simple/checkbox";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -18,26 +23,41 @@ import {
 import { Input } from "~/components/ui/simple/input";
 
 export default function ChatBot({
+  answers,
+  setAnswers,
   incidentReportNumber,
+  handleChatFinish,
+  handleDialogClose,
+  isPending,
 }: {
+  answers: { question: string; answer: string | string[] }[];
+  setAnswers: Dispatch<
+    SetStateAction<{ question: string; answer: string | string[] }[]>
+  >;
   incidentReportNumber?: number;
+  handleChatFinish?: () => void;
+  handleDialogClose?: MouseEventHandler<HTMLButtonElement>;
+  isPending: boolean;
 }) {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<(string | string[])[]>([]);
   const [multiSelect, setMultiSelect] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
 
   const currentStep = CONVERSATION[step];
 
-  const router = useRouter();
-
   // For single choice
   const handleOptionChange = (option: string) => {
-    const newAnswers = [...answers, option];
-    setAnswers(newAnswers);
-    setStep((prev) => prev + 1);
-    setMultiSelect([]); // reset
-    setInputValue("");
+    if (currentStep) {
+      const newEntry = { question: currentStep.question, answer: option };
+      setAnswers([...answers, newEntry]);
+      const nextStep = step + 1;
+      setStep(nextStep);
+      setMultiSelect([]);
+      setInputValue("");
+      if (nextStep === CONVERSATION.length && handleChatFinish) {
+        handleChatFinish();
+      }
+    }
   };
 
   // For multiple choice
@@ -50,20 +70,37 @@ export default function ChatBot({
   };
 
   const handleMultiSelectSubmit = () => {
-    if (multiSelect.length === 0) return;
-    setAnswers([...answers, multiSelect]);
-    setStep((prev) => prev + 1);
-    setMultiSelect([]);
-    setInputValue("");
+    if (currentStep) {
+      if (multiSelect.length === 0) return;
+      const newEntry = { question: currentStep.question, answer: multiSelect };
+      setAnswers([...answers, newEntry]);
+      const nextStep = step + 1;
+      setStep(nextStep);
+      setMultiSelect([]);
+      setInputValue("");
+      if (nextStep === CONVERSATION.length && handleChatFinish) {
+        handleChatFinish();
+      }
+    }
   };
 
   // For input
   const handleInputSubmit = () => {
-    if (!inputValue.trim()) return;
-    setAnswers([...answers, inputValue.trim()]);
-    setStep((prev) => prev + 1);
-    setMultiSelect([]);
-    setInputValue("");
+    if (currentStep) {
+      if (!inputValue.trim()) return;
+      const newEntry = {
+        question: currentStep.question,
+        answer: inputValue.trim(),
+      };
+      setAnswers([...answers, newEntry]);
+      const nextStep = step + 1;
+      setStep(nextStep);
+      setMultiSelect([]);
+      setInputValue("");
+      if (nextStep === CONVERSATION.length && handleChatFinish) {
+        handleChatFinish();
+      }
+    }
   };
 
   return (
@@ -94,9 +131,9 @@ export default function ChatBot({
             {answers[idx] && (
               <div className="flex justify-end">
                 <div className="text-neutral-foreground text-single-line-body-base my-8 max-w-[60%] rounded-t-lg rounded-l-lg bg-[#F2F2F2] p-4">
-                  {Array.isArray(answers[idx])
-                    ? answers[idx].join(", ")
-                    : answers[idx]}
+                  {Array.isArray(answers[idx].answer)
+                    ? answers[idx].answer.join(", ")
+                    : answers[idx].answer}
                 </div>
               </div>
             )}
@@ -133,9 +170,9 @@ export default function ChatBot({
                       <Button
                         className="bg-secondary text-secondary-foreground hover:bg-secondary-hover mt-2 w-full px-4 py-2"
                         onClick={handleMultiSelectSubmit}
-                        disabled={multiSelect.length === 0}
+                        disabled={multiSelect.length === 0 || isPending}
                       >
-                        Continuă
+                        {isPending ? "Se salvează" : "Continuă"}
                       </Button>
                     </>
                   ) : (
@@ -188,6 +225,9 @@ export default function ChatBot({
       <Dialog open={step >= CONVERSATION.length}>
         <DialogContent className="bg-tertiary">
           <DialogHeader>
+            <DialogDescription className="sr-only">
+              Confirmare de înregistrare a incidentului.
+            </DialogDescription>
             <DialogTitle>Incident înregistrat</DialogTitle>
           </DialogHeader>
           <div>
@@ -197,10 +237,7 @@ export default function ChatBot({
           <DialogFooter>
             <Button
               className="bg-secondary text-secondary-foreground hover:bg-secondary-hover rounded px-4 py-2"
-              onClick={() => {
-                console.log(answers);
-                router.push("/");
-              }}
+              onClick={handleDialogClose}
             >
               Întoarce-te acasă
             </Button>
