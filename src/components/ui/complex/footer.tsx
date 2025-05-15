@@ -124,7 +124,18 @@ export default function Footer() {
         <span className="text-body-small w-full items-start lg:flex-row lg:justify-center lg:gap-2 lg:text-center">
           <span>© 2025 AnimAlert. Toate drepturile rezervate.</span>
           <br />
-          <span>Proiect finanțat de Lidl · Coordonat de Asociația ARC</span>
+          <span>
+            Proiect finanțat din programul „În ZONA TA”, implementat prin
+            Platforma de Mediu la Cluj-Napoca de către{" "}
+            <Link
+              className="text-primary underline"
+              href="https://www.facebook.com/FundatiaComunitaraCluj"
+              target="_blank"
+            >
+              Fundația Comunitară Cluj
+            </Link>{" "}
+            și ING Bank România
+          </span>
         </span>
       </div>
     </footer>
