@@ -15,62 +15,70 @@ const partner_cards = [
     title: "Design UI/UX",
     strong: "Iulia Beches",
   },
-  {
-    img: "/images/image-placeholder.png",
-    alt: "X",
-    title: "X",
-    strong: "X",
-  },
-  {
-    img: "/images/image-placeholder.png",
-    alt: "X",
-    title: "X",
-    strong: "X",
-  },
+  // {
+  //   img: "/images/image-placeholder.png",
+  //   alt: "X",
+  //   title: "X",
+  //   strong: "X",
+  // },
+  // {
+  //   img: "/images/image-placeholder.png",
+  //   alt: "X",
+  //   title: "X",
+  //   strong: "X",
+  // },
 ];
 
 const media_cards = [
   {
     img: "/images/about-us-tvr.png",
-    alt: "Publicatie",
-    title: "Publicatie",
+    alt: "Publicație",
+    title: "Publicație",
     date: "30 Aprilie 2025",
     body: "La Cluj urmeaza sa fie lansata o aplicație prin care poate fi semnalată prezența animalelor sălbatice. De la cele care ar putea crea probleme in oras, cele care pur si",
     button: "Vezi material",
     link: "https://www.facebook.com/watch/?v=494823710381045&rdid=epj1nxooXPsMoEwF",
   },
   {
-    img: "/images/image-placeholder.png",
-    alt: "Et imperdiet",
-    title: "Et imperdiet",
-    date: "30 Aprilie 2025",
-    body: "Quis egestas mauris amet turpis odio sit neque at. Sed lobortis a ultrices mattis blandit faucibus mauris.",
+    img: "/images/about-us-radio-romania-cluj.png",
+    alt: "Radio Romania Cluj",
+    title: "Radio Romania Cluj",
+    date: "8 mai 2025",
+    body: "România înăsprește sancțiunile pentru folosirea ilegală a petardelor.",
     button: "Vezi material",
-    link: "",
+    link: "https://www.radiocluj.ro/2025/05/08/romania-inaspreste-sanctiunile-pentru-folosirea-ilegala-a-petardelor/",
   },
-  {
-    img: "/images/image-placeholder.png",
-    alt: "Et imperdiet",
-    title: "Et imperdiet",
-    date: "30 Aprilie 2025",
-    body: "Quis egestas mauris amet turpis odio sit neque at. Sed lobortis a ultrices mattis blandit faucibus mauris.",
-    button: "Vezi material",
-    link: "",
-  },
-  {
-    img: "/images/image-placeholder.png",
-    alt: "Et imperdiet",
-    title: "Et imperdiet",
-    date: "30 Aprilie 2025",
-    body: "Quis egestas mauris amet turpis odio sit neque at. Sed lobortis a ultrices mattis blandit faucibus mauris.",
-    button: "Vezi material",
-    link: "",
-  },
+  // {
+  //   img: "/images/image-placeholder.png",
+  //   alt: "Et imperdiet",
+  //   title: "Et imperdiet",
+  //   date: "30 Aprilie 2025",
+  //   body: "Quis egestas mauris amet turpis odio sit neque at. Sed lobortis a ultrices mattis blandit faucibus mauris.",
+  //   button: "Vezi material",
+  //   link: "",
+  // },
+  // {
+  //   img: "/images/image-placeholder.png",
+  //   alt: "Et imperdiet",
+  //   title: "Et imperdiet",
+  //   date: "30 Aprilie 2025",
+  //   body: "Quis egestas mauris amet turpis odio sit neque at. Sed lobortis a ultrices mattis blandit faucibus mauris.",
+  //   button: "Vezi material",
+  //   link: "",
+  // },
 ];
 
 export default function AboutPage() {
   return (
     <main className="bg-tertiary flex flex-col gap-24 px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
+      <section>
+        <Image
+          alt="Lup"
+          src="/images/about-us-sponsors.png"
+          width="1420"
+          height="200"
+        />
+      </section>
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-16 lg:flex-row lg:items-start lg:gap-14">
           <div className="flex flex-1 flex-col gap-8">
@@ -265,7 +273,7 @@ export default function AboutPage() {
             Mulțumim celor care au contribuit pentru a crea această platformă
           </h3>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2">
           {partner_cards.map((card, i) => (
             <div
               key={i}
@@ -292,7 +300,7 @@ export default function AboutPage() {
             Mass-media, presa, social media
           </h3>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2">
           {media_cards.map((card, i) => (
             <div
               key={i}
