@@ -1,27 +1,33 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
-import { redirect } from "next/navigation";
+
+import { TRPCError } from "@trpc/server";
+
+import { api } from "~/trpc/react";
+import type { Coordinates } from "~/types/coordinates";
+
+import { incidentFormSchema } from "./_schemas/incident-form-schema";
 
 import Disclaimer from "./_components/disclaimer";
 import Contact from "./_components/contact";
 import Map from "./_components/map";
 import ChatBot from "./_components/chat-bot";
-import { Button } from "~/components/ui/simple/button";
-import { MaterialStepper } from "../../components/ui/complex/stepper";
 
-import { incidentFormSchema } from "./_schemas/incident-form-schema";
-import type { Coordinates } from "../../types/coordinates";
-import { api } from "~/trpc/react";
-import { TRPCError } from "@trpc/server";
+import { Button } from "~/components/ui/simple/button";
+import { MaterialStepper } from "~/components/ui/complex/stepper";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
-  const [incidentId, setIncidentId] = useState<string | undefined>(undefined);
-  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [incidentId, setIncidentId] = useState<string | undefined>();
+  const [incidentReportNumber, setIncidentReportNumber] = useState<
+    number | undefined
+  >();
+  const [userId, setUserId] = useState<string | undefined>();
 
   // DISCLAIMER
   const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
@@ -34,7 +40,7 @@ export default function IncidentReport() {
       lastName: "",
       firstName: "",
       phone: "",
-      email: undefined,
+      email: "",
       confidentiality: false,
       receiveIncidentUpdates: false,
       receiveOtherIncidentUpdates: false,
@@ -63,6 +69,12 @@ export default function IncidentReport() {
   const [mapCoordinates, setMapCoordinates] = useState<Coordinates | null>(
     null,
   );
+  const [address, setAddress] = useState<string>();
+
+  // CHAT BOT
+  const [answers, setAnswers] = useState<
+    { question: string; answer: string | string[] }[]
+  >([]);
 
   const utils = api.useUtils();
   const {
@@ -77,7 +89,7 @@ export default function IncidentReport() {
 
   const {
     mutateAsync: mutateS3Async,
-    // isPending: s3IsPending,
+    isPending: s3IsPending,
     // error: s3Error,
   } = api.s3.getPresignedUrl.useMutation({
     onSuccess: () => {
@@ -134,9 +146,11 @@ export default function IncidentReport() {
   // Submit handler for the incident form
   async function onIncidentSubmit(values: z.infer<typeof incidentFormSchema>) {
     try {
-      const imageUrls = await handleImageUpload(
+      const imageKeys = await handleImageUpload(
         Object.values(incidentImageFiles),
       );
+
+      const email = values.email === "" ? undefined : values.email;
 
       const result = await mutateIncidentAsync({
         user: {
@@ -144,7 +158,7 @@ export default function IncidentReport() {
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
-          email: values.email,
+          email: email,
           receiveOtherIncidentUpdates: values.receiveOtherIncidentUpdates,
         },
         incident: {
@@ -152,13 +166,16 @@ export default function IncidentReport() {
           receiveIncidentUpdates: values.receiveIncidentUpdates,
           latitude: mapCoordinates?.lat,
           longitude: mapCoordinates?.lng,
-          imageUrls: imageUrls?.filter((url): url is string => !!url) ?? [],
+          imageKeys: imageKeys?.filter((url): url is string => !!url) ?? [],
+          conversation: JSON.stringify(answers),
+          address: address,
         },
       });
 
       if (!incidentId) {
-        setIncidentId(result?.id);
-        setUserId(result?.userId);
+        setIncidentId(result?.incident?.id);
+        setIncidentReportNumber(result?.incident?.incidentReportNumber);
+        setUserId(result?.user?.id);
       }
 
       handleNextPage();
@@ -199,11 +216,13 @@ export default function IncidentReport() {
   };
 
   const handleNextPage = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-    setCurrentPage((prevPage) => prevPage + 1);
+    if (currentPage < 3) {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
   };
 
   const handlePreviousPage = () => {
@@ -252,24 +271,38 @@ export default function IncidentReport() {
             incidentImageFiles={incidentImageFiles}
             handleIncidentImageChange={handleIncidentImageChange}
             onIncidentSubmit={onIncidentSubmit}
-            isPending={incidentIsPending}
+            isPending={incidentIsPending || s3IsPending}
           />
         );
       case 2:
         return (
           <Map
+            address={address}
+            setAddress={setAddress}
             handlePreviousPage={handlePreviousPage}
             onMapSubmit={async () =>
               await onIncidentSubmit(incidentForm.getValues())
             }
             initialCoordinates={mapCoordinates}
             onCoordinatesChange={setMapCoordinates}
+            isPending={incidentIsPending || s3IsPending}
           />
         );
       case 3:
-        return <ChatBot />;
+        return (
+          <ChatBot
+            answers={answers}
+            setAnswers={setAnswers}
+            incidentReportNumber={incidentReportNumber}
+            handleChatFinish={async () => {
+              await onIncidentSubmit(incidentForm.getValues());
+            }}
+            handleDialogClose={() => redirect("/")}
+            isPending={incidentIsPending || s3IsPending}
+          />
+        );
       default:
-        redirect("/");
+        break;
     }
   };
 

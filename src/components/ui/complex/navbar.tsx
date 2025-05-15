@@ -1,19 +1,12 @@
 "use client";
 
+import React, { useEffect, useState, type JSX } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState, type JSX } from "react";
-import {
-  SVGAlert,
-  SVGHeart,
-  // SVGMessageBubble,
-  // SVGPaperPage,
-  SVGPhone,
-  // SVGPin,
-  // SVGVideoCamera,
-  // SVGStar,
-} from "~/components/icons";
+import { usePathname } from "next/navigation";
+
 import Hamburger from "~/components/icons/svgs/hamburger";
+import { SVGAlert, SVGHeart, SVGPhone } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import {
   NavigationMenu,
@@ -24,6 +17,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "~/components/ui/simple/navigation-menu";
+
 import { cn } from "~/lib/utils";
 
 const navItems: {
@@ -73,7 +67,7 @@ const navItems: {
   //     },
   //   ],
   // },
-  // { title: "Despre noi", href: "/despre-noi" },
+  { title: "Despre noi", href: "/despre-noi" },
   { title: "Contact", href: "/contact" },
 ];
 
@@ -98,7 +92,15 @@ const actionItems: {
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+    window.scrollTo({
+      top: 0,
+    });
+  }, [pathname]);
 
   const toggleMenu = () => {
     setIsOpen((prev) => !prev);
@@ -218,12 +220,11 @@ export default function Navbar() {
           </NavigationMenuList>
         </NavigationMenu>
       </nav>
-      <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-6 py-3.5">
+      <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-3 py-1.5 md:px-6 md:py-3.5">
         <div className="m-auto text-center">
           <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
-          imediat la <b>112</b>, dacă ești în pericol sau vezi un animal
-          sălbatic rănit și nu îl poți duce la o clinică (ex: vulpe, căprior,
-          mistreț, urs).
+          imediat la <b>112</b>, dacă te afli în pericol sau dacă observi un
+          animal rănit de talie mai mare (căprior, cerb, vulpe, lup, urs).
         </div>
       </section>
     </div>

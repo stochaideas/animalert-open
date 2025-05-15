@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm";
 
-import { users } from "~/server/api/modules/users/user.schema";
-import { incidents } from "~/server/api/modules/incidents/incident.schema";
+import { users } from "~/server/api/modules/user/user.schema";
+import { incidents } from "~/server/api/modules/incident/incident.schema";
 
 // User has many incidents
 export const usersRelations = relations(users, ({ many }) => ({
