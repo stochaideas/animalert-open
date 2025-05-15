@@ -122,7 +122,7 @@ export default function Footer() {
           </section>
         </div>
         <span className="text-body-small w-full items-start lg:flex-row lg:justify-center lg:gap-2 lg:text-center">
-          <span>© 2024 AnimAlert. Toate drepturile rezervate.</span>
+          <span>© 2025 AnimAlert. Toate drepturile rezervate.</span>
           <br />
           <span>Proiect finanțat de Lidl · Coordonat de Asociația ARC</span>
         </span>

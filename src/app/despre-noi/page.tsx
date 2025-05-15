@@ -71,48 +71,145 @@ const media_cards = [
 export default function AboutPage() {
   return (
     <main className="bg-tertiary flex flex-col gap-24 px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
-      <section className="flex flex-col gap-16 lg:flex-row lg:items-start lg:gap-14">
-        <div className="flex flex-1 flex-col gap-8">
-          <div>
-            <h1 className="text-heading-1 mb-2">Despre AnimAlert</h1>
-            <h3 className="text-subheading">
-              De ce am creat AnimAlert și cu ce ajută comunitatea?
-            </h3>
+      <div className="flex flex-col gap-6">
+        <section className="flex flex-col gap-16 lg:flex-row lg:items-start lg:gap-14">
+          <div className="flex flex-1 flex-col gap-8">
+            <div>
+              <h1 className="text-heading-1 mb-2">Despre AnimAlert</h1>
+              <h3 className="text-subheading">
+                De ce am creat AnimAlert și cu ce ajută comunitatea?
+              </h3>
+            </div>
+            <div>
+              <p className="text-body mb-2">
+                <strong>
+                  Organizației pentru Protecția Mediului și Combaterea
+                  Braconajului
+                </strong>
+                , un ONG cu activitate preponderent în județul Cluj, care
+                acționează în domeniul protectiei mediului. Suntem implicați
+                constant în conștientizare, educare și activități pe teren, iar
+                pe anumite teme si advocacy. Am avut un aport în câteva{" "}
+                <strong>
+                  schimbări legislative pe linia de bunăstare a animalelor
+                </strong>
+                , am participat la <strong>consultări publice</strong> și suntem
+                în relație strânsă cu o parte din{" "}
+                <strong>autoritățile locale și centrale</strong>, pe temele ce
+                țin de combaterea poluării, a braconajului și a salvării de
+                animale aflate în pericol.
+              </p>
+              <p className="text-body mb-2">
+                Dorim sa construim un mic centru pentru animalele sălbatice care
+                necesita ingrijire, dar și sa continuam programul de{" "}
+                <strong>educație în școli</strong> privitor la fauna salbatica,
+                poluare și aspecte de bunastare animala. Pe langa acestea,
+                suntem momentan implicați într-un proiect de{" "}
+                <strong>conștientizare și monitorizare</strong> care vizează
+                reducerea poluării apelor.
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-body-strong mb-2">
-              Integer mi id in dolor gravida ac quis fames sit. Vitae enim
-              posuere interdum ultrices nibh. Ultrices integer orci nam arcu
-              etiam viverra id habitasse et. A porttitor tesque nisl enim
-              feugiat amet pretium. Diam congue quam justo lorem viverra.
-            </p>
-            <ul className="list-disc pl-5">
-              <li>
-                Elit consequat malesuada in aenean tristique venenatis phasellus
-                enim.
-              </li>
-              <li>Consectetur ullamcorper ut turpis egestas netus.</li>
-              <li>
-                Risus nunc lobortis facilisi arcu donec sed imperdiet
-                pellentesque scelerisque.
-              </li>
-              <li>Integer at sit nulla tempor quisque.</li>
-              <li>Dapibus non at pretium viverra turpis quam venenatis.</li>
-            </ul>
-          </div>
-        </div>
 
-        <div className="relative aspect-[4/3] max-h-[420px] w-full lg:w-1/2">
-          <Image
-            alt="Despre noi"
-            src="/images/image-placeholder.png"
-            fill
-            sizes="(max-width: 1280px) 100vw, 50vw"
-            className="rounded-md object-cover"
-            priority
-          />
-        </div>
-      </section>
+          <div className="relative aspect-[4/3] max-h-[420px] w-full lg:w-1/2">
+            <Image
+              alt="Despre noi"
+              src="/images/image-placeholder.png"
+              fill
+              sizes="(max-width: 1280px) 100vw, 50vw"
+              className="rounded-md object-cover"
+              priority
+            />
+          </div>
+        </section>
+
+        <h3 className="text-heading-3">
+          O scurtă prezentare a activității asociației în ultimii ani:
+        </h3>
+
+        <section className="flex flex-col">
+          <span className="text-subheading">Suntem implicați constant în:</span>
+          <ul className="list-disc pl-5">
+            <li>CONȘTIENTIZARE</li>
+            <li>EDUCARE</li>
+            <li>ACTIVITĂȚI PE TEREN</li>
+            <li>ADVOCACY (pe anumite teme)</li>
+          </ul>
+        </section>
+
+        <section className="flex flex-col">
+          <span className="text-subheading">
+            Am avut un aport în câteva{" "}
+            <strong>
+              schimbări legislative pe linia de bunăstare a animalelor
+            </strong>
+            :
+          </span>
+          <span className="text-body">Suntem implicați constant în:</span>
+          <ul className="list-disc pl-5">
+            <li>
+              Legea bunăstării animalelor (205/2004, modificata) - am obtinut{" "}
+              <strong>mărirea pedepselor</strong>, norme mai stricte și condiții
+              mai clare de deținere
+            </li>
+            <li>
+              Legea materialelor pirotehnice (126/1995) -{" "}
+              <strong>interzicerea comercializarii de petarde</strong> către
+              publicul larg:{" "}
+              <Link
+                className="text-blue-500 underline"
+                href="https://www.radiocluj.ro/2025/05/08/romania-inaspreste-sanctiunile-pentru-folosirea-ilegala-a-petardelor/"
+                target="_blank"
+              >
+                România înăsprește sancțiunile pentru folosirea ilegală a
+                petardelor - Radio Romania Cluj
+              </Link>
+            </li>
+          </ul>
+        </section>
+
+        <section className="flex flex-col">
+          <span className="text-subheading">
+            Am participat la <strong>consultări publice</strong> și suntem în
+            relație strânsă cu o parte din{" "}
+            <strong>autoritățile locale și centrale</strong>, pe temele ce țin
+            de:
+          </span>
+          <span className="text-body">Suntem implicați constant în:</span>
+          <ul className="list-disc pl-5">
+            <li>combaterea poluării</li>
+            <li>combaterea braconajului</li>
+            <li>salvarea animalelor aflate în pericol.</li>
+          </ul>
+        </section>
+
+        <section className="flex flex-col">
+          <span className="text-subheading">Dorim să:</span>
+          <span className="text-body">Suntem implicați constant în:</span>
+          <ul className="list-disc pl-5">
+            <li>
+              construim un mic centru de salvare și recuperare pentru animalele
+              sălbatice care necesita îngrijiri
+            </li>
+            <li>
+              să continuăm programul de educație în școli privitor la:
+              <ul className="list-disc pl-5">
+                <li>fauna sălbatică</li>
+                <li>poluare</li>
+                <li>aspecte de bunăstare animală. </li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <span className="text-body">
+            Pe lângă acestea, am fost implicați într-un proiect de{" "}
+            <strong>conștientizare și monitorizare</strong> care vizează
+            reducerea poluării apelor, în cadrul programului “Cu apele curate”.
+          </span>
+        </section>
+      </div>
 
       <section className="flex flex-col gap-8 rounded-md bg-[#C4CEB3] p-8 md:items-end md:p-12 xl:flex-row-reverse xl:items-center xl:justify-between xl:gap-14 xl:px-24 xl:py-11">
         <div className="flex flex-1 flex-col text-right text-[#395A03] xl:order-1">
