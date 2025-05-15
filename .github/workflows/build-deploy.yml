@@ -11,7 +11,7 @@ env:
 
 jobs:
   build:
-    name: Build and Deploy
+    name: Build Image and Push
     runs-on: ubuntu-latest
 
     permissions:
@@ -51,24 +51,19 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
 
-  migrate:
-    name: Migrate DB
+  deploy:
+    permissions:
+      id-token: write # for OIDC
+      contents: read
+    name: Deploy ECS
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: npm ci
-      - name: Run Drizzle migrations
-        run: npx drizzle-kit migrate:deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-  deploy:
-    name: Deploy ECS
-    needs: migrate
-    runs-on: ubuntu-latest
-    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
+          aws-region: ${{ env.AWS_REGION }}
       - name: Force new ECS deployment
         run: |
           aws ecs update-service \
