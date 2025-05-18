@@ -124,14 +124,6 @@ export default function Navbar() {
               />
             </Link>
           </div>
-          <section className="hidden md:block">
-            <Image
-              alt="Sponsors"
-              src="/images/about-us-sponsors.png"
-              width="1420"
-              height="200"
-            />
-          </section>
           <Hamburger
             className="cursor-pointer 2xl:hidden"
             data-collapse-toggle="navbar"
@@ -203,14 +195,6 @@ export default function Navbar() {
           className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 2xl:hidden`}
         >
           <NavigationMenuList className="mt-14 flex flex-col items-start gap-2">
-            <section className="md:hidden">
-              <Image
-                alt="Sponsors"
-                src="/images/about-us-sponsors.png"
-                width="1420"
-                height="200"
-              />
-            </section>
             {navItems.map((item) => (
               <NavigationMenuItem
                 key={item.title}
