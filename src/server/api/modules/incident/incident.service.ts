@@ -6,6 +6,10 @@ import { TRPCError } from "@trpc/server";
 import { normalizePhoneNumber } from "~/lib/phone";
 import { EmailService } from "../email/email.service";
 import { env } from "~/env";
+import {
+  handlePostgresError,
+  type PostgresError,
+} from "~/server/db/postgres-error";
 
 export class IncidentService {
   private emailService: EmailService;
@@ -36,88 +40,94 @@ export class IncidentService {
     let isUpdate = false;
 
     const result = await db.transaction(async (tx) => {
-      let incident, user;
+      try {
+        let incident, user;
 
-      if (data.incident.id) {
-        isUpdate = true;
-        if (!data.user.id) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "User ID is required for updating the user",
-          });
-        }
+        if (data.incident.id) {
+          isUpdate = true;
+          if (!data.user.id) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "User ID is required for updating the user",
+            });
+          }
 
-        const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
-        await tx
-          .update(users)
-          .set({ ...data.user, phone: normalizedPhoneNumber })
-          .where(eq(users.id, data.user.id));
+          const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
+          await tx
+            .update(users)
+            .set({ ...data.user, phone: normalizedPhoneNumber })
+            .where(eq(users.id, data.user.id));
 
-        [incident] = await tx
-          .update(incidents)
-          .set({
-            ...data.incident,
-            imageKeys: data.incident.imageKeys.filter(
-              (url): url is string => url !== undefined,
-            ),
-          })
-          .where(eq(incidents.id, data.incident.id))
-          .returning();
-        user = await tx.query.users.findFirst({
-          where: eq(users.id, data.user.id),
-        });
-      } else {
-        // Normalize input data phone number before checking and inserting
-        const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
-        user = await tx.query.users.findFirst({
-          where: eq(users.phone, normalizedPhoneNumber),
-        });
-
-        if (!user) {
-          [user] = await tx
-            .insert(users)
-            .values({
-              firstName: data.user.firstName,
-              lastName: data.user.lastName,
-              phone: normalizedPhoneNumber,
-              email: data.user.email,
+          [incident] = await tx
+            .update(incidents)
+            .set({
+              ...data.incident,
+              imageKeys: data.incident.imageKeys.filter(
+                (url): url is string => url !== undefined,
+              ),
             })
-            .onConflictDoUpdate({
-              target: users.id,
-              set: {
+            .where(eq(incidents.id, data.incident.id))
+            .returning();
+          user = await tx.query.users.findFirst({
+            where: eq(users.id, data.user.id),
+          });
+        } else {
+          // Normalize input data phone number before checking and inserting
+          const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
+          user = await tx.query.users.findFirst({
+            where: eq(users.phone, normalizedPhoneNumber),
+          });
+
+          if (!user) {
+            [user] = await tx
+              .insert(users)
+              .values({
                 firstName: data.user.firstName,
                 lastName: data.user.lastName,
-                email: data.user.email,
                 phone: normalizedPhoneNumber,
-              },
+                email: data.user.email,
+              })
+              .onConflictDoUpdate({
+                target: users.id,
+                set: {
+                  firstName: data.user.firstName,
+                  lastName: data.user.lastName,
+                  email: data.user.email,
+                  phone: normalizedPhoneNumber,
+                },
+              })
+              .returning();
+          }
+
+          if (!user) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to create user",
+            });
+          }
+
+          [incident] = await tx
+            .insert(incidents)
+            .values({
+              userId: user.id,
+              latitude: data.incident.latitude,
+              longitude: data.incident.longitude,
+              receiveIncidentUpdates: data.incident.receiveIncidentUpdates,
+              imageKeys: data.incident.imageKeys,
+              conversation: data.incident.conversation,
             })
             .returning();
         }
 
-        if (!user) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create user",
-          });
-        }
+        return {
+          user,
+          incident,
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
 
-        [incident] = await tx
-          .insert(incidents)
-          .values({
-            userId: user.id,
-            latitude: data.incident.latitude,
-            longitude: data.incident.longitude,
-            receiveIncidentUpdates: data.incident.receiveIncidentUpdates,
-            imageKeys: data.incident.imageKeys,
-            conversation: data.incident.conversation,
-          })
-          .returning();
+        handlePostgresError(error as PostgresError);
       }
-
-      return {
-        user,
-        incident,
-      };
     });
 
     const { user, incident } = result;

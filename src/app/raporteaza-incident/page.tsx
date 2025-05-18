@@ -5,6 +5,13 @@ import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "~/components/ui/simple/dialog";
 
 import { TRPCError } from "@trpc/server";
 
@@ -20,6 +27,7 @@ import ChatBot from "./_components/chat-bot";
 
 import { Button } from "~/components/ui/simple/button";
 import { MaterialStepper } from "~/components/ui/complex/stepper";
+import { TRPCClientError } from "@trpc/client";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -28,6 +36,10 @@ export default function IncidentReport() {
     number | undefined
   >();
   const [userId, setUserId] = useState<string | undefined>();
+  const [errorDialog, setErrorDialog] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
 
   // DISCLAIMER
   const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
@@ -97,6 +109,10 @@ export default function IncidentReport() {
     },
   });
 
+  function showErrorDialog(title: string, description: string) {
+    setErrorDialog({ title, description });
+  }
+
   async function handleImageUpload(files: (File | undefined)[]) {
     try {
       const urls = await Promise.all(
@@ -135,6 +151,12 @@ export default function IncidentReport() {
 
       return urls;
     } catch (error) {
+      showErrorDialog(
+        "Eroare la încărcarea imaginilor",
+        error instanceof Error
+          ? error.message
+          : "A apărut o problemă la încărcarea imaginilor. Vă rugăm să încercați din nou.",
+      );
       incidentForm.setError("root", {
         message:
           error instanceof Error ? error.message : "Failed to upload images",
@@ -181,6 +203,10 @@ export default function IncidentReport() {
       handleNextPage();
     } catch (error) {
       if (error instanceof TRPCError) {
+        showErrorDialog(
+          "Eroare la trimiterea formularului",
+          "A apărut o problemă la trimiterea formularului. Vă rugăm să verificați datele introduse și să încercați din nou.",
+        );
         incidentForm.setError("root", {
           message: error.message,
         });
@@ -196,15 +222,24 @@ export default function IncidentReport() {
             message: error.message,
           });
         }
+      } else if (error instanceof TRPCClientError) {
+        // Now you can safely access error.data.code, error.message, etc.
+        showErrorDialog("Eroare la trimiterea formularului", error.message);
+        // Optionally, handle field-specific errors using error.data.path, etc.
+      } else {
+        showErrorDialog(
+          "Eroare necunoscută",
+          "A apărut o eroare neașteptată. Încercați din nou mai târziu.",
+        );
       }
     }
   }
 
-  const handleIncidentImageChange = (
+  function handleIncidentImageChange(
     e: ChangeEvent<HTMLInputElement>,
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
-  ) => {
+  ) {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
       setIncidentImageFiles((prev) => ({
@@ -213,9 +248,9 @@ export default function IncidentReport() {
       }));
       fieldOnChange(file); // Update react-hook-form state
     }
-  };
+  }
 
-  const handleNextPage = () => {
+  function handleNextPage() {
     if (currentPage < 3) {
       window.scrollTo({
         top: 0,
@@ -223,17 +258,17 @@ export default function IncidentReport() {
       });
       setCurrentPage((prevPage) => prevPage + 1);
     }
-  };
+  }
 
-  const handlePreviousPage = () => {
+  function handlePreviousPage() {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
     setCurrentPage((prevPage) => prevPage - 1);
-  };
+  }
 
-  const getCurrentPage = () => {
+  function getCurrentPage() {
     switch (currentPage) {
       case 0:
         return (
@@ -304,7 +339,7 @@ export default function IncidentReport() {
       default:
         break;
     }
-  };
+  }
 
   return (
     <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
@@ -313,6 +348,19 @@ export default function IncidentReport() {
         <MaterialStepper currentStep={currentPage} />
         {getCurrentPage()}
       </div>
+      <Dialog
+        open={!!errorDialog}
+        onOpenChange={(open) => {
+          if (!open) setErrorDialog(null);
+        }}
+      >
+        <DialogContent className="bg-tertiary">
+          <DialogHeader>
+            <DialogTitle>{errorDialog?.title}</DialogTitle>
+            <DialogDescription>{errorDialog?.description}</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
