@@ -27,8 +27,26 @@ import { Button } from "~/components/ui/simple/button";
 import { SVGPaperPlane } from "~/components/icons";
 import { SOLICITATION_TYPES } from "./_constants/solicitationTypes";
 import { api } from "~/trpc/react";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "~/components/ui/simple/dialog";
+import { TRPCClientError } from "@trpc/client";
 
 export default function Contact() {
+  const [successDialog, setSuccessDialog] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
+  const [errorDialog, setErrorDialog] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
+
   const utils = api.useUtils();
 
   const {
@@ -56,8 +74,40 @@ export default function Contact() {
     reValidateMode: "onChange",
   });
 
+  function showErrorDialog(title: string, description: string) {
+    setErrorDialog({ title, description });
+  }
+
   async function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
-    await mutateContactAsync(values);
+    try {
+      await mutateContactAsync(values);
+      setSuccessDialog({
+        title: "Mesaj trimis cu succes",
+        description:
+          "Îți mulțumim pentru mesaj! Vom reveni cu un răspuns cât mai curând posibil.",
+      });
+      contactForm.reset(); // Optionally reset the form
+    } catch (error) {
+      if (error instanceof TRPCClientError) {
+        showErrorDialog(
+          "Eroare la trimiterea mesajului",
+          error.message ||
+            "A apărut o problemă la trimiterea mesajului. Vă rugăm să încercați din nou.",
+        );
+        contactForm.setError("root", {
+          message: error.message,
+        });
+        return;
+      }
+
+      showErrorDialog(
+        "Eroare necunoscută",
+        "A apărut o eroare neașteptată. Încercați din nou mai târziu.",
+      );
+      contactForm.setError("root", {
+        message: "A apărut o eroare necunoscută.",
+      });
+    }
   }
 
   return (
@@ -318,6 +368,32 @@ export default function Contact() {
           </section>
         </Form>
       </form>
+      <Dialog
+        open={!!successDialog}
+        onOpenChange={(open) => {
+          if (!open) setSuccessDialog(null);
+        }}
+      >
+        <DialogContent className="bg-tertiary">
+          <DialogHeader>
+            <DialogTitle>{successDialog?.title}</DialogTitle>
+            <DialogDescription>{successDialog?.description}</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={!!errorDialog}
+        onOpenChange={(open) => {
+          if (!open) setErrorDialog(null);
+        }}
+      >
+        <DialogContent className="bg-tertiary">
+          <DialogHeader>
+            <DialogTitle>{errorDialog?.title}</DialogTitle>
+            <DialogDescription>{errorDialog?.description}</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
