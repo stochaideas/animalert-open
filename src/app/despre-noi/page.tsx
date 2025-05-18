@@ -74,10 +74,16 @@ export default function AboutPage() {
       <div className="flex flex-col gap-6">
         <section>
           <div className="mb-12">
-            <h1 className="text-heading-1 mb-2 text-center">
-              Partenerii noștri
-            </h1>
-            <h3 className="text-subheading text-center">
+            <h1 className="text-heading-1 mb-2">Partenerii noștri</h1>
+            <section>
+              <Image
+                alt="Sponsors"
+                src="/images/about-us-sponsors.png"
+                width="1420"
+                height="200"
+              />
+            </section>
+            <h3 className="text-subheading">
               AnimAlert nu ar fi fost posibilă fără finanțarea acordată de{" "}
               <strong>Fundația Comunitară Cluj</strong>, prin programul{" "}
               <strong>„În ZONA TA”</strong> al{" "}
@@ -89,14 +95,6 @@ export default function AboutPage() {
               această platformă!
             </h3>
           </div>
-          <section>
-            <Image
-              alt="Sponsors"
-              src="/images/about-us-sponsors.png"
-              width="1420"
-              height="200"
-            />
-          </section>
         </section>
         <section className="flex flex-col gap-16 lg:flex-row lg:items-start lg:gap-14">
           <div className="flex flex-1 flex-col gap-8">
@@ -304,10 +302,8 @@ export default function AboutPage() {
 
       <section>
         <div className="mb-12">
-          <h1 className="text-heading-1 mb-2 text-center">Aparitii publice</h1>
-          <h3 className="text-subheading text-center">
-            Mass-media, presa, social media
-          </h3>
+          <h1 className="text-heading-1 mb-2">Aparitii publice</h1>
+          <h3 className="text-subheading">Mass-media, presa, social media</h3>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2">
           {media_cards.map((card, i) => (
