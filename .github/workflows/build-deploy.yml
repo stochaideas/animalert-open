@@ -12,6 +12,7 @@ env:
 jobs:
   build:
     name: Build Image and Push
+
     runs-on: ubuntu-latest
 
     permissions:
@@ -37,7 +38,6 @@ jobs:
       - name: Write .env for the build
         run: |
           cat > .env <<EOF
-
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
           NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ secrets.GOOGLE_MAPS_MAP_ID }}
           EOF
@@ -71,3 +71,4 @@ jobs:
             --service  ${{ env.SERVICE_NAME }} \
             --force-new-deployment \
             --region   eu-central-1
+
