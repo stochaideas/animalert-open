@@ -130,7 +130,7 @@ export default function Footer() {
           <section className="flex flex-col gap-3">
             <h3 className="text-heading-3 mb-4">Termeni legali și Politici</h3>
             <span className="text-single-line-body-base">
-              <em>Politica de confidențialitate</em>
+              Politica de confidențialitate
             </span>
             <span className="text-single-line-body-base">
               Politica de cookies
