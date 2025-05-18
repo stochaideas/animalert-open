@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SVGAlert, SVGPin } from "~/components/icons";
+import {
+  SVGAlert,
+  // SVGPin
+} from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 
 const cards = [
@@ -45,10 +48,24 @@ const cards = [
   },
 ];
 
-export default async function Home() {
+export default function Home() {
   return (
     <main className="bg-tertiary flex flex-col items-center justify-center gap-24 pb-24">
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero-sm.png)] bg-cover bg-[65%] bg-no-repeat md:bg-[url(/images/homepage-hero-lg.png)] md:bg-center">
+        <section className="text-neutral-foreground text-body bg-primary m-auto mt-6 w-[75%] self-center rounded-md px-3 py-1.5 opacity-50 md:px-6 md:py-3.5">
+          <div className="m-auto text-center select-none">
+            <strong>
+              Aplicația este în lucru, este posibil ca unele acțiuni și
+              funcționalități să nu fie complet disponibile. <br />
+              Vă mulțumim pentru înțelegere și vă încurajăm să ne raportați
+              eventuale probleme în{" "}
+              <Link className="text-blue-700 underline" href="/contact">
+                formularul de contact
+              </Link>
+              . 😊
+            </strong>
+          </div>
+        </section>
         <div className="flex flex-col items-start gap-8 p-6 pt-28 md:px-20 md:pt-32 xl:pt-40 xl:pl-80">
           <span className="text-heading-1 text-neutral lg:max-w-2xl">
             <b>Ai întâlnit un animal sălbatic rănit sau în pericol?</b>
@@ -70,9 +87,11 @@ export default async function Home() {
             <video
               className="h-full w-full object-cover"
               controls={false}
-              autoPlay={true}
-              loop={true}
-              muted={true}
+              autoPlay
+              loop
+              muted
+              playsInline
+              webkit-playsinline="true"
             >
               <source src="/videos/homepage-video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
@@ -91,12 +110,17 @@ export default async function Home() {
               bolnav, agresat) sau într-un mediu străin. Sprijină cercetarea
               științifică cu observațiile tale.
             </p>
-            <Link href="/raporteaza-incident">
+            {/* <Link href="/raporteaza-prezenta">
               <Button className="mt-8" variant="secondary" size="md">
                 <SVGPin />
                 Raportează prezență
               </Button>
-            </Link>
+            </Link> */}
+            <div className="mt-auto pt-8">
+              <Button variant="secondary" size="md">
+                Modul în lucru...
+              </Button>
+            </div>
           </article>
         </section>
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
@@ -115,13 +139,20 @@ export default async function Home() {
               <h3 className="text-heading-3 mt-8">{card.title}</h3>
               <p className="text-body-strong mt-2">{card.strong}</p>
               <p className="text-body mt-4">{card.body}</p>
-              <div className="mt-auto pt-8">
+              {/* <div className="mt-auto pt-8">
                 <Link href={card.href}>
                   <Button variant="tertiary" size="md">
                     {card.button}
                   </Button>
                 </Link>
+              </div> */}
+              {/* TODO: temporary!!! vvv */}
+              <div className="mt-auto pt-8">
+                <Button variant="tertiary" size="md">
+                  Modul în lucru...
+                </Button>
               </div>
+              {/* TODO: temporary!!! ^^^ */}
             </div>
           ))}
         </section>

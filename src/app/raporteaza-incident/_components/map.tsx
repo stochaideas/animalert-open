@@ -1,44 +1,50 @@
 import { Label } from "@radix-ui/react-label";
-import { useEffect, useState } from "react";
+import { useEffect, type Dispatch, type SetStateAction } from "react";
 import { GoogleMap } from "~/components/ui/complex/google-map";
 import { SVGArrowLeft, SVGArrowRight } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import { Input } from "~/components/ui/simple/input";
 import { useGeolocation } from "~/hooks/useGeolocation";
 import { api } from "~/trpc/react";
-import type { Position } from "../_types/position";
-// import AddressAutocomplete from "./address-predictions";
+import type { Coordinates } from "../../../types/coordinates";
+// import AddressplaceAutocomplete from "./address-predictions";
 
 export default function Map({
+  address,
+  setAddress,
   handlePreviousPage,
-  handleNextPage,
-  initialPosition,
-  onPositionChange,
+  onMapSubmit,
+  initialCoordinates,
+  onCoordinatesChange,
+  isPending,
 }: {
+  address?: string;
+  setAddress: Dispatch<SetStateAction<string | undefined>>;
   handlePreviousPage: () => void;
-  handleNextPage: () => void;
-  initialPosition?: Position | null;
-  onPositionChange?: (pos: { lat: number; lng: number } | null) => void;
+  onMapSubmit: () => void;
+  initialCoordinates?: Coordinates | null;
+  onCoordinatesChange?: (pos: { lat: number; lng: number } | null) => void;
+  isPending?: boolean;
 }) {
-  const { position, setPosition, error } = useGeolocation(initialPosition);
-  const [address, setAddress] = useState<string | null>(null);
+  const { coordinates, setCoordinates, error } =
+    useGeolocation(initialCoordinates);
 
   useEffect(() => {
-    if (onPositionChange) {
-      onPositionChange(position);
+    if (onCoordinatesChange) {
+      onCoordinatesChange(coordinates);
     }
-  }, [position, onPositionChange]);
+  }, [coordinates, onCoordinatesChange]);
 
-  const fetchedAddress = api.geolocation.getAddress.useQuery(
-    position ?? { lat: 0, lng: 0 },
-    { enabled: !!position },
+  const fetchedAddress = api.geolocation.mapsGeocode.useQuery(
+    coordinates ?? { lat: 0, lng: 0 },
+    { enabled: !!coordinates },
   );
 
   useEffect(() => {
     if (fetchedAddress.data) {
-      setAddress(fetchedAddress.data.formatted_address);
+      setAddress(fetchedAddress.data.formattedAddress);
     }
-  }, [fetchedAddress.data]);
+  }, [setAddress, fetchedAddress.data]);
 
   if (error) return <div>Error: {error}</div>;
 
@@ -68,11 +74,17 @@ export default function Map({
             />
           </div>
           <section className="border-tertiary-border mb-4 h-[600px] rounded-md border-1 lg:hidden">
-            <GoogleMap position={position} setPosition={setPosition} />
+            <GoogleMap
+              coordinates={coordinates}
+              setCoordinates={setCoordinates}
+            />
           </section>
         </section>
         <section className="border-tertiary-border mb-4 hidden h-[600px] rounded-md border-1 lg:block">
-          <GoogleMap position={position} setPosition={setPosition} />
+          <GoogleMap
+            coordinates={coordinates}
+            setCoordinates={setCoordinates}
+          />
         </section>
       </div>
       <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse md:justify-start">
@@ -81,9 +93,16 @@ export default function Map({
           variant="primary"
           size="md"
           type="submit"
-          onClick={handleNextPage}
+          onClick={onMapSubmit}
+          disabled={isPending}
         >
-          Salvează și continuă <SVGArrowRight />
+          {isPending ? (
+            <>Se salvează</>
+          ) : (
+            <>
+              Salvează și continuă <SVGArrowRight />
+            </>
+          )}
         </Button>
         <Button
           className="m-0 w-full sm:w-auto"

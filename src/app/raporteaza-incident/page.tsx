@@ -1,87 +1,228 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
-import Disclaimer from "./_components/disclaimer";
-import { Button } from "~/components/ui/simple/button";
-import { MaterialStepper } from "../../components/ui/complex/stepper";
 import { redirect } from "next/navigation";
-import Contact from "./_components/contact";
-import Map from "./_components/map";
-import ChatBot from "./_components/chat-bot";
-import { contactFormSchema } from "./_utils/contact-form-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
-import type { Position } from "./_types/position";
+
+import { TRPCError } from "@trpc/server";
+
+import { api } from "~/trpc/react";
+import type { Coordinates } from "~/types/coordinates";
+
+import { incidentFormSchema } from "./_schemas/incident-form-schema";
+
+import Disclaimer from "./_components/disclaimer";
+import Contact from "./_components/contact";
+import Map from "./_components/map";
+import ChatBot from "./_components/chat-bot";
+
+import { Button } from "~/components/ui/simple/button";
+import { MaterialStepper } from "~/components/ui/complex/stepper";
 
 export default function IncidentReport() {
   const [currentPage, setCurrentPage] = useState(0);
+  const [incidentId, setIncidentId] = useState<string | undefined>();
+  const [incidentReportNumber, setIncidentReportNumber] = useState<
+    number | undefined
+  >();
+  const [userId, setUserId] = useState<string | undefined>();
 
   // DISCLAIMER
   const [disclaimerTermsAccepted, setDisclaimerTermsAccepted] = useState(false);
 
-  // CONTACT FORM
-  // Define contact form
-  const contactForm = useForm<z.infer<typeof contactFormSchema>>({
-    resolver: zodResolver(contactFormSchema),
+  // INCIDENT FORM
+  // Define incident form
+  const incidentForm = useForm<z.infer<typeof incidentFormSchema>>({
+    resolver: zodResolver(incidentFormSchema),
     defaultValues: {
       lastName: "",
       firstName: "",
       phone: "",
-      email: undefined,
+      email: "",
       confidentiality: false,
-      receiveCaseUpdates: false,
-      receiveOtherCaseUpdates: false,
+      receiveIncidentUpdates: false,
+      receiveOtherIncidentUpdates: false,
       image1: undefined,
       image2: undefined,
       image3: undefined,
-      image4: undefined,
+      video1: undefined,
     },
     mode: "onChange",
     reValidateMode: "onChange",
   });
 
-  const [contactImagePreviews, setContactImagePreviews] = useState({
+  const [incidentImageFiles, setIncidentImageFiles] = useState<{
+    image1: File | undefined;
+    image2: File | undefined;
+    image3: File | undefined;
+    video1: File | undefined;
+  }>({
     image1: undefined,
     image2: undefined,
     image3: undefined,
-    image4: undefined,
+    video1: undefined,
   });
 
   // MAP
-  const [mapPosition, setMapPosition] = useState<Position | null>(null);
+  const [mapCoordinates, setMapCoordinates] = useState<Coordinates | null>(
+    null,
+  );
+  const [address, setAddress] = useState<string>();
 
-  const handleContactImageChange = (
+  // CHAT BOT
+  const [answers, setAnswers] = useState<
+    { question: string; answer: string | string[] }[]
+  >([]);
+
+  const utils = api.useUtils();
+  const {
+    mutateAsync: mutateIncidentAsync,
+    isPending: incidentIsPending,
+    // error: incidentError,
+  } = api.incident.create.useMutation({
+    onSuccess: () => {
+      void utils.incident.invalidate();
+    },
+  });
+
+  const {
+    mutateAsync: mutateS3Async,
+    isPending: s3IsPending,
+    // error: s3Error,
+  } = api.s3.getPresignedUrl.useMutation({
+    onSuccess: () => {
+      void utils.s3.invalidate();
+    },
+  });
+
+  async function handleImageUpload(files: (File | undefined)[]) {
+    try {
+      const urls = await Promise.all(
+        Array.from(files).map(async (file, index) => {
+          if (!file) return null;
+
+          const response = await mutateS3Async({
+            fileName: `file_${index}`,
+            fileType: file.type,
+            fileSize: file.size,
+          });
+
+          if (!response || typeof response.url !== "string") {
+            throw new Error("Failed to get a valid URL for the file upload");
+          }
+
+          if (!response?.url) {
+            throw new Error("Failed to get a valid URL for the file upload");
+          }
+
+          const url = response?.url;
+          if (!url) {
+            throw new Error("Failed to get a valid URL for the file upload");
+          }
+
+          await fetch(url, {
+            method: "PUT",
+            body: file,
+            headers: { "Content-Type": file.type },
+            mode: "cors",
+          });
+
+          return url.split("?")[0]; // Get permanent URL
+        }),
+      );
+
+      return urls;
+    } catch (error) {
+      incidentForm.setError("root", {
+        message:
+          error instanceof Error ? error.message : "Failed to upload images",
+      });
+      throw error;
+    }
+  }
+
+  // Submit handler for the incident form
+  async function onIncidentSubmit(values: z.infer<typeof incidentFormSchema>) {
+    try {
+      const imageKeys = await handleImageUpload(
+        Object.values(incidentImageFiles),
+      );
+
+      const email = values.email === "" ? undefined : values.email;
+
+      const result = await mutateIncidentAsync({
+        user: {
+          id: userId,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          phone: values.phone,
+          email: email,
+          receiveOtherIncidentUpdates: values.receiveOtherIncidentUpdates,
+        },
+        incident: {
+          id: incidentId,
+          receiveIncidentUpdates: values.receiveIncidentUpdates,
+          latitude: mapCoordinates?.lat,
+          longitude: mapCoordinates?.lng,
+          imageKeys: imageKeys?.filter((url): url is string => !!url) ?? [],
+          conversation: JSON.stringify(answers),
+          address: address,
+        },
+      });
+
+      if (!incidentId) {
+        setIncidentId(result?.incident?.id);
+        setIncidentReportNumber(result?.incident?.incidentReportNumber);
+        setUserId(result?.user?.id);
+      }
+
+      handleNextPage();
+    } catch (error) {
+      if (error instanceof TRPCError) {
+        incidentForm.setError("root", {
+          message: error.message,
+        });
+
+        // Handle field-specific errors
+        if (
+          "path" in error &&
+          typeof error.path === "string" &&
+          (error.path.startsWith("user.") || error.path.startsWith("incident"))
+        ) {
+          const field = error.path.split(".")[1];
+          incidentForm.setError(field as keyof typeof values, {
+            message: error.message,
+          });
+        }
+      }
+    }
+  }
+
+  const handleIncidentImageChange = (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
-      const url = URL.createObjectURL(file);
-      setContactImagePreviews((prev) => ({
+      setIncidentImageFiles((prev) => ({
         ...prev,
-        [name]: url,
+        [name]: file,
       }));
       fieldOnChange(file); // Update react-hook-form state
     }
   };
 
-  // Submit handler for the contact form
-  function onContactSubmit(values: z.infer<typeof contactFormSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-
-    handleNextPage();
-  }
-
   const handleNextPage = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-    setCurrentPage((prevPage) => prevPage + 1);
+    if (currentPage < 3) {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
   };
 
   const handlePreviousPage = () => {
@@ -126,35 +267,52 @@ export default function IncidentReport() {
         return (
           <Contact
             handlePreviousPage={handlePreviousPage}
-            contactForm={contactForm}
-            contactImagePreviews={contactImagePreviews}
-            handleContactImageChange={handleContactImageChange}
-            onContactSubmit={onContactSubmit}
+            incidentForm={incidentForm}
+            incidentImageFiles={incidentImageFiles}
+            handleIncidentImageChange={handleIncidentImageChange}
+            onIncidentSubmit={onIncidentSubmit}
+            isPending={incidentIsPending || s3IsPending}
           />
         );
       case 2:
         return (
           <Map
+            address={address}
+            setAddress={setAddress}
             handlePreviousPage={handlePreviousPage}
-            handleNextPage={handleNextPage}
-            initialPosition={mapPosition}
-            onPositionChange={setMapPosition}
+            onMapSubmit={async () =>
+              await onIncidentSubmit(incidentForm.getValues())
+            }
+            initialCoordinates={mapCoordinates}
+            onCoordinatesChange={setMapCoordinates}
+            isPending={incidentIsPending || s3IsPending}
           />
         );
       case 3:
-        return <ChatBot />;
+        return (
+          <ChatBot
+            answers={answers}
+            setAnswers={setAnswers}
+            incidentReportNumber={incidentReportNumber}
+            handleChatFinish={async () => {
+              await onIncidentSubmit(incidentForm.getValues());
+            }}
+            handleDialogClose={() => redirect("/")}
+            isPending={incidentIsPending || s3IsPending}
+          />
+        );
       default:
-        redirect("/");
+        break;
     }
   };
 
   return (
-    <div className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
-      <main className="flex flex-col justify-center gap-12">
+    <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
+      <div className="flex flex-col justify-center gap-12">
         <h1 className="text-heading-2">Raportează incident</h1>
         <MaterialStepper currentStep={currentPage} />
         {getCurrentPage()}
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

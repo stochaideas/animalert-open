@@ -8,5 +8,6 @@ export default {
   dbCredentials: {
     url: env.DATABASE_URL,
   },
-  tablesFilter: ["animalert_*"],
+  tablesFilter: ["*"],
+  casing: "snake_case",
 } satisfies Config;

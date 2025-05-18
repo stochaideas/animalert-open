@@ -1,0 +1,525 @@
+{
+  "id": "f870f404-e23f-41dc-9d4c-7b00a6087f35",
+  "prevId": "fd28de81-e978-4653-af5d-6e1f5b8dee78",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "firstName": {
+          "name": "firstName",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lastName": {
+          "name": "lastName",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "receiveOtherIncidentUpdates": {
+          "name": "receiveOtherIncidentUpdates",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "users_phone_idx": {
+          "name": "users_phone_idx",
+          "columns": [
+            {
+              "expression": "phone",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_email_idx": {
+          "name": "users_email_idx",
+          "columns": [
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_created_at_idx": {
+          "name": "users_created_at_idx",
+          "columns": [
+            {
+              "expression": "createdAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_updated_at_idx": {
+          "name": "users_updated_at_idx",
+          "columns": [
+            {
+              "expression": "updatedAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_phone_unique": {
+          "name": "users_phone_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone"
+          ]
+        },
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.incidents": {
+      "name": "incidents",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "incidentReportNumber": {
+          "name": "incidentReportNumber",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "receiveIncidentUpdates": {
+          "name": "receiveIncidentUpdates",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "imageUrls": {
+          "name": "imageUrls",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "incidents_user_idx": {
+          "name": "incidents_user_idx",
+          "columns": [
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "incidents_incident_report_number_idx": {
+          "name": "incidents_incident_report_number_idx",
+          "columns": [
+            {
+              "expression": "incidentReportNumber",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "incidents_created_at_idx": {
+          "name": "incidents_created_at_idx",
+          "columns": [
+            {
+              "expression": "createdAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "incidents_updated_at_idx": {
+          "name": "incidents_updated_at_idx",
+          "columns": [
+            {
+              "expression": "updatedAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "incidents_userId_users_id_fk": {
+          "name": "incidents_userId_users_id_fk",
+          "tableFrom": "incidents",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "incidents_incidentReportNumber_unique": {
+          "name": "incidents_incidentReportNumber_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "incidentReportNumber"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.presence_reports": {
+      "name": "presence_reports",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "presenceReportNumber": {
+          "name": "presenceReportNumber",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observedAnimalType": {
+          "name": "observedAnimalType",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location_found": {
+          "name": "location_found",
+          "type": "location_found",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "locationDetails": {
+          "name": "locationDetails",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_animal_injured": {
+          "name": "is_animal_injured",
+          "type": "is_animal_injured",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observed_signs": {
+          "name": "observed_signs",
+          "type": "observed_signs[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observedSignsDetails": {
+          "name": "observedSignsDetails",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_in_dangerous_environment": {
+          "name": "is_in_dangerous_environment",
+          "type": "is_in_dangerous_environment",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observationDatetime": {
+          "name": "observationDatetime",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hasMedia": {
+          "name": "hasMedia",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "wants_updates": {
+          "name": "wants_updates",
+          "type": "wants_updates[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contactDetails": {
+          "name": "contactDetails",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "presence_presence_reports_presence_report_number_idx": {
+          "name": "presence_presence_reports_presence_report_number_idx",
+          "columns": [
+            {
+              "expression": "presenceReportNumber",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "presence_created_at_idx": {
+          "name": "presence_created_at_idx",
+          "columns": [
+            {
+              "expression": "createdAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "presence_updated_at_idx": {
+          "name": "presence_updated_at_idx",
+          "columns": [
+            {
+              "expression": "updatedAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "presence_reports_presenceReportNumber_unique": {
+          "name": "presence_reports_presenceReportNumber_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "presenceReportNumber"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.is_animal_injured": {
+      "name": "is_animal_injured",
+      "schema": "public",
+      "values": [
+        "YES",
+        "NO",
+        "NOT_SURE"
+      ]
+    },
+    "public.is_in_dangerous_environment": {
+      "name": "is_in_dangerous_environment",
+      "schema": "public",
+      "values": [
+        "YES",
+        "NO",
+        "NOT_SURE"
+      ]
+    },
+    "public.location_found": {
+      "name": "location_found",
+      "schema": "public",
+      "values": [
+        "ROADSIDE",
+        "FOREST_OR_PARK",
+        "NEAR_HOUSING",
+        "OTHER"
+      ]
+    },
+    "public.observed_signs": {
+      "name": "observed_signs",
+      "schema": "public",
+      "values": [
+        "BLEEDING",
+        "FRACTURES",
+        "MOVEMENT_PROBLEMS",
+        "DISORIENTED_BEHAVIOR",
+        "OTHER"
+      ]
+    },
+    "public.wants_updates": {
+      "name": "wants_updates",
+      "schema": "public",
+      "values": [
+        "EMAIL",
+        "PHONE",
+        "NONE"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -1,19 +1,12 @@
 "use client";
 
+import React, { useEffect, useState, type JSX } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState, type JSX } from "react";
-import {
-  SVGAlert,
-  SVGHeart,
-  SVGMessageBubble,
-  SVGPaperPage,
-  SVGPhone,
-  SVGPin,
-  SVGVideoCamera,
-  SVGStar,
-} from "~/components/icons";
+import { usePathname } from "next/navigation";
+
 import Hamburger from "~/components/icons/svgs/hamburger";
+import { SVGAlert, SVGHeart, SVGPhone } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import {
   NavigationMenu,
@@ -24,6 +17,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "~/components/ui/simple/navigation-menu";
+
 import { cn } from "~/lib/utils";
 
 const navItems: {
@@ -37,42 +31,42 @@ const navItems: {
   }[];
 }[] = [
   { title: "Acasă", href: "/" },
-  {
-    title: "Acțiuni & Info",
-    href: "/actiuni-info",
-    content: [
-      {
-        title: "Raportează prezență",
-        href: "/raporteaza-prezenta",
-        description: "Animal sălbatic viu/decedat",
-        icon: <SVGPin />,
-      },
-      {
-        title: "Conflicte & Interacțiuni",
-        href: "/recomandari",
-        description: "Info animal nedorit/periculos",
-        icon: <SVGMessageBubble />,
-      },
-      {
-        title: "Sesizări & Legalitate",
-        href: "/sesizari",
-        description: "Braconaj, ilegalități",
-        icon: <SVGPaperPage />,
-      },
-      {
-        title: "EduWild",
-        href: "/eduwild",
-        description: "Viața si lumea animalelor",
-        icon: <SVGVideoCamera />,
-      },
-      {
-        title: "Arii Naturale & Specii Protejate",
-        href: "/zone-protejate",
-        description: "Obligații, statut de protecție",
-        icon: <SVGStar />,
-      },
-    ],
-  },
+  // {
+  //   title: "Acțiuni & Info",
+  //   href: "/actiuni-info",
+  //   content: [
+  //     {
+  //       title: "Raportează prezență",
+  //       href: "/raporteaza-prezenta",
+  //       description: "Animal sălbatic viu/decedat",
+  //       icon: <SVGPin />,
+  //     },
+  //     {
+  //       title: "Conflicte & Interacțiuni",
+  //       href: "/recomandari",
+  //       description: "Info animal nedorit/periculos",
+  //       icon: <SVGMessageBubble />,
+  //     },
+  //     {
+  //       title: "Sesizări & Legalitate",
+  //       href: "/sesizari",
+  //       description: "Braconaj, ilegalități",
+  //       icon: <SVGPaperPage />,
+  //     },
+  //     {
+  //       title: "EduWild",
+  //       href: "/eduwild",
+  //       description: "Viața si lumea animalelor",
+  //       icon: <SVGVideoCamera />,
+  //     },
+  //     {
+  //       title: "Arii Naturale & Specii Protejate",
+  //       href: "/zone-protejate",
+  //       description: "Obligații, statut de protecție",
+  //       icon: <SVGStar />,
+  //     },
+  //   ],
+  // },
   { title: "Despre noi", href: "/despre-noi" },
   { title: "Contact", href: "/contact" },
 ];
@@ -98,7 +92,15 @@ const actionItems: {
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+    window.scrollTo({
+      top: 0,
+    });
+  }, [pathname]);
 
   const toggleMenu = () => {
     setIsOpen((prev) => !prev);
@@ -109,7 +111,7 @@ export default function Navbar() {
       <nav
         className={` ${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-6 sm:p-4 md:p-6 xl:px-32 2xl:px-64`}
       >
-        <div className="container mx-auto flex flex-row items-center justify-between">
+        <div className="container mx-auto flex flex-row items-center justify-between gap-6">
           <div className="flex flex-row items-center gap-3">
             <Link href="/">
               <Image
@@ -122,8 +124,16 @@ export default function Navbar() {
               />
             </Link>
           </div>
+          <section className="hidden md:block">
+            <Image
+              alt="Sponsors"
+              src="/images/about-us-sponsors.png"
+              width="1420"
+              height="200"
+            />
+          </section>
           <Hamburger
-            className="cursor-pointer lg:hidden"
+            className="cursor-pointer 2xl:hidden"
             data-collapse-toggle="navbar"
             type="button"
             aria-controls="navbar"
@@ -136,7 +146,7 @@ export default function Navbar() {
           />
 
           {/* LARGE SCREENS */}
-          <NavigationMenu className={"hidden gap-2 lg:flex lg:items-center"}>
+          <NavigationMenu className={"hidden gap-2 2xl:flex 2xl:items-center"}>
             <NavigationMenuList>
               {navItems.map((item) => (
                 <NavigationMenuItem
@@ -190,9 +200,17 @@ export default function Navbar() {
 
         {/* SMALL AND MEDIUM SCREENS */}
         <NavigationMenu
-          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 lg:hidden`}
+          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 2xl:hidden`}
         >
           <NavigationMenuList className="mt-14 flex flex-col items-start gap-2">
+            <section className="md:hidden">
+              <Image
+                alt="Sponsors"
+                src="/images/about-us-sponsors.png"
+                width="1420"
+                height="200"
+              />
+            </section>
             {navItems.map((item) => (
               <NavigationMenuItem
                 key={item.title}
@@ -218,12 +236,11 @@ export default function Navbar() {
           </NavigationMenuList>
         </NavigationMenu>
       </nav>
-      <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-6 py-3.5">
+      <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-3 py-1.5 md:px-6 md:py-3.5">
         <div className="m-auto text-center">
           <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
-          imediat la <b>112</b>, dacă ești în pericol sau vezi un animal
-          sălbatic rănit și nu îl poți duce la o clinică (ex: vulpe, căprior,
-          mistreț, urs).
+          imediat la <b>112</b>, dacă te afli în pericol sau dacă observi un
+          animal rănit de talie mai mare (căprior, cerb, vulpe, lup, urs).
         </div>
       </section>
     </div>
