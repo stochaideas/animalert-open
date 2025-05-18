@@ -12,7 +12,7 @@ import {
 export default function Footer() {
   return (
     <footer className="bg-secondary text-secondary-foreground mx-auto w-full p-6 sm:p-4 md:p-6 lg:py-12 xl:px-32 2xl:px-64">
-      <section className="sm:mb-4 md:mb-6 lg:mb-12">
+      <section className="mb-6 lg:mb-12">
         <Image
           alt="Sponsors"
           src="/images/about-us-sponsors.png"
