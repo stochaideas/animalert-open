@@ -56,7 +56,7 @@ jobs:
           
   deploy:
     name: Deploy ECS
-    needs: migrate
+    needs: build
     runs-on: ubuntu-latest
     steps:
        - name: Force new ECS deployment
