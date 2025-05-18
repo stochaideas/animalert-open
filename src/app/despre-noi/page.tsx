@@ -71,14 +71,6 @@ const media_cards = [
 export default function AboutPage() {
   return (
     <main className="bg-tertiary flex flex-col gap-24 px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
-      <section>
-        <Image
-          alt="Lup"
-          src="/images/about-us-sponsors.png"
-          width="1420"
-          height="200"
-        />
-      </section>
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-16 lg:flex-row lg:items-start lg:gap-14">
           <div className="flex flex-1 flex-col gap-8">
@@ -267,10 +259,15 @@ export default function AboutPage() {
         <div className="mb-12">
           <h1 className="text-heading-1 mb-2 text-center">Partenerii noștri</h1>
           <h3 className="text-subheading text-center">
-            AnimAlert nu ar fi fost posibilă fără sprijinul partenerilor noștri
+            AnimAlert nu ar fi fost posibilă fără finanțarea acordată de{" "}
+            <strong>Fundația Comunitară Cluj</strong>, prin programul{" "}
+            <strong>„În ZONA TA”</strong> al{" "}
+            <strong>Platformei de Mediu</strong>, inițiativă a{" "}
+            <strong>ING România</strong> și fără sprijinul partenerilor noștri
             dedicați.
             <br />
-            Mulțumim celor care au contribuit pentru a crea această platformă
+            Mulțumim celor care au contribuit pentru a crea și întreține această
+            platformă!
           </h3>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2">

@@ -111,7 +111,7 @@ export default function Navbar() {
       <nav
         className={` ${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-6 sm:p-4 md:p-6 xl:px-32 2xl:px-64`}
       >
-        <div className="container mx-auto flex flex-row items-center justify-between">
+        <div className="container mx-auto flex flex-row items-center justify-between gap-6">
           <div className="flex flex-row items-center gap-3">
             <Link href="/">
               <Image
@@ -124,8 +124,16 @@ export default function Navbar() {
               />
             </Link>
           </div>
+          <section className="hidden md:block">
+            <Image
+              alt="Sponsors"
+              src="/images/about-us-sponsors.png"
+              width="1420"
+              height="200"
+            />
+          </section>
           <Hamburger
-            className="cursor-pointer lg:hidden"
+            className="cursor-pointer 2xl:hidden"
             data-collapse-toggle="navbar"
             type="button"
             aria-controls="navbar"
@@ -138,7 +146,7 @@ export default function Navbar() {
           />
 
           {/* LARGE SCREENS */}
-          <NavigationMenu className={"hidden gap-2 lg:flex lg:items-center"}>
+          <NavigationMenu className={"hidden gap-2 2xl:flex 2xl:items-center"}>
             <NavigationMenuList>
               {navItems.map((item) => (
                 <NavigationMenuItem
@@ -192,9 +200,17 @@ export default function Navbar() {
 
         {/* SMALL AND MEDIUM SCREENS */}
         <NavigationMenu
-          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 lg:hidden`}
+          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 2xl:hidden`}
         >
           <NavigationMenuList className="mt-14 flex flex-col items-start gap-2">
+            <section className="md:hidden">
+              <Image
+                alt="Sponsors"
+                src="/images/about-us-sponsors.png"
+                width="1420"
+                height="200"
+              />
+            </section>
             {navItems.map((item) => (
               <NavigationMenuItem
                 key={item.title}
