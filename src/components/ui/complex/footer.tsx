@@ -12,17 +12,47 @@ import {
 export default function Footer() {
   return (
     <footer className="bg-secondary text-secondary-foreground mx-auto w-full p-6 sm:p-4 md:p-6 lg:py-12 xl:px-32 2xl:px-64">
-      <div className="container mx-auto flex flex-col items-start justify-center gap-14 lg:gap-8">
+      <section>
+        <Image
+          alt="Sponsors"
+          src="/images/about-us-sponsors.png"
+          width="1420"
+          height="200"
+        />
+      </section>
+      <section className="mt-6 md:mt-0">
+        <span className="font-poppins text-[1rem] md:text-[1.125rem] md:leading-[1.6] md:font-medium">
+          Proiect finanțat din programul „În ZONA TA”, implementat prin
+          Platforma de Mediu la Cluj-Napoca de către{" "}
+          <Link
+            className="text-primary underline"
+            href="https://www.facebook.com/FundatiaComunitaraCluj"
+            target="_blank"
+          >
+            Fundația Comunitară Cluj
+          </Link>{" "}
+          și{" "}
+          <Link
+            className="text-primary underline"
+            href="https://ing.ro/persoane-fizice"
+            target="_blank"
+          >
+            ING Bank România
+          </Link>
+        </span>
+      </section>
+
+      <div className="container mx-auto flex flex-col items-start justify-center gap-14 md:mt-12 lg:gap-8">
         <div className="flex w-full flex-col items-start justify-between gap-14 lg:flex-row lg:gap-8">
           <section className="flex w-full flex-row items-center justify-between gap-6 sm:w-auto lg:flex-col lg:items-start">
-            <Image
+            {/* <Image
               src="/logo/logo-white.png"
               alt="AnimAlert Logo"
               className="h-full w-auto max-w-none object-cover"
               width={150}
               height={45}
               loading="eager"
-            />
+            /> */}
             <div className="flex flex-row gap-2">
               <Link
                 href="https://www.instagram.com/opmcb.cluj/"
@@ -87,20 +117,18 @@ export default function Footer() {
             </div>
           </section>
           <section className="flex flex-col gap-3">
-            <h3 className="text-body-strong mb-4">Contact</h3>
+            <h3 className="text-heading-3 mb-4">Contact</h3>
             <span className="text-single-line-body-base">
-              Adresa: Cluj-Napoca, România
+              <strong>Adresa</strong>: Cluj-Napoca, România
             </span>
             <span className="text-single-line-body-base">
               <Link href="mailto:ancbp.cluj[at]gmail.com">
-                ancbp.cluj[at]gmail.com
+                <strong>Email</strong>: ancbp.cluj[at]gmail.com
               </Link>
             </span>
           </section>
           <section className="flex flex-col gap-3">
-            <h3 className="text-body-strong mb-4">
-              Termeni legali și Politici
-            </h3>
+            <h3 className="text-heading-3 mb-4">Termeni legali și Politici</h3>
             <span className="text-single-line-body-base">
               Politica de confidențialitate
             </span>
@@ -112,7 +140,7 @@ export default function Footer() {
             </span>
           </section>
           <section className="flex flex-col gap-3">
-            <h3 className="text-body-strong mb-4">Parteneri</h3>
+            <h3 className="text-heading-3 mb-4">Parteneri</h3>
             <span className="text-single-line-body-base">
               Foto: © Lonay Arthur
             </span>
@@ -123,19 +151,6 @@ export default function Footer() {
         </div>
         <span className="text-body-small w-full items-start lg:flex-row lg:justify-center lg:gap-2 lg:text-center">
           <span>© 2025 AnimAlert. Toate drepturile rezervate.</span>
-          <br />
-          <span>
-            Proiect finanțat din programul „În ZONA TA”, implementat prin
-            Platforma de Mediu la Cluj-Napoca de către{" "}
-            <Link
-              className="text-primary underline"
-              href="https://www.facebook.com/FundatiaComunitaraCluj"
-              target="_blank"
-            >
-              Fundația Comunitară Cluj
-            </Link>{" "}
-            și ING Bank România
-          </span>
         </span>
       </div>
     </footer>
