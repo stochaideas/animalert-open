@@ -54,7 +54,7 @@ export default function IncidentReport() {
       phone: "",
       email: "",
       confidentiality: false,
-      receiveIncidentUpdates: false,
+      receiveUpdates: false,
       receiveOtherIncidentUpdates: false,
       image1: undefined,
       image2: undefined,
@@ -183,9 +183,9 @@ export default function IncidentReport() {
           email: email,
           receiveOtherIncidentUpdates: values.receiveOtherIncidentUpdates,
         },
-        incident: {
+        report: {
           id: incidentId,
-          receiveIncidentUpdates: values.receiveIncidentUpdates,
+          receiveUpdates: values.receiveUpdates,
           latitude: mapCoordinates?.lat,
           longitude: mapCoordinates?.lng,
           imageKeys: imageKeys?.filter((url): url is string => !!url) ?? [],
@@ -195,8 +195,8 @@ export default function IncidentReport() {
       });
 
       if (!incidentId) {
-        setIncidentId(result?.incident?.id);
-        setIncidentReportNumber(result?.incident?.incidentReportNumber);
+        setIncidentId(result?.report?.id);
+        setIncidentReportNumber(result?.report?.reportNumber);
         setUserId(result?.user?.id);
       }
 

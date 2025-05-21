@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
-import { incidents } from "./incident.schema";
+import { reports } from "./incident.schema";
 import { users } from "../user/user.schema";
 import { TRPCError } from "@trpc/server";
 import { normalizePhoneNumber } from "~/lib/phone";
@@ -27,11 +27,11 @@ export class IncidentService {
       email?: string;
       receiveOtherIncidentUpdates: boolean;
     };
-    incident: {
+    report: {
       id?: string;
       latitude?: number;
       longitude?: number;
-      receiveIncidentUpdates: boolean;
+      receiveUpdates: boolean;
       imageKeys: string[];
       conversation?: string;
       address?: string;
@@ -41,9 +41,9 @@ export class IncidentService {
 
     const result = await db.transaction(async (tx) => {
       try {
-        let incident, user;
+        let report, user;
 
-        if (data.incident.id) {
+        if (data.report.id) {
           isUpdate = true;
           if (!data.user.id) {
             throw new TRPCError({
@@ -58,15 +58,15 @@ export class IncidentService {
             .set({ ...data.user, phone: normalizedPhoneNumber })
             .where(eq(users.id, data.user.id));
 
-          [incident] = await tx
-            .update(incidents)
+          [report] = await tx
+            .update(reports)
             .set({
-              ...data.incident,
-              imageKeys: data.incident.imageKeys.filter(
+              ...data.report,
+              imageKeys: data.report.imageKeys.filter(
                 (url): url is string => url !== undefined,
               ),
             })
-            .where(eq(incidents.id, data.incident.id))
+            .where(eq(reports.id, data.report.id))
             .returning();
           user = await tx.query.users.findFirst({
             where: eq(users.id, data.user.id),
@@ -106,22 +106,23 @@ export class IncidentService {
             });
           }
 
-          [incident] = await tx
-            .insert(incidents)
+          [report] = await tx
+            .insert(reports)
             .values({
               userId: user.id,
-              latitude: data.incident.latitude,
-              longitude: data.incident.longitude,
-              receiveIncidentUpdates: data.incident.receiveIncidentUpdates,
-              imageKeys: data.incident.imageKeys,
-              conversation: data.incident.conversation,
+              reportType: "INCIDENT",
+              latitude: data.report.latitude,
+              longitude: data.report.longitude,
+              receiveUpdates: data.report.receiveUpdates,
+              imageKeys: data.report.imageKeys,
+              conversation: data.report.conversation,
             })
             .returning();
         }
 
         return {
           user,
-          incident,
+          report,
         };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
@@ -130,10 +131,10 @@ export class IncidentService {
       }
     });
 
-    const { user, incident } = result;
+    const { user, report } = result;
 
-    if (user && incident) {
-      const { latitude, longitude, conversation } = incident;
+    if (user && report) {
+      const { latitude, longitude, conversation } = report;
 
       let conversationArray: { question: string; answer: string | string[] }[] =
         [];
@@ -155,7 +156,7 @@ export class IncidentService {
           : null;
 
       const actionType = isUpdate ? "actualizat" : "nou creat";
-      const imagesCount = incident.imageKeys?.length;
+      const imagesCount = report.imageKeys?.length;
 
       const html = `
 <!DOCTYPE html>
@@ -192,25 +193,25 @@ export class IncidentService {
           📍 Detalii incident
         </div>
         <ul style="padding-left:18px;margin:0;list-style-type:none;">
-          <li><strong>Status actualizări:</strong> ${incident.receiveIncidentUpdates ? "Activat" : "Dezactivat"}</li>
+          <li><strong>Status actualizări:</strong> ${report.receiveUpdates ? "Activat" : "Dezactivat"}</li>
           <li>
-            <strong>Adresă:</strong> ${incident.address ?? "Nespecificată"}
+            <strong>Adresă:</strong> ${report.address ?? "Nespecificată"}
             ${
-              incident.latitude && incident.longitude
-                ? `<br><a href="https://www.google.com/maps?q=${incident.latitude},${incident.longitude}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">🗺️ Vezi pe Google Maps</a>`
+              report.latitude && report.longitude
+                ? `<br><a href="https://www.google.com/maps?q=${report.latitude},${report.longitude}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">🗺️ Vezi pe Google Maps</a>`
                 : ""
             }
           </li>
           <li>
             <strong>Imagini atașate:</strong>
             ${
-              incident.imageKeys && incident.imageKeys.length > 0
-                ? `<ul style="padding-left:18px;margin:0;">${incident.imageKeys.map((url) => `<li style="margin-bottom:4px;"><a href="${url}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${url.split("/").pop()}</a></li>`).join("")}</ul>`
+              report.imageKeys && report.imageKeys.length > 0
+                ? `<ul style="padding-left:18px;margin:0;">${report.imageKeys.map((url) => `<li style="margin-bottom:4px;"><a href="${url}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${url.split("/").pop()}</a></li>`).join("")}</ul>`
                 : "Nicio imagine atașată"
             }
           </li>
-          <li><strong>Data creării:</strong> ${incident.createdAt ? new Date(incident.createdAt).toLocaleString("ro-RO") : "N/A"}</li>
-          <li><strong>Ultima actualizare:</strong> ${incident.updatedAt ? new Date(incident.updatedAt).toLocaleString("ro-RO") : "N/A"}</li>
+          <li><strong>Data creării:</strong> ${report.createdAt ? new Date(report.createdAt).toLocaleString("ro-RO") : "N/A"}</li>
+          <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? new Date(report.updatedAt).toLocaleString("ro-RO") : "N/A"}</li>
         </ul>
       </div>
       <!-- Chatbot Conversation as List -->
@@ -259,7 +260,7 @@ export class IncidentService {
 
       await this.emailService.sendEmail({
         to: env.EMAIL_ADMIN,
-        subject: `🚨 Raport ${actionType.toUpperCase()} - ${incident.incidentReportNumber}`,
+        subject: `🚨 Raport ${actionType.toUpperCase()} - ${report.reportNumber}`,
         html,
         text: `
 Raport ${actionType}

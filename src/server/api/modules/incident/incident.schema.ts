@@ -1,27 +1,33 @@
 import { sql } from "drizzle-orm";
-import { pgTable, index } from "drizzle-orm/pg-core";
+import { pgTable, index, pgEnum } from "drizzle-orm/pg-core";
 
 import { users } from "../user/user.schema";
 import { z } from "zod";
 import { phoneNumberRefine } from "~/lib/phone";
 
-export const incidents = pgTable(
-  "incidents",
+const REPORT_TYPES = ["INCIDENT", "PRESENCE", "CONFLICT"];
+
+export const reportTypeEnum = pgEnum(
+  "report_type",
+  REPORT_TYPES as [string, ...string[]],
+);
+
+export const reports = pgTable(
+  "reports",
   (d) => ({
     id: d
       .uuid("id")
       .primaryKey()
       .default(sql`gen_random_uuid()`),
-    incidentReportNumber: d.serial("incident_report_number").unique(),
+    reportNumber: d.serial("report_number").unique(),
+    reportType: reportTypeEnum("report_type").notNull(),
     userId: d
       .uuid("user_id")
       .notNull()
       .references(() => users.id, {
         onDelete: "cascade",
       }),
-    receiveIncidentUpdates: d
-      .boolean("receive_incident_updates")
-      .default(false),
+    receiveUpdates: d.boolean("receive_updates").default(false),
     latitude: d.doublePrecision("latitude"),
     longitude: d.doublePrecision("longitude"),
     imageKeys: d.text("image_keys").array(),
@@ -33,25 +39,27 @@ export const incidents = pgTable(
       .$onUpdate(() => new Date()),
   }),
   (t) => [
-    index("incidents_user_idx").on(t.userId),
-    index("incidents_incident_report_number_idx").on(t.incidentReportNumber),
-    index("incidents_created_at_idx").on(t.createdAt),
-    index("incidents_updated_at_idx").on(t.updatedAt),
+    index("reports_user_idx").on(t.userId),
+    index("reports_number_idx").on(t.reportNumber),
+    index("reports_type_idx").on(t.reportType),
+    index("reports_created_at_idx").on(t.createdAt),
+    index("reports_updated_at_idx").on(t.updatedAt),
   ],
 );
 
-export const upsertIncidentWithUserSchema = z.object({
+export const upsertReportWithUserSchema = z.object({
   user: z.object({
     id: z.string().optional(),
     firstName: z.string(),
     lastName: z.string(),
     phone: z.string().refine(phoneNumberRefine),
     email: z.string().optional(),
-    receiveOtherIncidentUpdates: z.boolean().default(false),
+    receiveOtherReportUpdates: z.boolean().default(false),
   }),
-  incident: z.object({
+  report: z.object({
     id: z.string().optional(),
-    receiveIncidentUpdates: z.boolean().default(false),
+    reportType: z.enum(REPORT_TYPES as [string, ...string[]]),
+    receiveReportUpdates: z.boolean().default(false),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
     imageKeys: z.string().array(),
@@ -61,5 +69,5 @@ export const upsertIncidentWithUserSchema = z.object({
 });
 
 // Types for TypeScript
-export type Incident = typeof incidents.$inferSelect;
-export type InsertIncident = typeof incidents.$inferInsert;
+export type Report = typeof reports.$inferSelect;
+export type InsertReport = typeof reports.$inferInsert;
