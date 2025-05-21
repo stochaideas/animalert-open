@@ -25,7 +25,7 @@ export class IncidentService {
       lastName: string;
       phone: string;
       email?: string;
-      receiveOtherIncidentUpdates: boolean;
+      receiveOtherReportUpdates: boolean;
     };
     report: {
       id?: string;
@@ -188,7 +188,7 @@ export class IncidentService {
           <li><strong>Nume complet:</strong> ${user.lastName} ${user.firstName}</li>
           <li><strong>Telefon:</strong> <a href="tel:${user.phone}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${user.phone}</a></li>
           <li><strong>Email:</strong> ${user.email ?? "Nespecificat"}</li>
-          <li><strong>Primește alte actualizări:</strong> ${user.receiveOtherIncidentUpdates ? "Da" : "Nu"}</li>
+          <li><strong>Primește alte actualizări:</strong> ${user.receiveOtherReportUpdates ? "Da" : "Nu"}</li>
         </ul>
       </div>
       <!-- Incident Info -->
@@ -272,7 +272,7 @@ Raport ${actionType}
 Utilizator: ${user.lastName} ${user.firstName}
 Telefon: ${user.phone}
 Email: ${user.email ?? "Nespecificat"}
-Actualizări: ${user.receiveOtherIncidentUpdates ? "Da" : "Nu"}
+Actualizări: ${user.receiveOtherReportUpdates ? "Da" : "Nu"}
 
 Detalii incident
 ----------------

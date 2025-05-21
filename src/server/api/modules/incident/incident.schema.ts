@@ -59,7 +59,7 @@ export const upsertReportWithUserSchema = z.object({
   report: z.object({
     id: z.string().optional(),
     reportType: z.enum(REPORT_TYPES as [string, ...string[]]),
-    receiveReportUpdates: z.boolean().default(false),
+    receiveUpdates: z.boolean().default(false),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
     imageKeys: z.string().array(),

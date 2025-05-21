@@ -224,19 +224,19 @@ export default function Contact({
               />
               <FormField
                 control={incidentForm.control}
-                name="receiveOtherIncidentUpdates"
+                name="receiveOtherReportUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
                     <FormControl>
                       <Checkbox
                         className="mt-1"
-                        id="receiveOtherIncidentUpdates"
+                        id="receiveOtherReportUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
                     <Label
-                      htmlFor="receiveOtherIncidentUpdates"
+                      htmlFor="receiveOtherReportUpdates"
                       className="text-body-small"
                     >
                       Vreau să fiu contactat pe WhatsApp despre alte cazuri și
@@ -247,21 +247,18 @@ export default function Contact({
               />
               <FormField
                 control={incidentForm.control}
-                name="receiveIncidentUpdates"
+                name="receiveUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
                     <FormControl>
                       <Checkbox
                         className="mt-1"
-                        id="receiveIncidentUpdates"
+                        id="receiveUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <Label
-                      htmlFor="receiveIncidentUpdates"
-                      className="text-body-small"
-                    >
+                    <Label htmlFor="receiveUpdates" className="text-body-small">
                       Vreau să primesc update pe email despre caz
                     </Label>
                   </FormItem>

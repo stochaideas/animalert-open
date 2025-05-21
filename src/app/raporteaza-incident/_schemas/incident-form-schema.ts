@@ -27,8 +27,8 @@ export const incidentFormSchema = z
     confidentiality: z.boolean().refine((val) => val === true, {
       message: "Trebuie să accepți Politica de confidențialitate",
     }),
-    receiveIncidentUpdates: z.boolean().optional(),
-    receiveOtherIncidentUpdates: z.boolean().optional(),
+    receiveUpdates: z.boolean().optional(),
+    receiveOtherReportUpdates: z.boolean().optional(),
 
     // Image 1
     image1: z
@@ -91,7 +91,7 @@ export const incidentFormSchema = z
       .optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.receiveIncidentUpdates) {
+    if (data.receiveUpdates) {
       if (!data.email) {
         ctx.addIssue({
           path: ["email"],
@@ -101,5 +101,4 @@ export const incidentFormSchema = z
         });
       }
     }
-    // If unchecked, do nothing (no error is added, so any previous error is cleared)
   });

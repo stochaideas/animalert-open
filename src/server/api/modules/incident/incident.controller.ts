@@ -1,5 +1,5 @@
 import { IncidentService } from "./incident.service";
-import { type upsertIncidentWithUserSchema } from "./incident.schema";
+import { type upsertReportWithUserSchema } from "./incident.schema";
 import { type z } from "zod";
 
 export class IncidentController {
@@ -10,7 +10,7 @@ export class IncidentController {
   }
 
   async upsertIncidentWithUser(
-    data: z.infer<typeof upsertIncidentWithUserSchema>,
+    data: z.infer<typeof upsertReportWithUserSchema>,
   ) {
     return this.incidentService.upsertIncidentWithUser(data);
   }

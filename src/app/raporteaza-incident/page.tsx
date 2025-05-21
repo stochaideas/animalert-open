@@ -55,7 +55,7 @@ export default function IncidentReport() {
       email: "",
       confidentiality: false,
       receiveUpdates: false,
-      receiveOtherIncidentUpdates: false,
+      receiveOtherReportUpdates: false,
       image1: undefined,
       image2: undefined,
       image3: undefined,
@@ -181,7 +181,7 @@ export default function IncidentReport() {
           lastName: values.lastName,
           phone: values.phone,
           email: email,
-          receiveOtherIncidentUpdates: values.receiveOtherIncidentUpdates,
+          receiveOtherReportUpdates: values.receiveOtherReportUpdates,
         },
         report: {
           id: incidentId,
