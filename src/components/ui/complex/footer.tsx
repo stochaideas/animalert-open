@@ -12,35 +12,48 @@ import {
 export default function Footer() {
   return (
     <footer className="bg-secondary text-secondary-foreground mx-auto w-full p-6 sm:p-4 md:p-6 lg:py-12 xl:px-32 2xl:px-64">
-      <section>
-        <Image
-          alt="Sponsors"
-          src="/images/about-us-sponsors.png"
-          width="1420"
-          height="200"
-        />
-      </section>
-      <section className="mt-6 md:mt-0">
-        <span className="font-poppins text-[1rem] md:text-[1.125rem] md:leading-[1.6] md:font-medium">
-          Proiect finanțat din programul „În ZONA TA”, implementat prin
-          Platforma de Mediu la Cluj-Napoca de către{" "}
-          <Link
-            className="text-primary underline"
-            href="https://www.facebook.com/FundatiaComunitaraCluj"
-            target="_blank"
-          >
-            Fundația Comunitară Cluj
-          </Link>{" "}
-          și{" "}
-          <Link
-            className="text-primary underline"
-            href="https://ing.ro/persoane-fizice"
-            target="_blank"
-          >
-            ING Bank România
-          </Link>
+      <div className="flex flex-col gap-6">
+        <section>
+          <Image
+            alt="Sponsors"
+            src="/images/about-us-sponsors.png"
+            width="1420"
+            height="200"
+          />
+        </section>
+        <span className="font-poppins text-center text-[1.25rem] md:text-[1.5rem] md:leading-[1.6] md:font-medium">
+          <strong>
+            🐢 🐣
+            <br className="sm:hidden" />
+            <em className="sm:mx-6">
+              Biodiversitate urbană și conviețuire armonioasă
+            </em>
+            <br className="sm:hidden" />
+            🐻 🐍 🦊
+          </strong>
         </span>
-      </section>
+        <section className="mt-6 md:mt-0">
+          <span className="font-poppins text-[1rem] md:text-[1.125rem] md:leading-[1.6] md:font-medium">
+            Proiect finanțat din programul „În ZONA TA”, implementat prin
+            Platforma de Mediu la Cluj-Napoca de către{" "}
+            <Link
+              className="text-primary underline"
+              href="https://www.facebook.com/FundatiaComunitaraCluj"
+              target="_blank"
+            >
+              Fundația Comunitară Cluj
+            </Link>{" "}
+            și{" "}
+            <Link
+              className="text-primary underline"
+              href="https://ing.ro/persoane-fizice"
+              target="_blank"
+            >
+              ING Bank România
+            </Link>
+          </span>
+        </section>
+      </div>
 
       <div className="container mx-auto flex flex-col items-start justify-center gap-14 md:mt-12 lg:gap-8">
         <div className="flex w-full flex-col items-start justify-between gap-14 lg:flex-row lg:gap-8">
