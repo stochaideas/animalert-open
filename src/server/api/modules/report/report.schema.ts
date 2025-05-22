@@ -4,12 +4,13 @@ import { pgTable, index, pgEnum } from "drizzle-orm/pg-core";
 import { users } from "../user/user.schema";
 import { z } from "zod";
 import { phoneNumberRefine } from "~/lib/phone";
+import { REPORT_TYPES } from "~/constants/report-types";
 
-const REPORT_TYPES = ["INCIDENT", "PRESENCE", "CONFLICT"];
+const reportTypesArray = Object.values(REPORT_TYPES);
 
 export const reportTypeEnum = pgEnum(
   "report_type",
-  REPORT_TYPES as [string, ...string[]],
+  reportTypesArray as [string, ...string[]],
 );
 
 export const reports = pgTable(
@@ -20,7 +21,7 @@ export const reports = pgTable(
       .primaryKey()
       .default(sql`gen_random_uuid()`),
     reportNumber: d.serial("report_number").unique(),
-    reportType: reportTypeEnum("report_type").notNull(),
+    reportType: reportTypeEnum("report_type").notNull().default("INCIDENT"),
     userId: d
       .uuid("user_id")
       .notNull()
@@ -58,7 +59,7 @@ export const upsertReportWithUserSchema = z.object({
   }),
   report: z.object({
     id: z.string().optional(),
-    reportType: z.enum(REPORT_TYPES as [string, ...string[]]),
+    reportType: z.nativeEnum(REPORT_TYPES),
     receiveUpdates: z.boolean().default(false),
     latitude: z.number().optional(),
     longitude: z.number().optional(),

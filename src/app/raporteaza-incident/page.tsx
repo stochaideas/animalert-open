@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { isEqual } from "lodash";
+import { useState, useRef, type ChangeEvent } from "react";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,8 +29,30 @@ import ChatBot from "./_components/chat-bot";
 import { Button } from "~/components/ui/simple/button";
 import { MaterialStepper } from "~/components/ui/complex/stepper";
 import { TRPCClientError } from "@trpc/client";
+import { REPORT_TYPES } from "~/constants/report-types";
 
 export default function IncidentReport() {
+  const lastSubmittedPayload = useRef<{
+    user: {
+      id: string | undefined;
+      firstName: string;
+      lastName: string;
+      phone: string;
+      email?: string;
+      receiveOtherReportUpdates: boolean;
+    };
+    report: {
+      id: string | undefined;
+      reportType: string;
+      receiveUpdates: boolean;
+      latitude: number | undefined;
+      longitude: number | undefined;
+      imageKeys: string[];
+      conversation: string;
+      address: string | undefined;
+    };
+  } | null>(null);
+
   const [currentPage, setCurrentPage] = useState(0);
   const [incidentId, setIncidentId] = useState<string | undefined>();
   const [incidentReportNumber, setIncidentReportNumber] = useState<
@@ -167,6 +190,8 @@ export default function IncidentReport() {
 
   // Submit handler for the incident form
   async function onIncidentSubmit(values: z.infer<typeof incidentFormSchema>) {
+    console.log();
+
     try {
       const imageKeys = await handleImageUpload(
         Object.values(incidentImageFiles),
@@ -174,7 +199,7 @@ export default function IncidentReport() {
 
       const email = values.email === "" ? undefined : values.email;
 
-      const result = await mutateIncidentAsync({
+      const payload = {
         user: {
           id: userId,
           firstName: values.firstName,
@@ -185,6 +210,7 @@ export default function IncidentReport() {
         },
         report: {
           id: incidentId,
+          reportType: REPORT_TYPES.INCIDENT,
           receiveUpdates: values.receiveUpdates,
           latitude: mapCoordinates?.lat,
           longitude: mapCoordinates?.lng,
@@ -192,7 +218,13 @@ export default function IncidentReport() {
           conversation: JSON.stringify(answers),
           address: address,
         },
-      });
+      };
+
+      // Only mutate if data has changed
+      if (isEqual(payload, lastSubmittedPayload.current)) {
+        handleNextPage();
+        return;
+      }
 
       if (!incidentId) {
         setIncidentId(result?.report?.id);
