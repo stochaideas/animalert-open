@@ -51,10 +51,13 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_stage
 
           
   deploy:
+    permissions:
+      id-token: write        # for OIDC
+      contents: read
     name: Deploy ECS
     needs: build
     runs-on: ubuntu-latest
