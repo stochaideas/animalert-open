@@ -226,6 +226,8 @@ export default function IncidentReport() {
         return;
       }
 
+      const result = await mutateIncidentAsync(payload);
+
       if (!incidentId) {
         setIncidentId(result?.report?.id);
         setIncidentReportNumber(result?.report?.reportNumber);
