@@ -39,12 +39,12 @@ export default function IncidentReport() {
       lastName: string;
       phone: string;
       email?: string;
-      receiveOtherReportUpdates: boolean;
+      receiveOtherReportUpdates?: boolean;
     };
     report: {
       id: string | undefined;
       reportType: string;
-      receiveUpdates: boolean;
+      receiveUpdates?: boolean;
       latitude: number | undefined;
       longitude: number | undefined;
       imageKeys: string[];
@@ -52,6 +52,21 @@ export default function IncidentReport() {
       address: string | undefined;
     };
   } | null>(null);
+
+  const lastImageFiles = useRef<{
+    image1: File | undefined;
+    image2: File | undefined;
+    image3: File | undefined;
+    video1: File | undefined;
+  }>({
+    image1: undefined,
+    image2: undefined,
+    image3: undefined,
+    video1: undefined,
+  });
+  const lastUploadedImageUrls = useRef<string[]>([]);
+
+  const mapSubmitted = useRef(false);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [incidentId, setIncidentId] = useState<string | undefined>();
@@ -188,14 +203,36 @@ export default function IncidentReport() {
     }
   }
 
+  function newImagesUploaded(
+    current: Record<string, File | undefined>,
+    previous: Record<string, File | undefined>,
+  ) {
+    return Object.keys(current).some(
+      (key) =>
+        !!current[key] && // file is set
+        (!previous[key] || current[key] !== previous[key]), // file is new or changed
+    );
+  }
+
   // Submit handler for the incident form
   async function onIncidentSubmit(values: z.infer<typeof incidentFormSchema>) {
-    console.log();
-
     try {
-      const imageKeys = await handleImageUpload(
-        Object.values(incidentImageFiles),
+      const imagesChanged = newImagesUploaded(
+        incidentImageFiles,
+        lastImageFiles.current,
       );
+
+      let imageKeys: string[] = lastUploadedImageUrls.current;
+
+      if (imagesChanged) {
+        // Upload only the new images
+        imageKeys =
+          (await handleImageUpload(Object.values(incidentImageFiles)))?.filter(
+            (url): url is string => !!url,
+          ) ?? [];
+        lastImageFiles.current = { ...incidentImageFiles };
+        lastUploadedImageUrls.current = imageKeys;
+      }
 
       const email = values.email === "" ? undefined : values.email;
 
@@ -212,11 +249,11 @@ export default function IncidentReport() {
           id: incidentId,
           reportType: REPORT_TYPES.INCIDENT,
           receiveUpdates: values.receiveUpdates,
-          latitude: mapCoordinates?.lat,
-          longitude: mapCoordinates?.lng,
-          imageKeys: imageKeys?.filter((url): url is string => !!url) ?? [],
+          latitude: mapSubmitted.current ? mapCoordinates?.lat : undefined,
+          longitude: mapSubmitted.current ? mapCoordinates?.lng : undefined,
+          imageKeys,
           conversation: JSON.stringify(answers),
-          address: address,
+          address: mapSubmitted.current ? address : undefined,
         },
       };
 
@@ -227,6 +264,18 @@ export default function IncidentReport() {
       }
 
       const result = await mutateIncidentAsync(payload);
+
+      lastSubmittedPayload.current = {
+        ...payload,
+        user: {
+          ...payload.user,
+          id: result?.user?.id,
+        },
+        report: {
+          ...payload.report,
+          id: result?.report?.id,
+        },
+      };
 
       if (!incidentId) {
         setIncidentId(result?.report?.id);
@@ -349,9 +398,10 @@ export default function IncidentReport() {
             address={address}
             setAddress={setAddress}
             handlePreviousPage={handlePreviousPage}
-            onMapSubmit={async () =>
-              await onIncidentSubmit(incidentForm.getValues())
-            }
+            onMapSubmit={async () => {
+              mapSubmitted.current = true;
+              await onIncidentSubmit(incidentForm.getValues());
+            }}
             initialCoordinates={mapCoordinates}
             onCoordinatesChange={setMapCoordinates}
             isPending={incidentIsPending || s3IsPending}

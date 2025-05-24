@@ -78,6 +78,7 @@ export default function Contact({
                   aspectRatio: "1/1", // or "16/9" or any aspect ratio you want
                   borderRadius: "8px", // optional, for rounded corners
                   overflow: "hidden", // optional, for clean edges
+                  cursor: "pointer",
                 }}
               >
                 <Image
