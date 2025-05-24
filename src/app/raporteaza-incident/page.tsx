@@ -126,6 +126,8 @@ export default function IncidentReport() {
     { question: string; answer: string | string[] }[]
   >([]);
 
+  const [submittingIncident, setSubmittingIncident] = useState(false);
+
   const utils = api.useUtils();
   const {
     mutateAsync: mutateIncidentAsync,
@@ -217,6 +219,8 @@ export default function IncidentReport() {
   // Submit handler for the incident form
   async function onIncidentSubmit(values: z.infer<typeof incidentFormSchema>) {
     try {
+      setSubmittingIncident(true);
+
       const imagesChanged = newImagesUploaded(
         incidentImageFiles,
         lastImageFiles.current,
@@ -282,6 +286,8 @@ export default function IncidentReport() {
         setIncidentReportNumber(result?.report?.reportNumber);
         setUserId(result?.user?.id);
       }
+
+      setSubmittingIncident(false);
 
       handleNextPage();
     } catch (error) {
@@ -389,7 +395,7 @@ export default function IncidentReport() {
             incidentImageFiles={incidentImageFiles}
             handleIncidentImageChange={handleIncidentImageChange}
             onIncidentSubmit={onIncidentSubmit}
-            isPending={incidentIsPending || s3IsPending}
+            isPending={submittingIncident || incidentIsPending || s3IsPending}
           />
         );
       case 2:
@@ -404,7 +410,7 @@ export default function IncidentReport() {
             }}
             initialCoordinates={mapCoordinates}
             onCoordinatesChange={setMapCoordinates}
-            isPending={incidentIsPending || s3IsPending}
+            isPending={submittingIncident || incidentIsPending || s3IsPending}
           />
         );
       case 3:
@@ -417,7 +423,7 @@ export default function IncidentReport() {
               await onIncidentSubmit(incidentForm.getValues());
             }}
             handleDialogClose={() => redirect("/")}
-            isPending={incidentIsPending || s3IsPending}
+            isPending={submittingIncident || incidentIsPending || s3IsPending}
           />
         );
       default:

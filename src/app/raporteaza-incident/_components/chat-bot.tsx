@@ -1,15 +1,7 @@
-import React, {
-  useState,
-  type Dispatch,
-  type MouseEventHandler,
-  type SetStateAction,
-} from "react";
-
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
-
 import { CONVERSATION } from "../_constants/chat-bot-conversation";
-import { SVGBotAvatar, SVGCross } from "~/components/icons";
-
+import { SVGBot, SVGBotAvatar, SVGCross, SVGUser } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import { Checkbox } from "~/components/ui/simple/checkbox";
 import {
@@ -20,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/simple/dialog";
-import { Input } from "~/components/ui/simple/input";
+import { Textarea } from "~/components/ui/simple/textarea";
 
 export default function ChatBot({
   answers,
@@ -31,81 +23,222 @@ export default function ChatBot({
   isPending,
 }: {
   answers: { question: string; answer: string | string[] }[];
-  setAnswers: Dispatch<
-    SetStateAction<{ question: string; answer: string | string[] }[]>
+  setAnswers: React.Dispatch<
+    React.SetStateAction<{ question: string; answer: string | string[] }[]>
   >;
   incidentReportNumber?: number;
-  handleChatFinish?: (
-    answers: { question: string; answer: string | string[] }[],
-  ) => void;
-  handleDialogClose?: MouseEventHandler<HTMLButtonElement>;
+  handleChatFinish?: () => void;
+  handleDialogClose?: React.MouseEventHandler<HTMLButtonElement>;
   isPending: boolean;
 }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(answers.length); // Start at next unanswered
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [multiSelect, setMultiSelect] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
 
-  const currentStep = CONVERSATION[step];
+  const answersMemo = useMemo(() => answers, [answers]);
 
-  // For single choice
-  const handleOptionChange = (option: string) => {
-    if (currentStep) {
-      const newEntry = { question: currentStep.question, answer: option };
-      const newAnswers = [...answers, newEntry];
-      setAnswers(newAnswers);
-      const nextStep = step + 1;
-      setStep(nextStep);
+  // Prepare input state when editing
+  React.useEffect(() => {
+    if (editingIdx !== null) {
+      const a = answersMemo[editingIdx];
+      if (a) {
+        if (Array.isArray(a.answer)) setMultiSelect(a.answer);
+        else setInputValue(a.answer);
+      }
+    } else {
       setMultiSelect([]);
       setInputValue("");
-      if (nextStep === CONVERSATION.length && handleChatFinish) {
-        handleChatFinish(newAnswers);
-      }
+    }
+  }, [editingIdx, answersMemo]);
+
+  // Handle answer submit (for both new and edit)
+  const handleAnswerSubmit = (answer: string | string[]) => {
+    if (editingIdx !== null) {
+      // Replace only the edited answer, keep the rest
+      setAnswers((prev) =>
+        prev.map((a, i) =>
+          i === editingIdx
+            ? CONVERSATION[editingIdx]
+              ? { question: CONVERSATION[editingIdx].question, answer }
+              : a
+            : a,
+        ),
+      );
+      setEditingIdx(null);
+      setStep(
+        CONVERSATION.length === answers.length
+          ? answers.length
+          : answers.length + 1,
+      );
+    } else {
+      // Add new answer
+      setAnswers((prev) => [
+        ...prev,
+        CONVERSATION[step]
+          ? { question: CONVERSATION[step].question, answer }
+          : { question: "", answer },
+      ]);
+      setStep(step + 1);
+    }
+    setMultiSelect([]);
+    setInputValue("");
+    // If last step, show confirm dialog
+    if (
+      (editingIdx !== null ? editingIdx + 1 : step + 1) === CONVERSATION.length
+    ) {
+      setShowConfirmDialog(true);
     }
   };
 
-  // For multiple choice
-  const handleMultiSelect = (option: string) => {
-    setMultiSelect((prev) =>
-      prev.includes(option)
-        ? prev.filter((o) => o !== option)
-        : [...prev, option],
+  // Render a single question/answer row
+  const renderRow = (stepItem: (typeof CONVERSATION)[0], idx: number) => {
+    const isEditing = editingIdx === idx && step === idx;
+    const answered = answers[idx];
+
+    return (
+      <React.Fragment key={idx}>
+        {/* Bot message */}
+        <div className="flex items-center gap-4">
+          <SVGBot width="32" height="32" />
+          <div className="bg-tertiary text-neutral-foreground text-single-line-body-base rounded-t-lg rounded-r-lg p-4">
+            <span className="text-base">{stepItem.question}</span>
+          </div>
+        </div>
+        {/* User answer or input */}
+        {answered && !isEditing && (
+          <div className="mt-8 flex justify-end gap-4">
+            <div className="flex w-full flex-col items-end">
+              <div className="text-neutral-foreground text-single-line-body-base mb-2 max-w-[60%] rounded-t-lg rounded-l-lg bg-[#F2F2F2] p-4">
+                {Array.isArray(answered.answer)
+                  ? answered.answer.join(", ")
+                  : answered.answer}
+              </div>
+              <div className="flex flex-row justify-end">
+                <span
+                  className="text-secondary text-body-small mb-8 cursor-pointer font-bold"
+                  onClick={() => {
+                    setEditingIdx(idx);
+                    setStep(idx);
+                  }}
+                >
+                  🔄 Modifică răspuns
+                </span>
+              </div>
+            </div>
+            <SVGUser width="32" height="32" />
+          </div>
+        )}
+        {(isEditing || !answered) && (
+          <div className="mt-2 mr-auto ml-12 min-w-[20%]">
+            <div className="flex flex-col rounded-r-lg rounded-b-lg">
+              {stepItem.type === "options" && stepItem.options && (
+                <>
+                  {stepItem.multiple ? (
+                    <>
+                      {stepItem.options.map((option, idx2) => (
+                        <label
+                          key={idx2}
+                          className={`bg-tertiary hover:bg-tertiary-hover hover:text-tertiary-hover-foreground border-tertiary-border flex cursor-pointer items-center ${
+                            idx2 === 0
+                              ? "rounded-tr-lg border-b-[1px]"
+                              : idx2 === (stepItem.options?.length ?? 0) - 1
+                                ? "rounded-b-lg"
+                                : "border-b-[1px]"
+                          } p-4`}
+                        >
+                          <Checkbox
+                            checked={multiSelect.includes(option)}
+                            onCheckedChange={() =>
+                              setMultiSelect((prev) =>
+                                prev.includes(option)
+                                  ? prev.filter((o) => o !== option)
+                                  : [...prev, option],
+                              )
+                            }
+                            className="mr-2"
+                          />
+                          {option}
+                        </label>
+                      ))}
+                      <Button
+                        className="bg-secondary text-secondary-foreground hover:bg-secondary-hover mt-2 w-full px-4 py-2"
+                        onClick={() => handleAnswerSubmit(multiSelect)}
+                        disabled={multiSelect.length === 0 || isPending}
+                      >
+                        {isPending ? "Se salvează" : "Continuă"}
+                      </Button>
+                    </>
+                  ) : (
+                    stepItem.options.map((option, idx2) => (
+                      <span
+                        key={idx2}
+                        className={`bg-tertiary hover:bg-tertiary-hover hover:text-tertiary-hover-foreground border-tertiary-border cursor-pointer ${
+                          idx2 === 0
+                            ? "rounded-tr-lg border-b-[1px]"
+                            : idx2 === (stepItem.options?.length ?? 0) - 1
+                              ? "rounded-b-lg"
+                              : "border-b-[1px]"
+                        } p-4`}
+                        onClick={() => handleAnswerSubmit(option)}
+                      >
+                        {option}
+                      </span>
+                    ))
+                  )}
+                </>
+              )}
+              {stepItem.type === "input" && (
+                <form
+                  className="flex w-96 flex-col gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleAnswerSubmit(inputValue);
+                  }}
+                >
+                  <Textarea
+                    className="rounded border p-2"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="Scrie răspunsul aici..."
+                  />
+                  <Button
+                    type="submit"
+                    className="bg-secondary text-secondary-foreground hover:bg-secondary-hover w-full px-4 py-2"
+                    disabled={!inputValue.trim()}
+                  >
+                    Continuă
+                  </Button>
+                </form>
+              )}
+              {answers.length > 1 && (
+                <Button
+                  variant="tertiary"
+                  className="mt-2"
+                  onClick={() => {
+                    setEditingIdx(null);
+                    setMultiSelect([]);
+                    setInputValue("");
+                  }}
+                >
+                  Anulează
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+      </React.Fragment>
     );
   };
 
-  const handleMultiSelectSubmit = () => {
-    if (currentStep) {
-      if (multiSelect.length === 0) return;
-      const newEntry = { question: currentStep.question, answer: multiSelect };
-      const newAnswers = [...answers, newEntry];
-      setAnswers(newAnswers);
-      const nextStep = step + 1;
-      setStep(nextStep);
-      setMultiSelect([]);
-      setInputValue("");
-      if (nextStep === CONVERSATION.length && handleChatFinish) {
-        handleChatFinish(newAnswers);
-      }
-    }
-  };
-
-  // For input
-  const handleInputSubmit = () => {
-    if (currentStep) {
-      if (!inputValue.trim()) return;
-      const newEntry = {
-        question: currentStep.question,
-        answer: inputValue.trim(),
-      };
-      const newAnswers = [...answers, newEntry];
-      setAnswers(newAnswers);
-      const nextStep = step + 1;
-      setStep(nextStep);
-      setMultiSelect([]);
-      setInputValue("");
-      if (nextStep === CONVERSATION.length && handleChatFinish) {
-        handleChatFinish(newAnswers);
-      }
-    }
+  // For new answers (not editing), render input for current step
+  const renderCurrentInput = () => {
+    if (editingIdx !== null || step >= CONVERSATION.length) return null;
+    const stepItem = CONVERSATION[step];
+    if (!stepItem) return null;
+    return renderRow(stepItem, step);
   };
 
   return (
@@ -122,112 +255,45 @@ export default function ChatBot({
           <SVGCross className="cursor-pointer" width="32" height="32" />
         </Link>
       </div>
-      {/* Chat body */}
       <div className="border-tertiary-border flex flex-col rounded-b-md border-x-1 border-b-1 bg-white px-6 py-8">
-        {CONVERSATION.slice(0, step + 1).map((stepItem, idx) => (
-          <React.Fragment key={idx}>
-            {/* Bot message */}
-            <div className="flex">
-              <div className="bg-tertiary text-neutral-foreground text-single-line-body-base rounded-t-lg rounded-r-lg p-4">
-                <span className="text-base">{stepItem.question}</span>
-              </div>
-            </div>
-            {/* User reply */}
-            {answers[idx] && (
-              <div className="flex justify-end">
-                <div className="text-neutral-foreground text-single-line-body-base my-8 max-w-[60%] rounded-t-lg rounded-l-lg bg-[#F2F2F2] p-4">
-                  {Array.isArray(answers[idx].answer)
-                    ? answers[idx].answer.join(", ")
-                    : answers[idx].answer}
-                </div>
-              </div>
-            )}
-          </React.Fragment>
-        ))}
-
-        {/* Show options/input for current step if not finished */}
-        {step < CONVERSATION.length && (
-          <div className="mt-2 mr-auto min-w-[20%]">
-            <div className="flex flex-col gap-0 rounded-r-lg rounded-b-lg">
-              {currentStep?.type === "options" && currentStep?.options && (
-                <>
-                  {currentStep.multiple ? (
-                    <>
-                      {currentStep.options.map((option, idx) => (
-                        <label
-                          key={idx}
-                          className={`bg-tertiary hover:bg-tertiary-hover hover:text-tertiary-hover-foreground border-tertiary-border flex cursor-pointer items-center ${
-                            idx === 0
-                              ? "rounded-tr-lg border-b-[1px]"
-                              : idx === (currentStep.options?.length ?? 0) - 1
-                                ? "rounded-b-lg"
-                                : "border-b-[1px]"
-                          } p-4`}
-                        >
-                          <Checkbox
-                            checked={multiSelect.includes(option)}
-                            onCheckedChange={() => handleMultiSelect(option)}
-                            className="mr-2"
-                          />
-                          {option}
-                        </label>
-                      ))}
-                      <Button
-                        className="bg-secondary text-secondary-foreground hover:bg-secondary-hover mt-2 w-full px-4 py-2"
-                        onClick={handleMultiSelectSubmit}
-                        disabled={multiSelect.length === 0 || isPending}
-                      >
-                        {isPending ? "Se salvează" : "Continuă"}
-                      </Button>
-                    </>
-                  ) : (
-                    currentStep.options.map((option, idx) => (
-                      <span
-                        key={idx}
-                        className={`bg-tertiary hover:bg-tertiary-hover hover:text-tertiary-hover-foreground border-tertiary-border cursor-pointer ${
-                          idx === 0
-                            ? "rounded-tr-lg border-b-[1px]"
-                            : idx === (currentStep.options?.length ?? 0) - 1
-                              ? "rounded-b-lg"
-                              : "border-b-[1px]"
-                        } p-4`}
-                        onClick={() => handleOptionChange(option)}
-                      >
-                        {option}
-                      </span>
-                    ))
-                  )}
-                </>
-              )}
-              {currentStep?.type === "input" && (
-                <form
-                  className="flex flex-col gap-2 p-4"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleInputSubmit();
-                  }}
-                >
-                  <Input
-                    type="text"
-                    className="rounded border p-2"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="Scrie răspunsul aici..."
-                  />
-                  <Button
-                    type="submit"
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary-hover w-full px-4 py-2"
-                    disabled={!inputValue.trim()}
-                  >
-                    Continuă
-                  </Button>
-                </form>
-              )}
-            </div>
-          </div>
+        {CONVERSATION.map((stepItem, idx) =>
+          idx < answers.length || (editingIdx === idx && step === idx)
+            ? renderRow(stepItem, idx)
+            : null,
         )}
+        {renderCurrentInput()}
       </div>
-      <Dialog open={step >= CONVERSATION.length}>
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="bg-tertiary">
+          <DialogHeader>
+            <DialogDescription className="sr-only">
+              Confirmare de înregistrare a incidentului.
+            </DialogDescription>
+            <DialogTitle>Confirmare creare incident</DialogTitle>
+          </DialogHeader>
+          <div>Ești sigur că vrei să creezi acest incident?</div>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setShowConfirmDialog(false);
+                setShowSuccessDialog(true);
+                if (handleChatFinish) handleChatFinish();
+              }}
+            >
+              Salvează și trimite
+            </Button>
+            <Button
+              variant="tertiary"
+              className="ml-2"
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              Modifică
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showSuccessDialog}>
         <DialogContent className="bg-tertiary">
           <DialogHeader>
             <DialogDescription className="sr-only">
