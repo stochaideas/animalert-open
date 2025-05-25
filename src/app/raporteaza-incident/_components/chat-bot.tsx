@@ -38,7 +38,6 @@ export default function ChatBot({
   const [reviewMode, setReviewMode] = useState(false);
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  // const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const [multiSelect, setMultiSelect] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
