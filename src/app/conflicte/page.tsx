@@ -392,7 +392,7 @@ export default function ConflictReport() {
   return (
     <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
       <div className="flex flex-col justify-center gap-12">
-        <h1 className="text-heading-2">Raportează prezență</h1>
+        <h1 className="text-heading-2">Raportează conflict/interacțiune</h1>
         <MaterialStepper steps={CONFLICT_STEPS} currentStep={currentPage} />
         {getCurrentPage()}
       </div>
@@ -402,10 +402,10 @@ export default function ConflictReport() {
             <DialogDescription className="sr-only">
               Confirmare de înregistrare a incidentului.
             </DialogDescription>
-            <DialogTitle>Raport de prezență înregistrat</DialogTitle>
+            <DialogTitle>Raport conflict/interacțiune înregistrat</DialogTitle>
           </DialogHeader>
           <div>
-            Raportul de prezență cu numărul{" "}
+            Raportul conflict/interacțiune cu numărul{" "}
             <strong>{conflictReportNumber}</strong> a fost înregistrat cu
             succes.
           </div>
