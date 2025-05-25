@@ -1,6 +1,7 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 import { incidentRouter } from "./modules/report/incident/incident.router";
+import { presenceRouter } from "./modules/report/presence/presence.router";
 import { contactRouter } from "./modules/contact/contact.router";
 import { geolocationRouter } from "./modules/geolocation/geolocation.router";
 import { s3Router } from "./modules/s3/s3.router";
@@ -12,6 +13,7 @@ import { s3Router } from "./modules/s3/s3.router";
  */
 export const appRouter = createTRPCRouter({
   incident: incidentRouter,
+  presence: presenceRouter,
   contact: contactRouter,
   geolocation: geolocationRouter,
   s3: s3Router,

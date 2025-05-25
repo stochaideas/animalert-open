@@ -17,30 +17,30 @@ import {
 import { Input } from "~/components/ui/simple/input";
 import { type ChangeEvent } from "react";
 import Image from "next/image";
-import { type incidentFormSchema } from "../_schemas/incident-form-schema";
+import { type presenceFormSchema } from "../_schemas/presence-form-schema";
 
 export default function Contact({
   handlePreviousPage,
-  incidentForm,
-  incidentImageFiles,
-  handleIncidentImageChange,
-  onIncidentSubmit,
+  presenceForm,
+  presenceImageFiles,
+  handlePresenceImageChange,
+  onPresenceSubmit,
   isPending,
 }: {
   handlePreviousPage: () => void;
-  incidentForm: ReturnType<typeof useForm<z.infer<typeof incidentFormSchema>>>;
-  incidentImageFiles: {
+  presenceForm: ReturnType<typeof useForm<z.infer<typeof presenceFormSchema>>>;
+  presenceImageFiles: {
     image1: File | undefined;
     image2: File | undefined;
     image3: File | undefined;
     video1: File | undefined;
   };
-  handleIncidentImageChange: (
+  handlePresenceImageChange: (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => void;
-  onIncidentSubmit: (data: z.infer<typeof incidentFormSchema>) => void;
+  onPresenceSubmit: (data: z.infer<typeof presenceFormSchema>) => void;
   isPending?: boolean;
 }) {
   const FileFormField: React.FC<{
@@ -48,13 +48,13 @@ export default function Contact({
   }> = ({ file }) => {
     let imageUrl: string | undefined;
 
-    if (incidentImageFiles[file]) {
-      imageUrl = URL.createObjectURL(incidentImageFiles[file]);
+    if (presenceImageFiles[file]) {
+      imageUrl = URL.createObjectURL(presenceImageFiles[file]);
     }
 
     return (
       <FormField
-        control={incidentForm.control}
+        control={presenceForm.control}
         name={file}
         render={({ field }) => (
           <FormItem className="flex-1">
@@ -65,7 +65,7 @@ export default function Contact({
                 type="file"
                 accept={file === "video1" ? "video/*" : "image/*"}
                 onChange={(e) =>
-                  handleIncidentImageChange(e, file, field.onChange)
+                  handlePresenceImageChange(e, file, field.onChange)
                 }
               />
             </FormControl>
@@ -82,7 +82,7 @@ export default function Contact({
                 }}
               >
                 <Image
-                  alt="Imagine cu incidentul"
+                  alt="Imagine cu prezența raportată"
                   src={imageUrl ?? "/images/report-image-placeholder.png"}
                   fill
                   style={{
@@ -101,14 +101,14 @@ export default function Contact({
 
   return (
     <>
-      <form onSubmit={incidentForm.handleSubmit(onIncidentSubmit)}>
-        <Form {...incidentForm}>
+      <form onSubmit={presenceForm.handleSubmit(onPresenceSubmit)}>
+        <Form {...presenceForm}>
           <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Date contact</h3>
             <section className="mb-4 grid grid-cols-1 gap-8 md:grid-cols-2">
               <div className="flex-1">
                 <FormField
-                  control={incidentForm.control}
+                  control={presenceForm.control}
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
@@ -130,7 +130,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={incidentForm.control}
+                  control={presenceForm.control}
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
@@ -152,7 +152,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={incidentForm.control}
+                  control={presenceForm.control}
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
@@ -174,7 +174,7 @@ export default function Contact({
               </div>
               <div className="flex-1">
                 <FormField
-                  control={incidentForm.control}
+                  control={presenceForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -194,7 +194,7 @@ export default function Contact({
             </section>
             <div className="flex flex-col gap-2">
               <FormField
-                control={incidentForm.control}
+                control={presenceForm.control}
                 name="confidentiality"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
@@ -209,20 +209,20 @@ export default function Contact({
                     <Label
                       htmlFor="confidentiality"
                       className={`text-body-small ${
-                        incidentForm.formState.errors.confidentiality &&
+                        presenceForm.formState.errors.confidentiality &&
                         "text-red-500"
                       }`}
                     >
                       Prin trimiterea acestei solicitări, confirm că am citit
                       Politica de confidențialitate și sunt de acord ca
                       AnimAlert să stocheze datele mele personale pentru a putea
-                      procesa raportarea incidentului
+                      procesa raportarea prezenței
                     </Label>
                   </FormItem>
                 )}
               />
               <FormField
-                control={incidentForm.control}
+                control={presenceForm.control}
                 name="receiveOtherReportUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
@@ -245,7 +245,7 @@ export default function Contact({
                 )}
               />
               <FormField
-                control={incidentForm.control}
+                control={presenceForm.control}
                 name="receiveUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
@@ -270,10 +270,10 @@ export default function Contact({
             <p className="text-body pb-3">
               Încărcați cel puțin o imagine
               <span className="text-red-500">*</span> (obligatoriu). Adăugați
-              fotografii atât cu animalul cât și cu incidentul.
+              fotografii atât cu animalul cât și cu prezența acestuia.
             </p>
             <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-              {Object.keys(incidentImageFiles).map((key) => (
+              {Object.keys(presenceImageFiles).map((key) => (
                 <FileFormField
                   key={key}
                   file={key as "image1" | "image2" | "image3" | "video1"}

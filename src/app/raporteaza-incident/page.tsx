@@ -419,7 +419,7 @@ export default function IncidentReport() {
           <ChatBot
             answers={answers}
             setAnswers={setAnswers}
-            incidentReportNumber={incidentReportNumber}
+            reportNumber={incidentReportNumber}
             handleChatFinish={async () => {
               await onIncidentSubmit(incidentForm.getValues());
             }}

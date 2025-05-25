@@ -17,7 +17,7 @@ import { Textarea } from "~/components/ui/simple/textarea";
 export default function ChatBot({
   answers,
   setAnswers,
-  incidentReportNumber,
+  reportNumber,
   handleChatFinish,
   handleDialogClose,
   isPending,
@@ -27,7 +27,7 @@ export default function ChatBot({
   setAnswers: React.Dispatch<
     React.SetStateAction<{ question: string; answer: string | string[] }[]>
   >;
-  incidentReportNumber?: number;
+  reportNumber?: number;
   handleChatFinish?: () => void;
   handleDialogClose?: React.MouseEventHandler<HTMLButtonElement>;
   isPending: boolean;
@@ -330,7 +330,7 @@ export default function ChatBot({
             <DialogTitle>Incident înregistrat</DialogTitle>
           </DialogHeader>
           <div>
-            Incidentul cu numărul <strong>{incidentReportNumber}</strong> a fost
+            Incidentul cu numărul <strong>{reportNumber}</strong> a fost
             înregistrat cu succes.
           </div>
           <DialogFooter>
