@@ -14,26 +14,27 @@ export default function Map({
   setAddress,
   handlePreviousPage,
   onMapSubmit,
-  initialCoordinates,
-  onCoordinatesChange,
+  mapCoordinates,
+  setMapCoordinates,
   isPending,
 }: {
   address?: string;
   setAddress: Dispatch<SetStateAction<string | undefined>>;
   handlePreviousPage: () => void;
   onMapSubmit: () => void;
-  initialCoordinates?: Coordinates | null;
-  onCoordinatesChange?: (pos: { lat: number; lng: number } | null) => void;
+  mapCoordinates: Coordinates;
+  setMapCoordinates?: Dispatch<SetStateAction<Coordinates>>;
   isPending?: boolean;
 }) {
-  const { coordinates, setCoordinates, error } =
-    useGeolocation(initialCoordinates);
+  const { coordinates, setCoordinates } = useGeolocation(mapCoordinates);
+
+  console.log(coordinates);
 
   useEffect(() => {
-    if (onCoordinatesChange) {
-      onCoordinatesChange(coordinates);
+    if (setMapCoordinates) {
+      setMapCoordinates(coordinates);
     }
-  }, [coordinates, onCoordinatesChange]);
+  }, [coordinates, setMapCoordinates]);
 
   const fetchedAddress = api.geolocation.mapsGeocode.useQuery(
     coordinates ?? { lat: 0, lng: 0 },
@@ -45,8 +46,6 @@ export default function Map({
       setAddress(fetchedAddress.data.formattedAddress);
     }
   }, [setAddress, fetchedAddress.data]);
-
-  if (error) return <div>Error: {error}</div>;
 
   const handleSearchAddressChange = (
     e: React.ChangeEvent<HTMLInputElement>,

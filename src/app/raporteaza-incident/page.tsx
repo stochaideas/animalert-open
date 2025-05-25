@@ -116,9 +116,10 @@ export default function IncidentReport() {
   });
 
   // MAP
-  const [mapCoordinates, setMapCoordinates] = useState<Coordinates | null>(
-    null,
-  );
+  const [mapCoordinates, setMapCoordinates] = useState<Coordinates>({
+    lat: 46.7715965,
+    lng: 23.6080557,
+  });
   const [address, setAddress] = useState<string>();
 
   // CHAT BOT
@@ -408,8 +409,8 @@ export default function IncidentReport() {
               mapSubmitted.current = true;
               await onIncidentSubmit(incidentForm.getValues());
             }}
-            initialCoordinates={mapCoordinates}
-            onCoordinatesChange={setMapCoordinates}
+            mapCoordinates={mapCoordinates}
+            setMapCoordinates={setMapCoordinates}
             isPending={submittingIncident || incidentIsPending || s3IsPending}
           />
         );
