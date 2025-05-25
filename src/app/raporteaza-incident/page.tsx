@@ -129,12 +129,16 @@ export default function IncidentReport() {
   const [submittingIncident, setSubmittingIncident] = useState(false);
 
   const utils = api.useUtils();
-  const { mutateAsync: mutateIncidentAsync, isPending: incidentIsPending } =
-    api.incident.create.useMutation({
-      onSuccess: () => {
-        void utils.incident.invalidate();
-      },
-    });
+  const {
+    mutateAsync: mutateIncidentAsync,
+    isPending: incidentIsPending,
+    isSuccess: incidentIsSuccess,
+    reset: resetIncidentMutation,
+  } = api.incident.create.useMutation({
+    onSuccess: () => {
+      void utils.incident.invalidate();
+    },
+  });
 
   const { mutateAsync: mutateS3Async, isPending: s3IsPending } =
     api.s3.getPresignedUrl.useMutation({
@@ -340,6 +344,7 @@ export default function IncidentReport() {
         behavior: "smooth",
       });
       setCurrentPage((prevPage) => prevPage + 1);
+      resetIncidentMutation();
     }
   }
 
@@ -349,6 +354,7 @@ export default function IncidentReport() {
       behavior: "smooth",
     });
     setCurrentPage((prevPage) => prevPage - 1);
+    resetIncidentMutation();
   }
 
   function getCurrentPage() {
@@ -418,6 +424,7 @@ export default function IncidentReport() {
             }}
             handleDialogClose={() => redirect("/")}
             isPending={submittingIncident || incidentIsPending || s3IsPending}
+            incidentIsSuccess={incidentIsSuccess}
           />
         );
       default:

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { CONVERSATION } from "../_constants/chat-bot-conversation";
 import { SVGBot, SVGBotAvatar, SVGCross, SVGUser } from "~/components/icons";
@@ -21,6 +21,7 @@ export default function ChatBot({
   handleChatFinish,
   handleDialogClose,
   isPending,
+  incidentIsSuccess,
 }: {
   answers: { question: string; answer: string | string[] }[];
   setAnswers: React.Dispatch<
@@ -30,13 +31,14 @@ export default function ChatBot({
   handleChatFinish?: () => void;
   handleDialogClose?: React.MouseEventHandler<HTMLButtonElement>;
   isPending: boolean;
+  incidentIsSuccess: boolean;
 }) {
   const [step, setStep] = useState(answers.length); // Start at next unanswered
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [reviewMode, setReviewMode] = useState(false);
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  // const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const [multiSelect, setMultiSelect] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -44,7 +46,7 @@ export default function ChatBot({
   const answersMemo = useMemo(() => answers, [answers]);
 
   // Prepare input state when editing
-  React.useEffect(() => {
+  useEffect(() => {
     if (editingIdx !== null) {
       const a = answersMemo[editingIdx];
       if (a) {
@@ -56,6 +58,12 @@ export default function ChatBot({
       setInputValue("");
     }
   }, [editingIdx, answersMemo]);
+
+  useEffect(() => {
+    if (incidentIsSuccess) {
+      setShowConfirmDialog(false);
+    }
+  }, [incidentIsSuccess]);
 
   // Handle answer submit (for both new and edit)
   const handleAnswerSubmit = (answer: string | string[]) => {
@@ -294,9 +302,7 @@ export default function ChatBot({
             <Button
               variant="secondary"
               onClick={() => {
-                setShowConfirmDialog(false);
                 if (handleChatFinish) handleChatFinish();
-                setShowSuccessDialog(true);
               }}
               disabled={isPending}
             >
@@ -312,7 +318,7 @@ export default function ChatBot({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={showSuccessDialog}>
+      <Dialog open={incidentIsSuccess}>
         <DialogContent className="bg-tertiary">
           <DialogHeader>
             <DialogDescription className="sr-only">
