@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { CONVERSATION } from "../_constants/chat-bot-conversation";
+import { CONVERSATION } from "../../../app/raporteaza-incident/_constants/chat-bot-conversation";
 import { SVGBot, SVGBotAvatar, SVGCross, SVGUser } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import { Checkbox } from "~/components/ui/simple/checkbox";

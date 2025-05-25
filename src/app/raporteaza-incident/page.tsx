@@ -23,8 +23,8 @@ import { incidentFormSchema } from "./_schemas/incident-form-schema";
 
 import Disclaimer from "./_components/disclaimer";
 import Contact from "./_components/contact";
-import Map from "./_components/map";
-import ChatBot from "./_components/chat-bot";
+import Map from "../../components/ui/complex/map";
+import ChatBot from "../../components/ui/complex/chat-bot";
 
 import { Button } from "~/components/ui/simple/button";
 import { MaterialStepper } from "~/components/ui/complex/stepper";
