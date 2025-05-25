@@ -2,34 +2,37 @@
 import { useEffect, useState } from "react";
 import type { Coordinates } from "~/types/coordinates";
 
-export const useGeolocation = (initialCoordinates: Coordinates) => {
-  const [coordinates, setCoordinates] =
-    useState<Coordinates>(initialCoordinates);
+export const useGeolocation = (initialCoordinates?: Coordinates) => {
+  const [coordinates, setCoordinates] = useState<Coordinates | undefined>(
+    initialCoordinates,
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Only fetch geolocation if no initial coordinates provided
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser");
-      return;
-    }
+    if (!initialCoordinates) {
+      if (!navigator.geolocation) {
+        setError("Geolocation is not supported by your browser");
+        return;
+      }
 
-    const success = (pos: GeolocationPosition) => {
-      setCoordinates({
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
+      const success = (pos: GeolocationPosition) => {
+        setCoordinates({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+      };
+
+      const error = (err: GeolocationPositionError) => {
+        setError(`Geolocation error (${err.code}): ${err.message}`);
+      };
+
+      navigator.geolocation.getCurrentPosition(success, error, {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
       });
-    };
-
-    const error = (err: GeolocationPositionError) => {
-      setError(`Geolocation error (${err.code}): ${err.message}`);
-    };
-
-    navigator.geolocation.getCurrentPosition(success, error, {
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumAge: 0,
-    });
+    }
   }, [initialCoordinates]); // Re-run if initialCoordinates changes
 
   return {

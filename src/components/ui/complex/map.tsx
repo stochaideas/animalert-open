@@ -7,6 +7,7 @@ import { Input } from "~/components/ui/simple/input";
 import { useGeolocation } from "~/hooks/useGeolocation";
 import { api } from "~/trpc/react";
 import type { Coordinates } from "../../../types/coordinates";
+import { DEFAULT_MAP_COORDINATES } from "~/constants/default-map-coordinates";
 // import AddressplaceAutocomplete from "./address-predictions";
 
 export default function Map({
@@ -22,13 +23,11 @@ export default function Map({
   setAddress: Dispatch<SetStateAction<string | undefined>>;
   handlePreviousPage: () => void;
   onMapSubmit: () => void;
-  mapCoordinates: Coordinates;
-  setMapCoordinates?: Dispatch<SetStateAction<Coordinates>>;
+  mapCoordinates?: Coordinates;
+  setMapCoordinates?: Dispatch<SetStateAction<Coordinates | undefined>>;
   isPending?: boolean;
 }) {
   const { coordinates, setCoordinates } = useGeolocation(mapCoordinates);
-
-  console.log(coordinates);
 
   useEffect(() => {
     if (setMapCoordinates) {
@@ -74,14 +73,14 @@ export default function Map({
           </div>
           <section className="border-tertiary-border mb-4 h-[600px] rounded-md border-1 lg:hidden">
             <GoogleMap
-              coordinates={coordinates}
+              coordinates={coordinates ?? DEFAULT_MAP_COORDINATES}
               setCoordinates={setCoordinates}
             />
           </section>
         </section>
         <section className="border-tertiary-border mb-4 hidden h-[600px] rounded-md border-1 lg:block">
           <GoogleMap
-            coordinates={coordinates}
+            coordinates={coordinates ?? DEFAULT_MAP_COORDINATES}
             setCoordinates={setCoordinates}
           />
         </section>

@@ -30,6 +30,7 @@ import { Button } from "~/components/ui/simple/button";
 import { MaterialStepper } from "~/components/ui/complex/stepper";
 import { TRPCClientError } from "@trpc/client";
 import { REPORT_TYPES } from "~/constants/report-types";
+import { INCIDENT_STEPS } from "./_constants/incident-steps";
 
 export default function IncidentReport() {
   const lastSubmittedPayload = useRef<{
@@ -116,10 +117,9 @@ export default function IncidentReport() {
   });
 
   // MAP
-  const [mapCoordinates, setMapCoordinates] = useState<Coordinates>({
-    lat: 46.7715965,
-    lng: 23.6080557,
-  });
+  const [mapCoordinates, setMapCoordinates] = useState<
+    Coordinates | undefined
+  >();
   const [address, setAddress] = useState<string>();
 
   // CHAT BOT
@@ -339,7 +339,7 @@ export default function IncidentReport() {
   }
 
   function handleNextPage() {
-    if (currentPage < 3) {
+    if (currentPage < INCIDENT_STEPS.length - 1) {
       window.scrollTo({
         top: 0,
         behavior: "smooth",
@@ -437,7 +437,7 @@ export default function IncidentReport() {
     <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
       <div className="flex flex-col justify-center gap-12">
         <h1 className="text-heading-2">Raportează incident</h1>
-        <MaterialStepper currentStep={currentPage} />
+        <MaterialStepper steps={INCIDENT_STEPS} currentStep={currentPage} />
         {getCurrentPage()}
       </div>
       <Dialog

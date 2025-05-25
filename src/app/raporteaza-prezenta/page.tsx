@@ -29,6 +29,7 @@ import { Button } from "~/components/ui/simple/button";
 import { MaterialStepper } from "~/components/ui/complex/stepper";
 import { TRPCClientError } from "@trpc/client";
 import { REPORT_TYPES } from "~/constants/report-types";
+import { PRESENCE_STEPS } from "./_constants/presence-steps";
 
 export default function PresenceReport() {
   const lastSubmittedPayload = useRef<{
@@ -113,10 +114,9 @@ export default function PresenceReport() {
   });
 
   // MAP
-  const [mapCoordinates, setMapCoordinates] = useState<Coordinates>({
-    lat: 46.7715965,
-    lng: 23.6080557,
-  });
+  const [mapCoordinates, setMapCoordinates] = useState<
+    Coordinates | undefined
+  >();
   const [address, setAddress] = useState<string>();
 
   const [submittingPresence, setSubmittingPresence] = useState(false);
@@ -337,7 +337,7 @@ export default function PresenceReport() {
   }
 
   function handleNextPage() {
-    if (currentPage < 3) {
+    if (currentPage < PRESENCE_STEPS.length - 1) {
       window.scrollTo({
         top: 0,
         behavior: "smooth",
@@ -393,7 +393,7 @@ export default function PresenceReport() {
     <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
       <div className="flex flex-col justify-center gap-12">
         <h1 className="text-heading-2">Raportează prezență</h1>
-        <MaterialStepper currentStep={currentPage} />
+        <MaterialStepper steps={PRESENCE_STEPS} currentStep={currentPage} />
         {getCurrentPage()}
       </div>
       <Dialog open={showSuccessDialog}>
@@ -402,11 +402,12 @@ export default function PresenceReport() {
             <DialogDescription className="sr-only">
               Confirmare de înregistrare a incidentului.
             </DialogDescription>
-            <DialogTitle>Raport prezență înregistrată</DialogTitle>
+            <DialogTitle>Raport de prezență înregistrat</DialogTitle>
           </DialogHeader>
           <div>
-            Incidentul cu numărul <strong>{presenceReportNumber}</strong> a fost
-            înregistrat cu succes.
+            Raportul de prezență cu numărul{" "}
+            <strong>{presenceReportNumber}</strong> a fost înregistrat cu
+            succes.
           </div>
           <DialogFooter>
             <Button

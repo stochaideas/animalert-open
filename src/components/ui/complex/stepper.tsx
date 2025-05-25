@@ -8,13 +8,6 @@ import StepConnector, {
 } from "@mui/material/StepConnector";
 import { styled } from "@mui/material/styles";
 
-const steps = [
-  { title: "Important!" },
-  { title: "Date contact & media" },
-  { title: "Locație" },
-  { title: "Chatbot" },
-];
-
 // Custom Connector with centered line, responsive to icon size
 const CustomConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -64,7 +57,13 @@ function CustomStepIcon(props: { active?: boolean; icon: React.ReactNode }) {
   );
 }
 
-export function MaterialStepper({ currentStep }: { currentStep: number }) {
+export function MaterialStepper({
+  steps,
+  currentStep,
+}: {
+  steps: { title: string }[];
+  currentStep: number;
+}) {
   return (
     <Stepper
       activeStep={currentStep}

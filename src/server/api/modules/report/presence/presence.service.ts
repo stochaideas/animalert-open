@@ -149,7 +149,7 @@ export class PresenceService extends ReportService {
 
       await this.emailService.sendEmail({
         to: env.EMAIL_ADMIN,
-        subject: `🚨 Raport ${actionType.toUpperCase()} - ${report.reportNumber}`,
+        subject: `🚨 Raport prezență ${actionType.toUpperCase()} - ${report.reportNumber}`,
         html: adminHtml,
         text: `
 Raport ${actionType}
@@ -245,7 +245,7 @@ Imagini: ${imagesCount} fișiere atașate
 
         await this.emailService.sendEmail({
           to: user.email,
-          subject: `✅ Confirmare raport ${actionType} - AnimAlert`,
+          subject: `✅ Confirmare raport prezență ${actionType} - AnimAlert`,
           html: userHtml,
           text: `
 Salut, ${user.firstName},
