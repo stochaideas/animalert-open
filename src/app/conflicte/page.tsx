@@ -1,0 +1,437 @@
+"use client";
+
+import { isEqual } from "lodash";
+import { useState, useRef, type ChangeEvent, useEffect } from "react";
+import { redirect } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type z } from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "~/components/ui/simple/dialog";
+
+import { TRPCError } from "@trpc/server";
+
+import { api } from "~/trpc/react";
+import type { Coordinates } from "~/types/coordinates";
+
+import { conflictFormSchema } from "./_schemas/conflict-form-schema";
+
+import Contact from "./_components/contact";
+import Map from "../../components/ui/complex/map";
+
+import { Button } from "~/components/ui/simple/button";
+import { MaterialStepper } from "~/components/ui/complex/stepper";
+import { TRPCClientError } from "@trpc/client";
+import { REPORT_TYPES } from "~/constants/report-types";
+import { CONFLICT_STEPS } from "./_constants/conflict-steps";
+
+export default function ConflictReport() {
+  const lastSubmittedPayload = useRef<{
+    user: {
+      id: string | undefined;
+      firstName: string;
+      lastName: string;
+      phone: string;
+      email?: string;
+      receiveOtherReportUpdates?: boolean;
+    };
+    report: {
+      id: string | undefined;
+      reportType: string;
+      receiveUpdates?: boolean;
+      latitude: number | undefined;
+      longitude: number | undefined;
+      imageKeys: string[];
+      conversation: string;
+      address: string | undefined;
+    };
+  } | null>(null);
+
+  const lastImageFiles = useRef<{
+    image1: File | undefined;
+    image2: File | undefined;
+    image3: File | undefined;
+    video1: File | undefined;
+  }>({
+    image1: undefined,
+    image2: undefined,
+    image3: undefined,
+    video1: undefined,
+  });
+  const lastUploadedImageUrls = useRef<string[]>([]);
+
+  const mapSubmitted = useRef(false);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [conflictId, setConflictId] = useState<string | undefined>();
+  const [conflictReportNumber, setConflictReportNumber] = useState<
+    number | undefined
+  >();
+  const [userId, setUserId] = useState<string | undefined>();
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [errorDialog, setErrorDialog] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
+
+  // CONFLICT FORM
+  // Define conflict form
+  const conflictForm = useForm<z.infer<typeof conflictFormSchema>>({
+    resolver: zodResolver(conflictFormSchema),
+    defaultValues: {
+      lastName: "",
+      firstName: "",
+      phone: "",
+      email: "",
+      confidentiality: false,
+      receiveUpdates: false,
+      receiveOtherReportUpdates: false,
+      image1: undefined,
+      image2: undefined,
+      image3: undefined,
+      video1: undefined,
+    },
+    mode: "onChange",
+    reValidateMode: "onChange",
+  });
+
+  const [conflictImageFiles, setConflictImageFiles] = useState<{
+    image1: File | undefined;
+    image2: File | undefined;
+    image3: File | undefined;
+    video1: File | undefined;
+  }>({
+    image1: undefined,
+    image2: undefined,
+    image3: undefined,
+    video1: undefined,
+  });
+
+  // MAP
+  const [mapCoordinates, setMapCoordinates] = useState<
+    Coordinates | undefined
+  >();
+  const [address, setAddress] = useState<string>();
+
+  const [submittingConflict, setSubmittingConflict] = useState(false);
+
+  const utils = api.useUtils();
+  const {
+    mutateAsync: mutateConflictAsync,
+    isPending: conflictIsPending,
+    isSuccess: conflictIsSuccess,
+    reset: resetConflictMutation,
+  } = api.conflict.create.useMutation({
+    onSuccess: () => {
+      void utils.conflict.invalidate();
+    },
+  });
+
+  const { mutateAsync: mutateS3Async, isPending: s3IsPending } =
+    api.s3.getPresignedUrl.useMutation({
+      onSuccess: () => {
+        void utils.s3.invalidate();
+      },
+    });
+
+  useEffect(() => {
+    if (mapSubmitted.current && conflictIsSuccess) {
+      setShowSuccessDialog(true);
+    }
+  }, [conflictIsSuccess]);
+
+  function showErrorDialog(title: string, description: string) {
+    setErrorDialog({ title, description });
+  }
+
+  async function handleImageUpload(files: (File | undefined)[]) {
+    try {
+      const urls = await Promise.all(
+        Array.from(files).map(async (file, index) => {
+          if (!file) return null;
+
+          const response = await mutateS3Async({
+            fileName: `file_${index}`,
+            fileType: file.type,
+            fileSize: file.size,
+          });
+
+          if (!response || typeof response.url !== "string") {
+            throw new Error("Failed to get a valid URL for the file upload");
+          }
+
+          if (!response?.url) {
+            throw new Error("Failed to get a valid URL for the file upload");
+          }
+
+          const url = response?.url;
+          if (!url) {
+            throw new Error("Failed to get a valid URL for the file upload");
+          }
+
+          await fetch(url, {
+            method: "PUT",
+            body: file,
+            headers: { "Content-Type": file.type },
+            mode: "cors",
+          });
+
+          return url.split("?")[0]; // Get permanent URL
+        }),
+      );
+
+      return urls;
+    } catch (error) {
+      showErrorDialog(
+        "Eroare la încărcarea imaginilor",
+        error instanceof Error
+          ? error.message
+          : "A apărut o problemă la încărcarea imaginilor. Vă rugăm să încercați din nou.",
+      );
+      conflictForm.setError("root", {
+        message:
+          error instanceof Error ? error.message : "Failed to upload images",
+      });
+      throw error;
+    }
+  }
+
+  function newImagesUploaded(
+    current: Record<string, File | undefined>,
+    previous: Record<string, File | undefined>,
+  ) {
+    return Object.keys(current).some(
+      (key) =>
+        !!current[key] && // file is set
+        (!previous[key] || current[key] !== previous[key]), // file is new or changed
+    );
+  }
+
+  // Submit handler for the conflict form
+  async function onConflictSubmit(values: z.infer<typeof conflictFormSchema>) {
+    try {
+      setSubmittingConflict(true);
+
+      const imagesChanged = newImagesUploaded(
+        conflictImageFiles,
+        lastImageFiles.current,
+      );
+
+      let imageKeys: string[] = lastUploadedImageUrls.current;
+
+      if (imagesChanged) {
+        // Upload only the new images
+        imageKeys =
+          (await handleImageUpload(Object.values(conflictImageFiles)))?.filter(
+            (url): url is string => !!url,
+          ) ?? [];
+        lastImageFiles.current = { ...conflictImageFiles };
+        lastUploadedImageUrls.current = imageKeys;
+      }
+
+      const email = values.email === "" ? undefined : values.email;
+
+      const payload = {
+        user: {
+          id: userId,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          phone: values.phone,
+          email: email,
+          receiveOtherReportUpdates: values.receiveOtherReportUpdates,
+        },
+        report: {
+          id: conflictId,
+          reportType: REPORT_TYPES.CONFLICT,
+          receiveUpdates: values.receiveUpdates,
+          latitude: mapSubmitted.current ? mapCoordinates?.lat : undefined,
+          longitude: mapSubmitted.current ? mapCoordinates?.lng : undefined,
+          imageKeys,
+          conversation: "", // TODO: JSON.stringify(answers),
+          address: mapSubmitted.current ? address : undefined,
+        },
+      };
+
+      // Only mutate if data has changed
+      if (isEqual(payload, lastSubmittedPayload.current)) {
+        handleNextPage();
+        return;
+      }
+
+      const result = await mutateConflictAsync(payload);
+
+      lastSubmittedPayload.current = {
+        ...payload,
+        user: {
+          ...payload.user,
+          id: result?.user?.id,
+        },
+        report: {
+          ...payload.report,
+          id: result?.report?.id,
+        },
+      };
+
+      if (!conflictId) {
+        setConflictId(result?.report?.id);
+        setConflictReportNumber(result?.report?.reportNumber);
+        setUserId(result?.user?.id);
+      }
+
+      setSubmittingConflict(false);
+
+      handleNextPage();
+    } catch (error) {
+      if (error instanceof TRPCError) {
+        showErrorDialog(
+          "Eroare la trimiterea formularului",
+          "A apărut o problemă la trimiterea formularului. Vă rugăm să verificați datele introduse și să încercați din nou.",
+        );
+        conflictForm.setError("root", {
+          message: error.message,
+        });
+
+        // Handle field-specific errors
+        if (
+          "path" in error &&
+          typeof error.path === "string" &&
+          (error.path.startsWith("user.") || error.path.startsWith("conflict"))
+        ) {
+          const field = error.path.split(".")[1];
+          conflictForm.setError(field as keyof typeof values, {
+            message: error.message,
+          });
+        }
+      } else if (error instanceof TRPCClientError) {
+        // Now you can safely access error.data.code, error.message, etc.
+        showErrorDialog("Eroare la trimiterea formularului", error.message);
+        // Optionally, handle field-specific errors using error.data.path, etc.
+      } else {
+        showErrorDialog(
+          "Eroare necunoscută",
+          "A apărut o eroare neașteptată. Încercați din nou mai târziu.",
+        );
+      }
+    }
+  }
+
+  function handleConflictImageChange(
+    e: ChangeEvent<HTMLInputElement>,
+    name: string,
+    fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
+  ) {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setConflictImageFiles((prev) => ({
+        ...prev,
+        [name]: file,
+      }));
+      fieldOnChange(file); // Update react-hook-form state
+    }
+  }
+
+  function handleNextPage() {
+    if (currentPage < CONFLICT_STEPS.length - 1) {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+      setCurrentPage((prevPage) => prevPage + 1);
+      resetConflictMutation();
+    }
+  }
+
+  function handlePreviousPage() {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+    setCurrentPage((prevPage) => prevPage - 1);
+    resetConflictMutation();
+  }
+
+  function getCurrentPage() {
+    switch (currentPage) {
+      case 0:
+        return (
+          <Contact
+            handlePreviousPage={handlePreviousPage}
+            conflictForm={conflictForm}
+            conflictImageFiles={conflictImageFiles}
+            handleConflictImageChange={handleConflictImageChange}
+            onConflictSubmit={onConflictSubmit}
+            isPending={submittingConflict || conflictIsPending || s3IsPending}
+          />
+        );
+      case 1:
+        return (
+          <Map
+            address={address}
+            setAddress={setAddress}
+            handlePreviousPage={handlePreviousPage}
+            onMapSubmit={async () => {
+              mapSubmitted.current = true;
+              await onConflictSubmit(conflictForm.getValues());
+            }}
+            mapCoordinates={mapCoordinates}
+            setMapCoordinates={setMapCoordinates}
+            isPending={submittingConflict || conflictIsPending || s3IsPending}
+          />
+        );
+      default:
+        break;
+    }
+  }
+
+  return (
+    <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
+      <div className="flex flex-col justify-center gap-12">
+        <h1 className="text-heading-2">Raportează prezență</h1>
+        <MaterialStepper steps={CONFLICT_STEPS} currentStep={currentPage} />
+        {getCurrentPage()}
+      </div>
+      <Dialog open={showSuccessDialog}>
+        <DialogContent className="bg-tertiary">
+          <DialogHeader>
+            <DialogDescription className="sr-only">
+              Confirmare de înregistrare a incidentului.
+            </DialogDescription>
+            <DialogTitle>Raport de prezență înregistrat</DialogTitle>
+          </DialogHeader>
+          <div>
+            Raportul de prezență cu numărul{" "}
+            <strong>{conflictReportNumber}</strong> a fost înregistrat cu
+            succes.
+          </div>
+          <DialogFooter>
+            <Button
+              className="bg-secondary text-secondary-foreground hover:bg-secondary-hover rounded px-4 py-2"
+              onClick={() => redirect("/")}
+            >
+              Întoarce-te acasă
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={!!errorDialog}
+        onOpenChange={(open) => {
+          if (!open) setErrorDialog(null);
+        }}
+      >
+        <DialogContent className="bg-tertiary">
+          <DialogHeader>
+            <DialogTitle>{errorDialog?.title}</DialogTitle>
+            <DialogDescription>{errorDialog?.description}</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </main>
+  );
+}
