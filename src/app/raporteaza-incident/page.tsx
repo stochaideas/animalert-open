@@ -129,25 +129,19 @@ export default function IncidentReport() {
   const [submittingIncident, setSubmittingIncident] = useState(false);
 
   const utils = api.useUtils();
-  const {
-    mutateAsync: mutateIncidentAsync,
-    isPending: incidentIsPending,
-    // error: incidentError,
-  } = api.incident.create.useMutation({
-    onSuccess: () => {
-      void utils.incident.invalidate();
-    },
-  });
+  const { mutateAsync: mutateIncidentAsync, isPending: incidentIsPending } =
+    api.incident.create.useMutation({
+      onSuccess: () => {
+        void utils.incident.invalidate();
+      },
+    });
 
-  const {
-    mutateAsync: mutateS3Async,
-    isPending: s3IsPending,
-    // error: s3Error,
-  } = api.s3.getPresignedUrl.useMutation({
-    onSuccess: () => {
-      void utils.s3.invalidate();
-    },
-  });
+  const { mutateAsync: mutateS3Async, isPending: s3IsPending } =
+    api.s3.getPresignedUrl.useMutation({
+      onSuccess: () => {
+        void utils.s3.invalidate();
+      },
+    });
 
   function showErrorDialog(title: string, description: string) {
     setErrorDialog({ title, description });

@@ -33,8 +33,11 @@ export default function ChatBot({
 }) {
   const [step, setStep] = useState(answers.length); // Start at next unanswered
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [reviewMode, setReviewMode] = useState(false);
+
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+
   const [multiSelect, setMultiSelect] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
 
@@ -87,9 +90,12 @@ export default function ChatBot({
     setInputValue("");
     // If last step, show confirm dialog
     if (
-      (editingIdx !== null ? editingIdx + 1 : step + 1) === CONVERSATION.length
+      (editingIdx !== null ? editingIdx + 1 : step + 1) ===
+        CONVERSATION.length &&
+      !reviewMode
     ) {
       setShowConfirmDialog(true);
+      setReviewMode(true);
     }
   };
 
@@ -132,7 +138,7 @@ export default function ChatBot({
           </div>
         )}
         {(isEditing || !answered) && (
-          <div className="mt-2 mr-auto ml-12 min-w-[20%]">
+          <div className="my-2 mr-auto ml-12 min-w-[20%]">
             <div className="flex flex-col rounded-r-lg rounded-b-lg">
               {stepItem.type === "options" && stepItem.options && (
                 <>
@@ -262,6 +268,18 @@ export default function ChatBot({
             : null,
         )}
         {renderCurrentInput()}
+        {reviewMode && editingIdx === null && step >= CONVERSATION.length && (
+          <div className="mt-6 flex justify-end">
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={() => setShowConfirmDialog(true)}
+              disabled={isPending}
+            >
+              Finalizează
+            </Button>
+          </div>
+        )}
       </div>
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="bg-tertiary">
@@ -277,11 +295,12 @@ export default function ChatBot({
               variant="secondary"
               onClick={() => {
                 setShowConfirmDialog(false);
-                setShowSuccessDialog(true);
                 if (handleChatFinish) handleChatFinish();
+                setShowSuccessDialog(true);
               }}
+              disabled={isPending}
             >
-              Salvează și trimite
+              {isPending ? <>Se salvează</> : <>Salvează și trimite</>}
             </Button>
             <Button
               variant="tertiary"
