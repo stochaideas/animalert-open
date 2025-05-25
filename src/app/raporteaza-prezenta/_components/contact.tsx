@@ -82,7 +82,7 @@ export default function Contact({
                 }}
               >
                 <Image
-                  alt="Imagine cu prezența raportată"
+                  alt="Imagine cu animalul"
                   src={imageUrl ?? "/images/report-image-placeholder.png"}
                   fill
                   style={{
@@ -267,11 +267,7 @@ export default function Contact({
           </section>
           <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-12 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Fișiere foto și video</h3>
-            <p className="text-body pb-3">
-              Încărcați cel puțin o imagine
-              <span className="text-red-500">*</span> (obligatoriu). Adăugați
-              fotografii atât cu animalul cât și cu prezența acestuia.
-            </p>
+            <p className="text-body pb-3">Adăugați fotografii cu animalul.</p>
             <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
               {Object.keys(presenceImageFiles).map((key) => (
                 <FileFormField
