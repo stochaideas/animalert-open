@@ -71,25 +71,29 @@ export default function ChatBot({
       setAnswers((prev) =>
         prev.map((a, i) =>
           i === editingIdx
-            ? CONVERSATION[editingIdx]
-              ? { question: CONVERSATION[editingIdx].question, answer }
-              : a
+            ? { question: CONVERSATION[editingIdx]?.question ?? "", answer }
             : a,
         ),
       );
       setEditingIdx(null);
-      setStep(
-        CONVERSATION.length === answers.length
-          ? answers.length
-          : answers.length + 1,
-      );
+      if (reviewMode) {
+        setStep(
+          CONVERSATION.length === answers.length
+            ? answers.length
+            : answers.length + 1,
+        );
+      } else {
+        setStep(
+          CONVERSATION.length === answers.length
+            ? answers.length - 1
+            : answers.length,
+        );
+      }
     } else {
       // Add new answer
       setAnswers((prev) => [
         ...prev,
-        CONVERSATION[step]
-          ? { question: CONVERSATION[step].question, answer }
-          : { question: "", answer },
+        { question: CONVERSATION[step]?.question ?? "", answer },
       ]);
       setStep(step + 1);
     }
