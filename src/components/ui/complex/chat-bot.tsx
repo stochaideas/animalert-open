@@ -110,6 +110,26 @@ export default function ChatBot({
     }
   };
 
+  const handleCancelEdit = () => {
+    setEditingIdx(null);
+    setMultiSelect([]);
+    setInputValue("");
+
+    if (reviewMode) {
+      setStep(
+        CONVERSATION.length === answers.length
+          ? answers.length
+          : answers.length + 1,
+      );
+    } else {
+      setStep(
+        CONVERSATION.length === answers.length
+          ? answers.length - 1
+          : answers.length,
+      );
+    }
+  };
+
   // Render a single question/answer row
   const renderRow = (stepItem: (typeof CONVERSATION)[0], idx: number) => {
     const isEditing = editingIdx === idx && step === idx;
@@ -234,11 +254,7 @@ export default function ChatBot({
                 <Button
                   variant="tertiary"
                   className="mt-2"
-                  onClick={() => {
-                    setEditingIdx(null);
-                    setMultiSelect([]);
-                    setInputValue("");
-                  }}
+                  onClick={handleCancelEdit}
                 >
                   Anulează
                 </Button>

@@ -262,6 +262,8 @@ export default function IncidentReport() {
 
       // Only mutate if data has changed
       if (isEqual(payload, lastSubmittedPayload.current)) {
+        setSubmittingIncident(false);
+
         handleNextPage();
         return;
       }
@@ -357,6 +359,8 @@ export default function IncidentReport() {
     setCurrentPage((prevPage) => prevPage - 1);
     resetIncidentMutation();
   }
+
+  console.log(submittingIncident, incidentIsPending, s3IsPending);
 
   function getCurrentPage() {
     switch (currentPage) {
