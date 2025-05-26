@@ -22,7 +22,7 @@ export class ContactService {
           ]
         : undefined) ?? data.solicitationType;
 
-    const html = `
+    const adminHtml = `
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -73,7 +73,7 @@ export class ContactService {
 </html>
     `.trim();
 
-    const text = `
+    const adminText = `
 Contact Nou - AnimAlert
 =======================
 
@@ -93,8 +93,53 @@ ${data.message}
     await this.emailService.sendEmail({
       to: env.EMAIL_ADMIN,
       subject: `📩 Contact Nou - ${solicitationLabel}`,
-      html,
-      text,
+      html: adminHtml,
+      text: adminText,
     });
+
+    const userHtml = `
+  <div style="font-family: Arial, sans-serif; background: #f9fafb; padding: 32px;">
+    <div style="max-width: 480px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #e7e7e7; padding: 32px;">
+      <h2 style="color: #2d7a2d; margin-top: 0;">Mulțumim pentru mesaj!</h2>
+      <p style="font-size: 1.1em; color: #333;">
+        Bună, ${data.firstName}!
+      </p>
+      <p style="font-size: 1.1em; color: #333;">
+        Îți mulțumim că ai contactat echipa <strong>AnimAlert</strong>.<br>
+        Am primit mesajul tău și vom reveni cu un răspuns în cel mai scurt timp posibil.
+      </p>
+      <p style="font-size: 1.1em; color: #d97706; font-weight: bold; margin-top: 32px;">
+        Nu uita! Dacă întâmpini o urgență, raporteaz-o <a href="https://anim-alert.org" style="color: #2563eb; text-decoration: underline;">aici</a>!
+      </p>
+      <p style="font-size: 1em; color: #666; margin-top: 32px;">
+        Toate cele bune,<br>
+        <strong>Echipa AnimAlert</strong>
+      </p>
+    </div>
+  </div>
+`.trim();
+
+    const userText = `
+Mulțumim pentru mesajul tău!
+
+Bună, ${data.firstName}!
+
+Îți mulțumim că ai contactat echipa AnimAlert.
+Am primit mesajul tău și vom reveni cu un răspuns în cel mai scurt timp posibil.
+
+Nu uita! Dacă întâmpini o urgență, raporteaz-o aici: https://anim-alert.org
+
+Toate cele bune,
+Echipa AnimAlert
+`.trim();
+
+    if (data.email) {
+      await this.emailService.sendEmail({
+        to: data.email,
+        subject: "Mulțumim pentru mesajul tău - AnimAlert",
+        html: userHtml,
+        text: userText,
+      });
+    }
   }
 }

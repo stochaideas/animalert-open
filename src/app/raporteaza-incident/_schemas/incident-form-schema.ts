@@ -29,7 +29,6 @@ export const incidentFormSchema = z
     }),
     receiveUpdates: z.boolean().optional(),
     receiveOtherReportUpdates: z.boolean().optional(),
-
     // Image 1
     image1: z
       .instanceof(File, {

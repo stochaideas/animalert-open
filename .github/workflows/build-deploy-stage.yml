@@ -51,18 +51,27 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_stage
 
           
   deploy:
+    permissions:
+      id-token: write        # for OIDC
+      contents: read
     name: Deploy ECS
     needs: build
     runs-on: ubuntu-latest
     steps:
-       - name: Force new ECS deployment
-         run: |
-               aws ecs update-service \
-                 --cluster  ${{ env.CLUSTER_NAME }} \
-                 --service  ${{ env.SERVICE_NAME }} \
-                 --force-new-deployment \
-                 --region   eu-central-1
+         # --- 1. Configure AWS credentials -------------------------------
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
+          aws-region:     ${{ env.AWS_REGION }}
+      - name: Force new ECS deployment
+        run: |
+              aws ecs update-service \
+                --cluster  ${{ env.CLUSTER_NAME }} \
+                --service  ${{ env.SERVICE_NAME }} \
+                --force-new-deployment \
+                --region   eu-central-1
