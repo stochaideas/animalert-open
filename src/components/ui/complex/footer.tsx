@@ -135,8 +135,12 @@ export default function Footer() {
               <strong>Adresa</strong>: Cluj-Napoca, România
             </span>
             <span className="text-single-line-body-base">
-              <Link href="mailto:ancbp.cluj[at]gmail.com">
-                <strong>Email</strong>: ancbp.cluj[at]gmail.com
+              <strong>Email</strong>:{" "}
+              <Link
+                className="text-primary underline"
+                href="mailto:ancbp.cluj[at]gmail.com"
+              >
+                ancbp.cluj[at]gmail.com
               </Link>
             </span>
           </section>
