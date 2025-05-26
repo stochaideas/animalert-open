@@ -4,6 +4,8 @@ import { type z } from "zod";
 import { env } from "~/env";
 import { type emailOptionsSchema } from "./email.schema";
 
+const environment = env.NODE_ENV;
+
 export class EmailService {
   private transporter: Transporter;
 
@@ -22,10 +24,13 @@ export class EmailService {
    */
   async sendEmail(data: z.infer<typeof emailOptionsSchema>): Promise<void> {
     try {
+      const subjectPrefix =
+        environment === "production" ? "" : `[${environment.toUpperCase()}] `;
+
       await this.transporter.sendMail({
         from: env.EMAIL_FROM,
         to: data.to,
-        subject: data.subject,
+        subject: subjectPrefix + data.subject,
         text: data.text,
         html: data.html,
       });
