@@ -159,10 +159,10 @@ export default function Footer() {
           <section className="flex flex-col gap-3">
             <h3 className="text-heading-3 mb-4">Parteneri</h3>
             <span className="text-single-line-body-base">
-              Foto: © Lonay Arthur
+              <strong>Foto</strong>: © Lonay Arthur
             </span>
             <span className="text-single-line-body-base">
-              Ilustrații: © Katerina Limpitsouni
+              <strong>Ilustrații</strong>: © Katerina Limpitsouni
             </span>
           </section>
         </div>
