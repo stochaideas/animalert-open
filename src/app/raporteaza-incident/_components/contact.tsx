@@ -18,6 +18,7 @@ import { Input } from "~/components/ui/simple/input";
 import { type ChangeEvent } from "react";
 import Image from "next/image";
 import { type incidentFormSchema } from "../_schemas/incident-form-schema";
+import { useVideoThumbnail } from "~/hooks/useVideoThumbnail";
 
 export default function Contact({
   handlePreviousPage,
@@ -46,10 +47,16 @@ export default function Contact({
   const FileFormField: React.FC<{
     file: "image1" | "image2" | "image3" | "video1";
   }> = ({ file }) => {
-    let imageUrl: string | undefined;
+    let url: string | undefined;
 
     if (incidentImageFiles[file]) {
-      imageUrl = URL.createObjectURL(incidentImageFiles[file]);
+      url = URL.createObjectURL(incidentImageFiles[file]);
+    }
+
+    const thumbnailUrl = useVideoThumbnail(file === "video1" ? url : undefined);
+
+    if (thumbnailUrl && file === "video1") {
+      url = thumbnailUrl;
     }
 
     return (
@@ -82,14 +89,40 @@ export default function Contact({
                 }}
               >
                 <Image
-                  alt="Imagine cu incidentul"
-                  src={imageUrl ?? "/images/report-image-placeholder.png"}
+                  alt={
+                    file === "video1"
+                      ? "Videoclip cu animalul"
+                      : "Imagine cu animalul"
+                  }
+                  src={
+                    url ??
+                    (file === "video1"
+                      ? "/images/report-video-placeholder.png"
+                      : "/images/report-image-placeholder.png")
+                  }
                   fill
                   style={{
-                    objectFit: imageUrl ? "cover" : "contain",
+                    objectFit: url ? "cover" : "contain",
                     background: "#e3e3e3",
                   }}
                 />
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    display: `${!url ? "flex" : "none"}`,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#000", // or any color that contrasts the image
+                    fontSize: "1rem",
+                    pointerEvents: "none", // so clicks pass through to the image/container
+                  }}
+                >
+                  {file === "video1" ? "Adaugă videoclip" : "Adaugă imagine"}
+                </div>
               </div>
             </Label>
             <FormMessage />
