@@ -121,7 +121,9 @@ export default function Contact({
                     pointerEvents: "none", // so clicks pass through to the image/container
                   }}
                 >
-                  {file === "video1" ? "Adaugă videoclip" : "Adaugă imagine"}
+                  <span className="text-center">
+                    {file === "video1" ? "Adaugă videoclip" : "Adaugă imagine"}
+                  </span>
                 </div>
               </div>
             </Label>

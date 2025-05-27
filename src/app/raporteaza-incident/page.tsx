@@ -360,8 +360,6 @@ export default function IncidentReport() {
     resetIncidentMutation();
   }
 
-  console.log(submittingIncident, incidentIsPending, s3IsPending);
-
   function getCurrentPage() {
     switch (currentPage) {
       case 0:
