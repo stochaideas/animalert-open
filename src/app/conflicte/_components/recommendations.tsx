@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type Dispatch } from "react";
 import {
   recommendationsOptions,
   type SectionItem,
@@ -10,6 +10,8 @@ import {
   SelectContent,
   SelectItem,
 } from "~/components/ui/simple/select"; // Adjust import path as needed
+import { SVGArrowRight } from "~/components/icons";
+import { Button } from "~/components/ui/simple/button";
 
 function renderSectionItems(items: SectionItem[]) {
   return (
@@ -32,7 +34,11 @@ function renderSectionItems(items: SectionItem[]) {
   );
 }
 
-export default function Recommendations() {
+export default function Recommendations({
+  setRecommendationsFinished,
+}: {
+  setRecommendationsFinished: Dispatch<React.SetStateAction<boolean>>;
+}) {
   const [selected, setSelected] = useState(
     recommendationsOptions[0]?.name ?? "",
   );
@@ -91,6 +97,19 @@ export default function Recommendations() {
           {renderSectionItems(section.items)}
         </div>
       ))}
+      <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse md:justify-start">
+        <Button
+          className="m-0 w-full sm:w-auto"
+          variant="primary"
+          size="md"
+          type="submit"
+          onClick={() => {
+            setRecommendationsFinished(true);
+          }}
+        >
+          Continuă <SVGArrowRight />
+        </Button>
+      </section>
     </section>
   );
 }

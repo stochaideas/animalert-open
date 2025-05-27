@@ -69,12 +69,14 @@ export default function ConflictReport() {
 
   const mapSubmitted = useRef(false);
 
-  const [currentPage, setCurrentPage] = useState(2);
+  const [currentPage, setCurrentPage] = useState(0);
   const [conflictId, setConflictId] = useState<string | undefined>();
   const [conflictReportNumber, setConflictReportNumber] = useState<
     number | undefined
   >();
   const [userId, setUserId] = useState<string | undefined>();
+
+  const [recommendationsFinished, setRecommendationsFinished] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [errorDialog, setErrorDialog] = useState<{
     title: string;
@@ -126,7 +128,6 @@ export default function ConflictReport() {
   const {
     mutateAsync: mutateConflictAsync,
     isPending: conflictIsPending,
-    isSuccess: conflictIsSuccess,
     reset: resetConflictMutation,
   } = api.conflict.create.useMutation({
     onSuccess: () => {
@@ -142,10 +143,10 @@ export default function ConflictReport() {
     });
 
   useEffect(() => {
-    if (mapSubmitted.current && conflictIsSuccess) {
+    if (recommendationsFinished) {
       setShowSuccessDialog(true);
     }
-  }, [conflictIsSuccess]);
+  }, [recommendationsFinished]);
 
   function showErrorDialog(title: string, description: string) {
     setErrorDialog({ title, description });
@@ -386,7 +387,11 @@ export default function ConflictReport() {
           />
         );
       case 2:
-        return <Recommendations />;
+        return (
+          <Recommendations
+            setRecommendationsFinished={setRecommendationsFinished}
+          />
+        );
       default:
         break;
     }
