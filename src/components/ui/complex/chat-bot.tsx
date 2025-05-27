@@ -169,7 +169,7 @@ export default function ChatBot({
           </div>
         )}
         {(isEditing || !answered) && (
-          <div className="my-2 mr-auto w-full min-w-[20%] sm:ml-12">
+          <div className="my-2 mr-auto w-full min-w-[20%] sm:ml-12 sm:w-auto">
             <div className="flex w-full flex-col rounded-r-lg rounded-b-lg">
               {stepItem.type === "options" && stepItem.options && (
                 <>
