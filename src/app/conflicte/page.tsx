@@ -30,6 +30,7 @@ import { MaterialStepper } from "~/components/ui/complex/stepper";
 import { TRPCClientError } from "@trpc/client";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { CONFLICT_STEPS } from "./_constants/conflict-steps";
+import Recommendations from "./_components/recommendations";
 
 export default function ConflictReport() {
   const lastSubmittedPayload = useRef<{
@@ -68,7 +69,7 @@ export default function ConflictReport() {
 
   const mapSubmitted = useRef(false);
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(2);
   const [conflictId, setConflictId] = useState<string | undefined>();
   const [conflictReportNumber, setConflictReportNumber] = useState<
     number | undefined
@@ -384,6 +385,8 @@ export default function ConflictReport() {
             isPending={submittingConflict || conflictIsPending || s3IsPending}
           />
         );
+      case 2:
+        return <Recommendations />;
       default:
         break;
     }
