@@ -138,17 +138,17 @@ export default function ChatBot({
     return (
       <React.Fragment key={idx}>
         {/* Bot message */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
           <SVGBot width="32" height="32" />
-          <div className="bg-tertiary text-neutral-foreground text-single-line-body-base rounded-t-lg rounded-r-lg p-4">
+          <div className="bg-tertiary text-neutral-foreground sm:text-single-line-body-base max-w-full rounded-t-lg rounded-r-lg p-4 sm:max-w-[60%]">
             <span className="text-base">{stepItem.question}</span>
           </div>
         </div>
         {/* User answer or input */}
         {answered && !isEditing && (
-          <div className="mt-8 flex justify-end gap-4">
+          <div className="mt-8 flex flex-col-reverse items-end gap-2 sm:flex-row sm:items-start sm:justify-end sm:gap-4">
             <div className="flex w-full flex-col items-end">
-              <div className="text-neutral-foreground text-single-line-body-base mb-2 max-w-[60%] rounded-t-lg rounded-l-lg bg-[#F2F2F2] p-4">
+              <div className="text-neutral-foreground text-single-line-body-base mb-2 max-w-full rounded-t-lg rounded-l-lg bg-[#F2F2F2] p-4 sm:max-w-[60%]">
                 {Array.isArray(answered.answer)
                   ? answered.answer.join(", ")
                   : answered.answer}
@@ -169,8 +169,8 @@ export default function ChatBot({
           </div>
         )}
         {(isEditing || !answered) && (
-          <div className="my-2 mr-auto ml-12 min-w-[20%]">
-            <div className="flex flex-col rounded-r-lg rounded-b-lg">
+          <div className="my-2 mr-auto w-full min-w-[20%] sm:ml-12">
+            <div className="flex w-full flex-col rounded-r-lg rounded-b-lg">
               {stepItem.type === "options" && stepItem.options && (
                 <>
                   {stepItem.multiple ? (
@@ -229,7 +229,7 @@ export default function ChatBot({
               )}
               {stepItem.type === "input" && (
                 <form
-                  className="flex w-96 flex-col gap-2"
+                  className="flex w-full flex-col gap-2 sm:w-96"
                   onSubmit={(e) => {
                     e.preventDefault();
                     handleAnswerSubmit(inputValue);
@@ -318,22 +318,25 @@ export default function ChatBot({
           </DialogHeader>
           <div>Ești sigur că vrei să creezi acest incident?</div>
           <DialogFooter>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                if (handleChatFinish) handleChatFinish();
-              }}
-              disabled={isPending}
-            >
-              {isPending ? <>Se salvează</> : <>Salvează și trimite</>}
-            </Button>
-            <Button
-              variant="tertiary"
-              className="ml-2"
-              onClick={() => setShowConfirmDialog(false)}
-            >
-              Modifică
-            </Button>
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+              <Button
+                className="w-full"
+                variant="secondary"
+                onClick={() => {
+                  if (handleChatFinish) handleChatFinish();
+                }}
+                disabled={isPending}
+              >
+                {isPending ? <>Se salvează</> : <>Salvează și trimite</>}
+              </Button>
+              <Button
+                className="w-full"
+                variant="tertiary"
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                Modifică
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
