@@ -7,11 +7,11 @@ export const CONVERSATION: {
   {
     question: "În ce categorie se încadrează animalul găsit?",
     options: [
-      "Pasare",
-      "Mamifer (vulpe, liliac, arici, mistret, rozator, pisica salbatica etc.)",
-      "Reptila (sarpe, soparla, testoasa)",
-      "Amfibian/Amphibian (broasca, salamandra, triton etc.)",
-      "Peste (decedat, pescuit ilegal)",
+      "Pasăre",
+      "Mamifer (vulpe, liliac, arici, mistreț, rozător, pisică sălbatică etc.)",
+      "Reptilă (șarpe, șopârlă, țestoasă)",
+      "Amfibian (broască, salamandră, triton etc.)",
+      "Pește (decedat, pescuit ilegal)",
     ],
     type: "options",
   },
@@ -23,17 +23,17 @@ export const CONVERSATION: {
   {
     question: "Care este problema identificată?",
     options: [
-      "Rani vizibile: plagi deschise, hemoragie, oase la vedere",
-      "Nu se misca (inert)",
+      "Răni vizibile: plăgi deschise, hemoragie, oase la vedere",
+      "Nu se mișcă (inert)",
       "Problema la mers",
-      "Posibila problema (nu majora)",
+      "Posibilă problemă (nu majoră)",
     ],
     type: "options",
-    multiple: true, // <-- Allows multiple selections
+    multiple: true,
   },
   {
     question:
-      "Exista pericole sau potențiali pradatori în zona (caini, animale salbatice, trafic rutier, activitati umane)?",
+      "Există pericole sau potențiali prădători în zonă (câini, animale sălbatice, trafic rutier, activități umane)?",
     options: ["Da", "Nu"],
     type: "options",
   },

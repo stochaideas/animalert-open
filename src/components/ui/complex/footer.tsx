@@ -58,31 +58,38 @@ export default function Footer() {
       <div className="container mx-auto flex flex-col items-start justify-center gap-14 md:mt-12 lg:gap-8">
         <div className="flex w-full flex-col items-start justify-between gap-14 lg:flex-row lg:gap-8">
           <section className="flex w-full flex-row items-center justify-between gap-6 sm:w-auto lg:flex-col lg:items-start">
-            {/* <Image
-              src="/logo/logo-white.png"
-              alt="AnimAlert Logo"
-              className="h-full w-auto max-w-none object-cover"
-              width={150}
-              height={45}
-              loading="eager"
-            /> */}
-            <div className="flex flex-row gap-2">
+            {/* Logo section for mobile view */}
+            <div className="mt-12 flex flex-row gap-2 sm:hidden">
+              <Link
+                href="https://www.instagram.com/opmcb.cluj/"
+                target="_blank"
+              >
+                <SVGInstagramFilled width="32" height="32" />
+              </Link>
+
+              <Link
+                href="https://www.facebook.com/antibraconaj.cluj/"
+                target="_blank"
+              >
+                <SVGFacebookFilled width="32" height="32" />
+              </Link>
+
+              <Link
+                href="https://www.youtube.com/@ProtectiaMediuluiAntibraconaj"
+                target="_blank"
+              >
+                <SVGYoutubeFilled width="32" height="32" />
+              </Link>
+            </div>
+
+            {/* Logo section md and above */}
+            <div className="hidden flex-row gap-2 sm:flex">
               <Link
                 href="https://www.instagram.com/opmcb.cluj/"
                 target="_blank"
               >
                 <SVGInstagram
                   className="hidden sm:inline"
-                  width="32"
-                  height="32"
-                />
-              </Link>
-              <Link
-                href="https://www.instagram.com/opmcb.cluj/"
-                target="_blank"
-              >
-                <SVGInstagramFilled
-                  className="sm:hidden"
                   width="32"
                   height="32"
                 />
@@ -98,31 +105,11 @@ export default function Footer() {
                 />
               </Link>
               <Link
-                href="https://www.facebook.com/antibraconaj.cluj/"
-                target="_blank"
-              >
-                <SVGFacebookFilled
-                  className="sm:hidden"
-                  width="32"
-                  height="32"
-                />
-              </Link>
-              <Link
                 href="https://www.youtube.com/@ProtectiaMediuluiAntibraconaj"
                 target="_blank"
               >
                 <SVGYoutube
-                  className="hidden sm:inline lg:hidden"
-                  width="32"
-                  height="32"
-                />
-              </Link>
-              <Link
-                href="https://www.youtube.com/@ProtectiaMediuluiAntibraconaj"
-                target="_blank"
-              >
-                <SVGYoutubeFilled
-                  className="sm:hidden"
+                  className="hidden sm:inline"
                   width="32"
                   height="32"
                 />
@@ -135,8 +122,12 @@ export default function Footer() {
               <strong>Adresa</strong>: Cluj-Napoca, România
             </span>
             <span className="text-single-line-body-base">
-              <Link href="mailto:ancbp.cluj[at]gmail.com">
-                <strong>Email</strong>: ancbp.cluj[at]gmail.com
+              <strong>Email</strong>:{" "}
+              <Link
+                className="text-primary underline"
+                href="mailto:darius.bogdan3080@gmail.com"
+              >
+                ancbp.cluj@gmail.com
               </Link>
             </span>
           </section>
@@ -155,10 +146,10 @@ export default function Footer() {
           <section className="flex flex-col gap-3">
             <h3 className="text-heading-3 mb-4">Parteneri</h3>
             <span className="text-single-line-body-base">
-              Foto: © Lonay Arthur
+              <strong>Foto</strong>: © Lonay Arthur
             </span>
             <span className="text-single-line-body-base">
-              Ilustrații: © Katerina Limpitsouni
+              <strong>Ilustrații</strong>: © Katerina Limpitsouni
             </span>
           </section>
         </div>

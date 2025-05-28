@@ -25,6 +25,10 @@ import SVGInstagramFilled from "./svgs/instagram-filled";
 import SVGYoutube from "./svgs/youtube";
 import SVGYoutubeFilled from "./svgs/youtube-filled";
 
+// Chatbot icons
+import SVGBot from "./svgs/bot";
+import SVGUser from "./svgs/user";
+
 export {
   // General
   SVGAlert,
@@ -52,4 +56,8 @@ export {
   SVGInstagramFilled,
   SVGYoutube,
   SVGYoutubeFilled,
+
+  // Chatbot
+  SVGBot,
+  SVGUser,
 };

@@ -1,9 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  SVGAlert,
-  // SVGPin
-} from "~/components/icons";
+import { SVGAlert, SVGPin } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 
 const cards = [
@@ -14,8 +11,9 @@ const cards = [
     strong:
       "Ești deranjat de prezența unor animale pe care le consideri nedorite sau periculoase?",
     body: "Află cum să rămâi în siguranță tu și gospodăria ta, cum să ții la distanță „intrușii” eficient și etic și care sunt obligațiile tale.",
-    href: "/recomandari",
+    href: "/conflicte",
     button: "Solicită recomandări",
+    disabled: false,
   },
   {
     img: "/images/homepage-card-2.png",
@@ -26,6 +24,7 @@ const cards = [
     body: "Raportează ilegalități aici.",
     href: "/sesizari",
     button: "Trimite sesizare",
+    disabled: true, // TODO: temporary, remove when ready
   },
   {
     img: "/images/homepage-card-3.png",
@@ -36,6 +35,7 @@ const cards = [
     body: "Descoperă lumea animalelor, curiozități despre viața și mediul lor prin imagini fascinante, povești educative și activități distractive.",
     href: "/eduwild",
     button: "Explorează EduWild",
+    disabled: true, // TODO: temporary, remove when ready
   },
   {
     img: "/images/homepage-card-4.png",
@@ -45,6 +45,7 @@ const cards = [
     body: "Informează-te despre zonele protejate, specii rare, cu statut special de protecție și de conservare.",
     href: "/zone-protejate",
     button: "Află mai multe",
+    disabled: true, // TODO: temporary, remove when ready
   },
 ];
 
@@ -110,17 +111,12 @@ export default function Home() {
               bolnav, agresat) sau într-un mediu străin. Sprijină cercetarea
               științifică cu observațiile tale.
             </p>
-            {/* <Link href="/raporteaza-prezenta">
+            <Link href="/raporteaza-prezenta">
               <Button className="mt-8" variant="secondary" size="md">
                 <SVGPin />
                 Raportează prezență
               </Button>
-            </Link> */}
-            <div className="mt-auto pt-8">
-              <Button variant="secondary" size="md">
-                Modul în lucru...
-              </Button>
-            </div>
+            </Link>
           </article>
         </section>
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
@@ -139,20 +135,21 @@ export default function Home() {
               <h3 className="text-heading-3 mt-8">{card.title}</h3>
               <p className="text-body-strong mt-2">{card.strong}</p>
               <p className="text-body mt-4">{card.body}</p>
-              {/* <div className="mt-auto pt-8">
-                <Link href={card.href}>
+              {card.disabled ? (
+                <div className="mt-auto pt-8">
                   <Button variant="tertiary" size="md">
-                    {card.button}
+                    Modul în lucru...
                   </Button>
-                </Link>
-              </div> */}
-              {/* TODO: temporary!!! vvv */}
-              <div className="mt-auto pt-8">
-                <Button variant="tertiary" size="md">
-                  Modul în lucru...
-                </Button>
-              </div>
-              {/* TODO: temporary!!! ^^^ */}
+                </div>
+              ) : (
+                <div className="mt-auto pt-8">
+                  <Link href={card.href}>
+                    <Button variant="tertiary" size="md">
+                      {card.button}
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
         </section>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { isEqual } from "lodash";
+import { useState, useRef, type ChangeEvent } from "react";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,14 +23,52 @@ import { incidentFormSchema } from "./_schemas/incident-form-schema";
 
 import Disclaimer from "./_components/disclaimer";
 import Contact from "./_components/contact";
-import Map from "./_components/map";
-import ChatBot from "./_components/chat-bot";
+import Map from "../../components/ui/complex/map";
+import ChatBot from "../../components/ui/complex/chat-bot";
 
 import { Button } from "~/components/ui/simple/button";
 import { MaterialStepper } from "~/components/ui/complex/stepper";
 import { TRPCClientError } from "@trpc/client";
+import { REPORT_TYPES } from "~/constants/report-types";
+import { INCIDENT_STEPS } from "./_constants/incident-steps";
 
 export default function IncidentReport() {
+  const lastSubmittedPayload = useRef<{
+    user: {
+      id: string | undefined;
+      firstName: string;
+      lastName: string;
+      phone: string;
+      email?: string;
+      receiveOtherReportUpdates?: boolean;
+    };
+    report: {
+      id: string | undefined;
+      reportType: string;
+      receiveUpdates?: boolean;
+      latitude: number | undefined;
+      longitude: number | undefined;
+      imageKeys: string[];
+      conversation: string;
+      address: string | undefined;
+    };
+  } | null>(null);
+
+  const lastImageFiles = useRef<{
+    image1: File | undefined;
+    image2: File | undefined;
+    image3: File | undefined;
+    video1: File | undefined;
+  }>({
+    image1: undefined,
+    image2: undefined,
+    image3: undefined,
+    video1: undefined,
+  });
+  const lastUploadedImageUrls = useRef<string[]>([]);
+
+  const mapSubmitted = useRef(false);
+
   const [currentPage, setCurrentPage] = useState(0);
   const [incidentId, setIncidentId] = useState<string | undefined>();
   const [incidentReportNumber, setIncidentReportNumber] = useState<
@@ -54,8 +93,8 @@ export default function IncidentReport() {
       phone: "",
       email: "",
       confidentiality: false,
-      receiveIncidentUpdates: false,
-      receiveOtherIncidentUpdates: false,
+      receiveUpdates: false,
+      receiveOtherReportUpdates: false,
       image1: undefined,
       image2: undefined,
       image3: undefined,
@@ -78,9 +117,9 @@ export default function IncidentReport() {
   });
 
   // MAP
-  const [mapCoordinates, setMapCoordinates] = useState<Coordinates | null>(
-    null,
-  );
+  const [mapCoordinates, setMapCoordinates] = useState<
+    Coordinates | undefined
+  >();
   const [address, setAddress] = useState<string>();
 
   // CHAT BOT
@@ -88,26 +127,26 @@ export default function IncidentReport() {
     { question: string; answer: string | string[] }[]
   >([]);
 
+  const [submittingIncident, setSubmittingIncident] = useState(false);
+
   const utils = api.useUtils();
   const {
     mutateAsync: mutateIncidentAsync,
     isPending: incidentIsPending,
-    // error: incidentError,
+    isSuccess: incidentIsSuccess,
+    reset: resetIncidentMutation,
   } = api.incident.create.useMutation({
     onSuccess: () => {
       void utils.incident.invalidate();
     },
   });
 
-  const {
-    mutateAsync: mutateS3Async,
-    isPending: s3IsPending,
-    // error: s3Error,
-  } = api.s3.getPresignedUrl.useMutation({
-    onSuccess: () => {
-      void utils.s3.invalidate();
-    },
-  });
+  const { mutateAsync: mutateS3Async, isPending: s3IsPending } =
+    api.s3.getPresignedUrl.useMutation({
+      onSuccess: () => {
+        void utils.s3.invalidate();
+      },
+    });
 
   function showErrorDialog(title: string, description: string) {
     setErrorDialog({ title, description });
@@ -165,40 +204,91 @@ export default function IncidentReport() {
     }
   }
 
+  function newImagesUploaded(
+    current: Record<string, File | undefined>,
+    previous: Record<string, File | undefined>,
+  ) {
+    return Object.keys(current).some(
+      (key) =>
+        !!current[key] && // file is set
+        (!previous[key] || current[key] !== previous[key]), // file is new or changed
+    );
+  }
+
   // Submit handler for the incident form
   async function onIncidentSubmit(values: z.infer<typeof incidentFormSchema>) {
     try {
-      const imageKeys = await handleImageUpload(
-        Object.values(incidentImageFiles),
+      setSubmittingIncident(true);
+
+      const imagesChanged = newImagesUploaded(
+        incidentImageFiles,
+        lastImageFiles.current,
       );
+
+      let imageKeys: string[] = lastUploadedImageUrls.current;
+
+      if (imagesChanged) {
+        // Upload only the new images
+        imageKeys =
+          (await handleImageUpload(Object.values(incidentImageFiles)))?.filter(
+            (url): url is string => !!url,
+          ) ?? [];
+        lastImageFiles.current = { ...incidentImageFiles };
+        lastUploadedImageUrls.current = imageKeys;
+      }
 
       const email = values.email === "" ? undefined : values.email;
 
-      const result = await mutateIncidentAsync({
+      const payload = {
         user: {
           id: userId,
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
           email: email,
-          receiveOtherIncidentUpdates: values.receiveOtherIncidentUpdates,
+          receiveOtherReportUpdates: values.receiveOtherReportUpdates,
         },
-        incident: {
+        report: {
           id: incidentId,
-          receiveIncidentUpdates: values.receiveIncidentUpdates,
-          latitude: mapCoordinates?.lat,
-          longitude: mapCoordinates?.lng,
-          imageKeys: imageKeys?.filter((url): url is string => !!url) ?? [],
+          reportType: REPORT_TYPES.INCIDENT,
+          receiveUpdates: values.receiveUpdates,
+          latitude: mapSubmitted.current ? mapCoordinates?.lat : undefined,
+          longitude: mapSubmitted.current ? mapCoordinates?.lng : undefined,
+          imageKeys,
           conversation: JSON.stringify(answers),
-          address: address,
+          address: mapSubmitted.current ? address : undefined,
         },
-      });
+      };
+
+      // Only mutate if data has changed
+      if (isEqual(payload, lastSubmittedPayload.current)) {
+        setSubmittingIncident(false);
+
+        handleNextPage();
+        return;
+      }
+
+      const result = await mutateIncidentAsync(payload);
+
+      lastSubmittedPayload.current = {
+        ...payload,
+        user: {
+          ...payload.user,
+          id: result?.user?.id,
+        },
+        report: {
+          ...payload.report,
+          id: result?.report?.id,
+        },
+      };
 
       if (!incidentId) {
-        setIncidentId(result?.incident?.id);
-        setIncidentReportNumber(result?.incident?.incidentReportNumber);
+        setIncidentId(result?.report?.id);
+        setIncidentReportNumber(result?.report?.reportNumber);
         setUserId(result?.user?.id);
       }
+
+      setSubmittingIncident(false);
 
       handleNextPage();
     } catch (error) {
@@ -251,12 +341,13 @@ export default function IncidentReport() {
   }
 
   function handleNextPage() {
-    if (currentPage < 3) {
+    if (currentPage < INCIDENT_STEPS.length - 1) {
       window.scrollTo({
         top: 0,
         behavior: "smooth",
       });
       setCurrentPage((prevPage) => prevPage + 1);
+      resetIncidentMutation();
     }
   }
 
@@ -266,6 +357,7 @@ export default function IncidentReport() {
       behavior: "smooth",
     });
     setCurrentPage((prevPage) => prevPage - 1);
+    resetIncidentMutation();
   }
 
   function getCurrentPage() {
@@ -306,7 +398,7 @@ export default function IncidentReport() {
             incidentImageFiles={incidentImageFiles}
             handleIncidentImageChange={handleIncidentImageChange}
             onIncidentSubmit={onIncidentSubmit}
-            isPending={incidentIsPending || s3IsPending}
+            isPending={submittingIncident || incidentIsPending || s3IsPending}
           />
         );
       case 2:
@@ -315,12 +407,13 @@ export default function IncidentReport() {
             address={address}
             setAddress={setAddress}
             handlePreviousPage={handlePreviousPage}
-            onMapSubmit={async () =>
-              await onIncidentSubmit(incidentForm.getValues())
-            }
-            initialCoordinates={mapCoordinates}
-            onCoordinatesChange={setMapCoordinates}
-            isPending={incidentIsPending || s3IsPending}
+            onMapSubmit={async () => {
+              mapSubmitted.current = true;
+              await onIncidentSubmit(incidentForm.getValues());
+            }}
+            mapCoordinates={mapCoordinates}
+            setMapCoordinates={setMapCoordinates}
+            isPending={submittingIncident || incidentIsPending || s3IsPending}
           />
         );
       case 3:
@@ -328,12 +421,13 @@ export default function IncidentReport() {
           <ChatBot
             answers={answers}
             setAnswers={setAnswers}
-            incidentReportNumber={incidentReportNumber}
+            reportNumber={incidentReportNumber}
             handleChatFinish={async () => {
               await onIncidentSubmit(incidentForm.getValues());
             }}
             handleDialogClose={() => redirect("/")}
-            isPending={incidentIsPending || s3IsPending}
+            isPending={submittingIncident || incidentIsPending || s3IsPending}
+            incidentIsSuccess={incidentIsSuccess}
           />
         );
       default:
@@ -345,7 +439,7 @@ export default function IncidentReport() {
     <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
       <div className="flex flex-col justify-center gap-12">
         <h1 className="text-heading-2">Raportează incident</h1>
-        <MaterialStepper currentStep={currentPage} />
+        <MaterialStepper steps={INCIDENT_STEPS} currentStep={currentPage} />
         {getCurrentPage()}
       </div>
       <Dialog

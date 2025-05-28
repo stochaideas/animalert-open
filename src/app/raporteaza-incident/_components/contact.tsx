@@ -18,6 +18,7 @@ import { Input } from "~/components/ui/simple/input";
 import { type ChangeEvent } from "react";
 import Image from "next/image";
 import { type incidentFormSchema } from "../_schemas/incident-form-schema";
+import { useVideoThumbnail } from "~/hooks/useVideoThumbnail";
 
 export default function Contact({
   handlePreviousPage,
@@ -46,10 +47,16 @@ export default function Contact({
   const FileFormField: React.FC<{
     file: "image1" | "image2" | "image3" | "video1";
   }> = ({ file }) => {
-    let imageUrl: string | undefined;
+    let url: string | undefined;
 
     if (incidentImageFiles[file]) {
-      imageUrl = URL.createObjectURL(incidentImageFiles[file]);
+      url = URL.createObjectURL(incidentImageFiles[file]);
+    }
+
+    const thumbnailUrl = useVideoThumbnail(file === "video1" ? url : undefined);
+
+    if (thumbnailUrl && file === "video1") {
+      url = thumbnailUrl;
     }
 
     return (
@@ -78,19 +85,46 @@ export default function Contact({
                   aspectRatio: "1/1", // or "16/9" or any aspect ratio you want
                   borderRadius: "8px", // optional, for rounded corners
                   overflow: "hidden", // optional, for clean edges
+                  cursor: "pointer",
                 }}
               >
                 <Image
-                  alt="Imagine cu incidentul"
+                  alt={
+                    file === "video1"
+                      ? "Videoclip cu animalul"
+                      : "Imagine cu animalul"
+                  }
                   src={
-                    imageUrl ?? "/images/incident-report-image-placeholder.png"
+                    url ??
+                    (file === "video1"
+                      ? "/images/report-video-placeholder.png"
+                      : "/images/report-image-placeholder.png")
                   }
                   fill
                   style={{
-                    objectFit: imageUrl ? "cover" : "contain",
+                    objectFit: url ? "cover" : "contain",
                     background: "#e3e3e3",
                   }}
                 />
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    display: `${!url ? "flex" : "none"}`,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#000", // or any color that contrasts the image
+                    fontSize: "1rem",
+                    pointerEvents: "none", // so clicks pass through to the image/container
+                  }}
+                >
+                  <span className="text-center">
+                    {file === "video1" ? "Adaugă videoclip" : "Adaugă imagine"}
+                  </span>
+                </div>
               </div>
             </Label>
             <FormMessage />
@@ -224,19 +258,19 @@ export default function Contact({
               />
               <FormField
                 control={incidentForm.control}
-                name="receiveOtherIncidentUpdates"
+                name="receiveOtherReportUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
                     <FormControl>
                       <Checkbox
                         className="mt-1"
-                        id="receiveOtherIncidentUpdates"
+                        id="receiveOtherReportUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
                     <Label
-                      htmlFor="receiveOtherIncidentUpdates"
+                      htmlFor="receiveOtherReportUpdates"
                       className="text-body-small"
                     >
                       Vreau să fiu contactat pe WhatsApp despre alte cazuri și
@@ -247,21 +281,18 @@ export default function Contact({
               />
               <FormField
                 control={incidentForm.control}
-                name="receiveIncidentUpdates"
+                name="receiveUpdates"
                 render={({ field }) => (
                   <FormItem className="flex items-start gap-3">
                     <FormControl>
                       <Checkbox
                         className="mt-1"
-                        id="receiveIncidentUpdates"
+                        id="receiveUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <Label
-                      htmlFor="receiveIncidentUpdates"
-                      className="text-body-small"
-                    >
+                    <Label htmlFor="receiveUpdates" className="text-body-small">
                       Vreau să primesc update pe email despre caz
                     </Label>
                   </FormItem>
@@ -272,9 +303,7 @@ export default function Contact({
           <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-12 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Fișiere foto și video</h3>
             <p className="text-body pb-3">
-              Încărcați cel puțin o imagine
-              <span className="text-red-500">*</span> (obligatoriu). Adăugați
-              fotografii atât cu animalul cât și cu incidentul.
+              Adăugați fotografii atât cu animalul cât și cu incidentul.
             </p>
             <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
               {Object.keys(incidentImageFiles).map((key) => (

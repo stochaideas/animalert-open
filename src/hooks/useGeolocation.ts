@@ -2,9 +2,9 @@
 import { useEffect, useState } from "react";
 import type { Coordinates } from "~/types/coordinates";
 
-export const useGeolocation = (initialCoordinates?: Coordinates | null) => {
-  const [coordinates, setCoordinates] = useState<Coordinates | null>(
-    initialCoordinates ?? null,
+export const useGeolocation = (initialCoordinates?: Coordinates) => {
+  const [coordinates, setCoordinates] = useState<Coordinates | undefined>(
+    initialCoordinates,
   );
   const [error, setError] = useState<string | null>(null);
 

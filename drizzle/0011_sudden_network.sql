@@ -1,0 +1,1 @@
+ALTER TABLE "reports" ALTER COLUMN "report_type" SET DEFAULT 'INCIDENT';

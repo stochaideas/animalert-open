@@ -6,7 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import Hamburger from "~/components/icons/svgs/hamburger";
-import { SVGAlert, SVGHeart, SVGPhone } from "~/components/icons";
+import {
+  SVGAlert,
+  SVGHeart,
+  SVGMessageBubble,
+  SVGPhone,
+  SVGPin,
+} from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import {
   NavigationMenu,
@@ -31,42 +37,42 @@ const navItems: {
   }[];
 }[] = [
   { title: "Acasă", href: "/" },
-  // {
-  //   title: "Acțiuni & Info",
-  //   href: "/actiuni-info",
-  //   content: [
-  //     {
-  //       title: "Raportează prezență",
-  //       href: "/raporteaza-prezenta",
-  //       description: "Animal sălbatic viu/decedat",
-  //       icon: <SVGPin />,
-  //     },
-  //     {
-  //       title: "Conflicte & Interacțiuni",
-  //       href: "/recomandari",
-  //       description: "Info animal nedorit/periculos",
-  //       icon: <SVGMessageBubble />,
-  //     },
-  //     {
-  //       title: "Sesizări & Legalitate",
-  //       href: "/sesizari",
-  //       description: "Braconaj, ilegalități",
-  //       icon: <SVGPaperPage />,
-  //     },
-  //     {
-  //       title: "EduWild",
-  //       href: "/eduwild",
-  //       description: "Viața si lumea animalelor",
-  //       icon: <SVGVideoCamera />,
-  //     },
-  //     {
-  //       title: "Arii Naturale & Specii Protejate",
-  //       href: "/zone-protejate",
-  //       description: "Obligații, statut de protecție",
-  //       icon: <SVGStar />,
-  //     },
-  //   ],
-  // },
+  {
+    title: "Acțiuni & Info",
+    href: "/actiuni-info",
+    content: [
+      {
+        title: "Raportează prezență",
+        href: "/raporteaza-prezenta",
+        description: "Animal sălbatic viu/decedat",
+        icon: <SVGPin />,
+      },
+      {
+        title: "Conflicte & Interacțiuni",
+        href: "/conflicte",
+        description: "Info animal nedorit/periculos",
+        icon: <SVGMessageBubble />,
+      },
+      // {
+      //   title: "Sesizări & Legalitate",
+      //   href: "/sesizari",
+      //   description: "Braconaj, ilegalități",
+      //   icon: <SVGPaperPage />,
+      // },
+      // {
+      //   title: "EduWild",
+      //   href: "/eduwild",
+      //   description: "Viața si lumea animalelor",
+      //   icon: <SVGVideoCamera />,
+      // },
+      // {
+      //   title: "Arii Naturale & Specii Protejate",
+      //   href: "/zone-protejate",
+      //   description: "Obligații, statut de protecție",
+      //   icon: <SVGStar />,
+      // },
+    ],
+  },
   { title: "Despre noi", href: "/despre-noi" },
   { title: "Contact", href: "/contact" },
 ];
@@ -94,6 +100,7 @@ const actionItems: {
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [showAlert, setShowAlert] = useState(true);
 
   useEffect(() => {
     setIsOpen(false);
@@ -101,6 +108,18 @@ export default function Navbar() {
       top: 0,
     });
   }, [pathname]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const isSmallScreen = window.matchMedia("(max-width: 1023px)").matches;
+    let timeoutId: NodeJS.Timeout;
+    if (isSmallScreen && showAlert) {
+      timeoutId = setTimeout(() => {
+        setShowAlert(false);
+      }, 10000); // 10 seconds
+    }
+    return () => clearTimeout(timeoutId);
+  }, [showAlert]);
 
   const toggleMenu = () => {
     setIsOpen((prev) => !prev);
@@ -247,13 +266,15 @@ export default function Navbar() {
           </NavigationMenuList>
         </NavigationMenu>
       </nav>
-      <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-3 py-1.5 md:px-6 md:py-3.5">
-        <div className="m-auto text-center">
-          <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
-          imediat la <b>112</b>, dacă te afli în pericol sau dacă observi un
-          animal rănit de talie mai mare (căprior, cerb, vulpe, lup, urs).
-        </div>
-      </section>
+      {showAlert && (
+        <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-3 py-1.5 md:px-6 md:py-3.5">
+          <div className="m-auto text-center">
+            <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
+            imediat la <b>112</b>, dacă te afli în pericol sau dacă observi un
+            animal rănit de talie mai mare (căprior, cerb, vulpe, lup, urs).
+          </div>
+        </section>
+      )}
     </div>
   );
 }
