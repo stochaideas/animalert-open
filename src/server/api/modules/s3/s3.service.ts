@@ -31,6 +31,22 @@ export class S3Service {
     return new S3Client(config);
   }
 
+  async uploadFile(input: z.infer<typeof presignedUrlSchema>) {
+    const key = `uploads/${uuidv4()}-${input.fileName}`;
+
+    const command = new PutObjectCommand({
+      Bucket: env.AWS_S3_BUCKET_NAME,
+      Key: key,
+      ContentType: input.fileType,
+    });
+
+    await this.s3.send(command);
+
+    const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
+
+    return { url: signedUrl };
+  }
+
   async getPresignedUrl(input: z.infer<typeof presignedUrlSchema>) {
     const key = `uploads/${uuidv4()}-${input.fileName}`;
 
@@ -41,8 +57,7 @@ export class S3Service {
     });
 
     const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
-    const publicUrl = `https://${env.AWS_S3_BUCKET_NAME}.s3.${env.AWS_REGION}.amazonaws.com/${key}`;
 
-    return { url: signedUrl, publicUrl };
+    return { url: signedUrl };
   }
 }
