@@ -31,7 +31,7 @@ export class S3Service {
     return new S3Client(config);
   }
 
-  async uploadFile(input: z.infer<typeof presignedUrlSchema>) {
+  async getUploadFileSignedUrl(input: z.infer<typeof presignedUrlSchema>) {
     const key = `uploads/${uuidv4()}-${input.fileName}`;
 
     const command = new PutObjectCommand({
@@ -42,22 +42,8 @@ export class S3Service {
 
     await this.s3.send(command);
 
-    const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
+    const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 180 });
 
-    return { url: signedUrl };
-  }
-
-  async getPresignedUrl(input: z.infer<typeof presignedUrlSchema>) {
-    const key = `uploads/${uuidv4()}-${input.fileName}`;
-
-    const command = new PutObjectCommand({
-      Bucket: env.AWS_S3_BUCKET_NAME,
-      Key: key,
-      ContentType: input.fileType,
-    });
-
-    const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
-
-    return { url: signedUrl };
+    return { key, url: signedUrl };
   }
 }

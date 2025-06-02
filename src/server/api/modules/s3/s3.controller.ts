@@ -9,7 +9,7 @@ export class S3Controller {
     this.s3Service = new S3Service();
   }
 
-  async getPresignedUrl(input: z.infer<typeof presignedUrlSchema>) {
-    return this.s3Service.getPresignedUrl(input);
+  async getUploadFileSignedUrl(input: z.infer<typeof presignedUrlSchema>) {
+    return this.s3Service.getUploadFileSignedUrl(input);
   }
 }
