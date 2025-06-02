@@ -4,10 +4,13 @@ import { env } from "~/env";
 import { ReportService } from "../report.service";
 import type { z } from "zod";
 import { REPORT_TYPES } from "~/constants/report-types";
+import { S3Service } from "../../s3/s3.service";
+import { streamToBuffer } from "~/lib/stream-to-buffer";
+import type { Readable } from "stream";
 
 export class PresenceService extends ReportService {
   constructor() {
-    super(new EmailService());
+    super(new EmailService(), new S3Service());
   }
 
   async upsertReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
@@ -42,6 +45,33 @@ export class PresenceService extends ReportService {
 
       const actionType = isUpdate ? "actualizat" : "nou creat";
       const imagesCount = report.imageKeys?.length;
+
+      const attachments = [];
+
+      if (report.imageKeys && report.imageKeys.length > 0) {
+        for (const [idx, key] of report.imageKeys.entries()) {
+          // Get the S3 object
+          const s3ObjectResponse = await this.s3Service.getObject(key);
+
+          // Read the stream into a buffer
+          const buffer = await streamToBuffer(
+            s3ObjectResponse.Body as Readable,
+          );
+
+          // Guess the content type (if available)
+          const contentType =
+            s3ObjectResponse.ContentType ?? "application/octet-stream";
+
+          // Name the file
+          const filename = `file-${idx + 1}`;
+
+          attachments.push({
+            filename: filename + "." + contentType.split("/")[1],
+            content: buffer,
+            contentType,
+          });
+        }
+      }
 
       /*
         EMAIL TO BE SENT TO ADMIN
@@ -95,7 +125,18 @@ export class PresenceService extends ReportService {
             <strong>Imagini atașate:</strong>
             ${
               report.imageKeys && report.imageKeys.length > 0
-                ? `<ul style="padding-left:18px;margin:0;">${report.imageKeys.map((url) => `<li style="margin-bottom:4px;"><a href="${url}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${url.split("/").pop()}</a></li>`).join("")}</ul>`
+                ? `<ul style="padding-left:18px;margin:0;">
+                  ${report.imageKeys
+                    .map(
+                      (url, idx) =>
+                        `<li style="margin-bottom:4px;">
+                          <a href="${url}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">
+                            fișier ${idx + 1}
+                          </a>
+                        </li>`,
+                    )
+                    .join("")}
+                </ul>`
                 : "Nicio imagine atașată"
             }
           </li>

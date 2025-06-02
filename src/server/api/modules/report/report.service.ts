@@ -10,12 +10,15 @@ import {
   type PostgresError,
 } from "~/server/db/postgres-error";
 import type { z } from "zod";
+import type { S3Service } from "../s3/s3.service";
 
 export class ReportService {
   protected emailService: EmailService;
+  protected s3Service: S3Service;
 
-  constructor(emailService: EmailService) {
+  constructor(emailService: EmailService, s3Service: S3Service) {
     this.emailService = emailService;
+    this.s3Service = s3Service;
   }
 
   async upsertReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {

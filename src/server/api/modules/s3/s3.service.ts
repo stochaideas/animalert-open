@@ -2,6 +2,7 @@ import { env } from "~/env";
 import {
   S3Client,
   PutObjectCommand,
+  GetObjectCommand,
   type S3ClientConfig,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -31,6 +32,41 @@ export class S3Service {
     return new S3Client(config);
   }
 
+  /**
+   * Retrieves an object from the configured AWS S3 bucket using the specified key.
+   *
+   * @param key - The key (path/filename) of the object to retrieve from the S3 bucket.
+   * @returns A promise that resolves to the response from the S3 GetObjectCommand.
+   * @throws Will throw an error if the object cannot be retrieved from S3.
+   */
+  async getObject(key: string) {
+    const command = new GetObjectCommand({
+      Bucket: env.AWS_S3_BUCKET_NAME,
+      Key: key,
+    });
+
+    try {
+      const response = await this.s3.send(command);
+      return response;
+    } catch (error) {
+      console.error("Error getting object from S3:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generates a presigned URL for uploading a file to S3.
+   *
+   * @param input - The validated input object containing fileName and fileType, conforming to `presignedUrlSchema`.
+   * @returns An object containing the generated S3 key and the presigned upload URL.
+   *
+   * @remarks
+   * - The file will be uploaded to the `uploads/` directory with a unique UUID prefix.
+   * - The presigned URL is valid for 180 seconds.
+   * - The method uses AWS S3's `PutObjectCommand` to create the upload request.
+   *
+   * @throws Will throw an error if the S3 command fails.
+   */
   async getUploadFileSignedUrl(input: z.infer<typeof presignedUrlSchema>) {
     const key = `uploads/${uuidv4()}-${input.fileName}`;
 
@@ -42,7 +78,7 @@ export class S3Service {
 
     await this.s3.send(command);
 
-    const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 180 });
+    const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
 
     return { key, url: signedUrl };
   }

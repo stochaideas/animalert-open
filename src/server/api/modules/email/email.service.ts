@@ -33,6 +33,7 @@ export class EmailService {
         subject: subjectPrefix + data.subject,
         text: data.text,
         html: data.html,
+        attachments: data.attachments,
       });
       console.log("Email sent successfully");
     } catch (error) {
