@@ -133,12 +133,14 @@ export default function PresenceReport() {
     },
   });
 
-  const { mutateAsync: mutateS3Async, isPending: s3IsPending } =
-    api.s3.getPresignedUrl.useMutation({
-      onSuccess: () => {
-        void utils.s3.invalidate();
-      },
-    });
+  const {
+    mutateAsync: uploadFileToS3Async,
+    isPending: uploadFileToS3IsPending,
+  } = api.s3.getUploadFileSignedUrl.useMutation({
+    onSuccess: () => {
+      void utils.s3.invalidate();
+    },
+  });
 
   useEffect(() => {
     if (mapSubmitted.current && presenceIsSuccess) {
@@ -150,13 +152,28 @@ export default function PresenceReport() {
     setErrorDialog({ title, description });
   }
 
-  async function handleImageUpload(files: (File | undefined)[]) {
+  /**
+   * Uploads an array of image files to S3 asynchronously and returns their keys.
+   *
+   * For each file in the input array, this function:
+   * - Requests a pre-signed S3 upload URL and key using `uploadFileToS3Async`.
+   * - Uploads the file to the obtained URL via a PUT request.
+   * - Returns the S3 key for each successfully uploaded file.
+   *
+   * If a file is `undefined`, it is skipped and `null` is returned for that position.
+   * If any upload fails, an error dialog is shown and the error is set on the form.
+   *
+   * @param files - An array of `File` objects or `undefined` values to be uploaded.
+   * @returns A promise that resolves to an array of S3 keys (or `null` for skipped files).
+   * @throws If any upload or pre-signed URL request fails, the error is shown and re-thrown.
+   */
+  async function handleImagesUpload(files: (File | undefined)[]) {
     try {
       const urls = await Promise.all(
         Array.from(files).map(async (file, index) => {
           if (!file) return null;
 
-          const response = await mutateS3Async({
+          const response = await uploadFileToS3Async({
             fileName: `file_${index}`,
             fileType: file.type,
             fileSize: file.size,
@@ -170,7 +187,9 @@ export default function PresenceReport() {
             throw new Error("Failed to get a valid URL for the file upload");
           }
 
-          const url = response?.url;
+          const url = response.url;
+          const key = response.key;
+
           if (!url) {
             throw new Error("Failed to get a valid URL for the file upload");
           }
@@ -182,7 +201,7 @@ export default function PresenceReport() {
             mode: "cors",
           });
 
-          return url.split("?")[0]; // Get permanent URL
+          return key;
         }),
       );
 
@@ -228,7 +247,7 @@ export default function PresenceReport() {
       if (imagesChanged) {
         // Upload only the new images
         imageKeys =
-          (await handleImageUpload(Object.values(presenceImageFiles)))?.filter(
+          (await handleImagesUpload(Object.values(presenceImageFiles)))?.filter(
             (url): url is string => !!url,
           ) ?? [];
         lastImageFiles.current = { ...presenceImageFiles };
@@ -366,7 +385,9 @@ export default function PresenceReport() {
             presenceImageFiles={presenceImageFiles}
             handlePresenceImageChange={handlePresenceImageChange}
             onPresenceSubmit={onPresenceSubmit}
-            isPending={submittingPresence || presenceIsPending || s3IsPending}
+            isPending={
+              submittingPresence || presenceIsPending || uploadFileToS3IsPending
+            }
           />
         );
       case 1:
@@ -381,7 +402,9 @@ export default function PresenceReport() {
             }}
             mapCoordinates={mapCoordinates}
             setMapCoordinates={setMapCoordinates}
-            isPending={submittingPresence || presenceIsPending || s3IsPending}
+            isPending={
+              submittingPresence || presenceIsPending || uploadFileToS3IsPending
+            }
           />
         );
       default:

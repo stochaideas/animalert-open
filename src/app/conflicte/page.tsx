@@ -135,12 +135,14 @@ export default function ConflictReport() {
     },
   });
 
-  const { mutateAsync: mutateS3Async, isPending: s3IsPending } =
-    api.s3.getPresignedUrl.useMutation({
-      onSuccess: () => {
-        void utils.s3.invalidate();
-      },
-    });
+  const {
+    mutateAsync: uploadFileToS3Async,
+    isPending: uploadFileToS3IsPending,
+  } = api.s3.getUploadFileSignedUrl.useMutation({
+    onSuccess: () => {
+      void utils.s3.invalidate();
+    },
+  });
 
   useEffect(() => {
     if (recommendationsFinished) {
@@ -152,13 +154,28 @@ export default function ConflictReport() {
     setErrorDialog({ title, description });
   }
 
+  /**
+   * Uploads an array of image files to S3 asynchronously and returns their keys.
+   *
+   * For each file in the input array, this function:
+   * - Requests a pre-signed S3 upload URL and key using `uploadFileToS3Async`.
+   * - Uploads the file to the obtained URL via a PUT request.
+   * - Returns the S3 key for each successfully uploaded file.
+   *
+   * If a file is `undefined`, it is skipped and `null` is returned for that position.
+   * If any upload fails, an error dialog is shown and the error is set on the form.
+   *
+   * @param files - An array of `File` objects or `undefined` values to be uploaded.
+   * @returns A promise that resolves to an array of S3 keys (or `null` for skipped files).
+   * @throws If any upload or pre-signed URL request fails, the error is shown and re-thrown.
+   */
   async function handleImageUpload(files: (File | undefined)[]) {
     try {
       const urls = await Promise.all(
         Array.from(files).map(async (file, index) => {
           if (!file) return null;
 
-          const response = await mutateS3Async({
+          const response = await uploadFileToS3Async({
             fileName: `file_${index}`,
             fileType: file.type,
             fileSize: file.size,
@@ -172,7 +189,9 @@ export default function ConflictReport() {
             throw new Error("Failed to get a valid URL for the file upload");
           }
 
-          const url = response?.url;
+          const url = response.url;
+          const key = response.key;
+
           if (!url) {
             throw new Error("Failed to get a valid URL for the file upload");
           }
@@ -184,7 +203,7 @@ export default function ConflictReport() {
             mode: "cors",
           });
 
-          return url.split("?")[0]; // Get permanent URL
+          return key;
         }),
       );
 
@@ -368,7 +387,9 @@ export default function ConflictReport() {
             conflictImageFiles={conflictImageFiles}
             handleConflictImageChange={handleConflictImageChange}
             onConflictSubmit={onConflictSubmit}
-            isPending={submittingConflict || conflictIsPending || s3IsPending}
+            isPending={
+              submittingConflict || conflictIsPending || uploadFileToS3IsPending
+            }
           />
         );
       case 1:
@@ -383,7 +404,9 @@ export default function ConflictReport() {
             }}
             mapCoordinates={mapCoordinates}
             setMapCoordinates={setMapCoordinates}
-            isPending={submittingConflict || conflictIsPending || s3IsPending}
+            isPending={
+              submittingConflict || conflictIsPending || uploadFileToS3IsPending
+            }
           />
         );
       case 2:

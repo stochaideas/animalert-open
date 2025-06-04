@@ -5,9 +5,9 @@ import { presignedUrlSchema } from "./s3.schema";
 const s3Controller = new S3Controller();
 
 export const s3Router = createTRPCRouter({
-  getPresignedUrl: publicProcedure
+  getUploadFileSignedUrl: publicProcedure
     .input(presignedUrlSchema)
     .mutation(async ({ input }) => {
-      return s3Controller.getPresignedUrl(input);
+      return s3Controller.getUploadFileSignedUrl(input);
     }),
 });

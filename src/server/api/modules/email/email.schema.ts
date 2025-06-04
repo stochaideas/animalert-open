@@ -6,6 +6,15 @@ export const emailOptionsSchema = z
     subject: z.string().min(1, "Email subject is required"),
     text: z.string().optional(),
     html: z.string().optional(),
+    attachments: z
+      .array(
+        z.object({
+          filename: z.string().min(1, "Attachment filename is required"),
+          content: z.union([z.string(), z.instanceof(Buffer)]),
+          contentType: z.string().optional(),
+        }),
+      )
+      .optional(),
   })
   .superRefine((val, ctx) => {
     const hasText = !!val.text;

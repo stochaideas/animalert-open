@@ -122,7 +122,21 @@ export default function Contact({
                   }}
                 >
                   <span className="text-center">
-                    {file === "video1" ? "Adaugă videoclip" : "Adaugă imagine"}
+                    {file === "video1" ? (
+                      <>
+                        Adaugă
+                        <br className="block sm:hidden" />
+                        <span className="hidden sm:inline"> </span>
+                        videoclip
+                      </>
+                    ) : (
+                      <>
+                        Adaugă
+                        <br className="block sm:hidden" />
+                        <span className="hidden sm:inline"> </span>
+                        imagine
+                      </>
+                    )}
                   </span>
                 </div>
               </div>
