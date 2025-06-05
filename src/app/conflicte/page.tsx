@@ -31,6 +31,7 @@ import { TRPCClientError } from "@trpc/client";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { CONFLICT_STEPS } from "./_constants/conflict-steps";
 import Recommendations from "./_components/recommendations";
+import { Link } from "lucide-react";
 
 export default function ConflictReport() {
   const lastSubmittedPayload = useRef<{
