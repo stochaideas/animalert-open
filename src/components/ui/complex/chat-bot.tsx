@@ -309,34 +309,36 @@ export default function ChatBot({
         )}
       </div>
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="bg-tertiary">
+        <DialogContent className="bg-tertiary text-center">
           <DialogHeader>
             <DialogDescription className="sr-only">
               Confirmare de înregistrare a incidentului.
             </DialogDescription>
-            <DialogTitle>Confirmare creare incident</DialogTitle>
+            <DialogTitle className="text-center">
+              Confirmare creare incident
+            </DialogTitle>
           </DialogHeader>
           <div>Ești sigur că vrei să creezi acest incident?</div>
           <DialogFooter>
-            <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-              <Button
-                className="w-full"
-                variant="secondary"
-                onClick={() => {
-                  if (handleChatFinish) handleChatFinish();
-                }}
-                disabled={isPending}
-              >
-                {isPending ? <>Se salvează</> : <>Salvează și trimite</>}
-              </Button>
-              <Button
-                className="w-full"
-                variant="tertiary"
-                onClick={() => setShowConfirmDialog(false)}
-              >
-                Modifică
-              </Button>
-            </div>
+            <Button
+              className="min-w-44"
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                if (handleChatFinish) handleChatFinish();
+              }}
+              disabled={isPending}
+            >
+              {isPending ? <>Se salvează</> : <>Salvează și trimite</>}
+            </Button>
+            <Button
+              className="min-w-44"
+              size="sm"
+              variant="tertiary"
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              Modifică
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
