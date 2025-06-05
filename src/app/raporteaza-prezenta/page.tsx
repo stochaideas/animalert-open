@@ -30,6 +30,7 @@ import { MaterialStepper } from "~/components/ui/complex/stepper";
 import { TRPCClientError } from "@trpc/client";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { PRESENCE_STEPS } from "./_constants/presence-steps";
+import Link from "next/link";
 
 export default function PresenceReport() {
   const lastSubmittedPayload = useRef<{
@@ -420,24 +421,30 @@ export default function PresenceReport() {
         {getCurrentPage()}
       </div>
       <Dialog open={showSuccessDialog}>
-        <DialogContent className="bg-tertiary">
+        <DialogContent className="bg-tertiary text-center">
           <DialogHeader>
             <DialogDescription className="sr-only">
               Confirmare de înregistrare a incidentului.
             </DialogDescription>
-            <DialogTitle>Raport de prezență înregistrat</DialogTitle>
+            <DialogTitle className="text-center">
+              Incident înregistrat
+            </DialogTitle>
           </DialogHeader>
           <div>
-            Raportul de prezență cu numărul{" "}
-            <strong>{presenceReportNumber}</strong> a fost înregistrat cu
-            succes.
+            Incidentul cu numărul <strong>{presenceReportNumber}</strong> a fost
+            înregistrat cu succes.
           </div>
           <DialogFooter>
             <Button
-              className="bg-secondary text-secondary-foreground hover:bg-secondary-hover rounded px-4 py-2"
+              variant="secondary"
+              size="sm"
               onClick={() => redirect("/")}
+              className="min-w-44"
             >
               Întoarce-te acasă
+            </Button>
+            <Button variant="primary" size="sm" className="min-w-44">
+              <Link href="/doneaza">Donează</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
