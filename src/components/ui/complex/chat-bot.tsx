@@ -341,12 +341,14 @@ export default function ChatBot({
         </DialogContent>
       </Dialog>
       <Dialog open={incidentIsSuccess}>
-        <DialogContent className="bg-tertiary">
+        <DialogContent className="bg-tertiary text-center">
           <DialogHeader>
             <DialogDescription className="sr-only">
               Confirmare de înregistrare a incidentului.
             </DialogDescription>
-            <DialogTitle>Incident înregistrat</DialogTitle>
+            <DialogTitle className="text-center">
+              Incident înregistrat
+            </DialogTitle>
           </DialogHeader>
           <div>
             Incidentul cu numărul <strong>{reportNumber}</strong> a fost
@@ -354,10 +356,15 @@ export default function ChatBot({
           </div>
           <DialogFooter>
             <Button
-              className="bg-secondary text-secondary-foreground hover:bg-secondary-hover rounded px-4 py-2"
+              variant="secondary"
+              size="sm"
               onClick={handleDialogClose}
+              className="min-w-44"
             >
               Întoarce-te acasă
+            </Button>
+            <Button variant="primary" size="sm" className="min-w-44">
+              <Link href="/doneaza">Donează</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
