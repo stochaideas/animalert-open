@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, type JSX } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React, { useEffect, useState, type JSX } from "react";
 
-import Hamburger from "~/components/icons/svgs/hamburger";
 import {
   SVGAlert,
   SVGHeart,
@@ -13,6 +12,7 @@ import {
   SVGPhone,
   SVGPin,
 } from "~/components/icons";
+import Hamburger from "~/components/icons/svgs/hamburger";
 import { Button } from "~/components/ui/simple/button";
 import {
   NavigationMenu,
@@ -101,6 +101,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(true);
+  const [menuContentOpen, setMenuContentOpen] = useState(false);
 
   useEffect(() => {
     setIsOpen(false);
@@ -241,14 +242,38 @@ export default function Navbar() {
           className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 2xl:hidden`}
         >
           <NavigationMenuList className="mt-14 flex flex-col items-start gap-2">
-            {navItems.map((item) => (
-              <NavigationMenuItem
-                key={item.title}
-                className="text-single-line-body-base py-2"
-              >
-                <Link href={item.href}>{item.title}</Link>
-              </NavigationMenuItem>
-            ))}
+            {navItems.map((item) =>
+              item.content ? (
+                <NavigationMenuItem
+                  key={item.title}
+                  className="text-single-line-body-base py-2"
+                  onClick={() => setMenuContentOpen(!menuContentOpen)}
+                >
+                  {item.title}
+                  {menuContentOpen && (
+                    <NavigationMenuTrigger className="bg-secondary text-secondary-foreground h-full w-full flex-col items-start">
+                      {item.content.map((contentItem) => (
+                        <ListItem
+                          className="align-items-start flex flex-col text-left hover:cursor-pointer"
+                          key={contentItem.title}
+                          title={contentItem.title}
+                          href={contentItem.href}
+                        >
+                          {contentItem.description}
+                        </ListItem>
+                      ))}
+                    </NavigationMenuTrigger>
+                  )}
+                </NavigationMenuItem>
+              ) : (
+                <NavigationMenuItem
+                  key={item.title}
+                  className="text-single-line-body-base py-2"
+                >
+                  <Link href={item.href}>{item.title}</Link>
+                </NavigationMenuItem>
+              ),
+            )}
           </NavigationMenuList>
           <NavigationMenuList className="flex flex-col items-start gap-3">
             {actionItems.map((item) => (

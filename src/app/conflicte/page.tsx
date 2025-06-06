@@ -31,6 +31,7 @@ import { TRPCClientError } from "@trpc/client";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { CONFLICT_STEPS } from "./_constants/conflict-steps";
 import Recommendations from "./_components/recommendations";
+import { Link } from "lucide-react";
 
 export default function ConflictReport() {
   const lastSubmittedPayload = useRef<{
@@ -428,24 +429,30 @@ export default function ConflictReport() {
         {getCurrentPage()}
       </div>
       <Dialog open={showSuccessDialog}>
-        <DialogContent className="bg-tertiary">
+        <DialogContent className="bg-tertiary text-center">
           <DialogHeader>
             <DialogDescription className="sr-only">
               Confirmare de înregistrare a incidentului.
             </DialogDescription>
-            <DialogTitle>Raport conflict/interacțiune înregistrat</DialogTitle>
+            <DialogTitle className="text-center">
+              Incident înregistrat
+            </DialogTitle>
           </DialogHeader>
           <div>
-            Raportul conflict/interacțiune cu numărul{" "}
-            <strong>{conflictReportNumber}</strong> a fost înregistrat cu
-            succes.
+            Incidentul cu numărul <strong>{conflictReportNumber}</strong> a fost
+            înregistrat cu succes.
           </div>
           <DialogFooter>
             <Button
-              className="bg-secondary text-secondary-foreground hover:bg-secondary-hover rounded px-4 py-2"
+              variant="secondary"
+              size="sm"
               onClick={() => redirect("/")}
+              className="min-w-44"
             >
               Întoarce-te acasă
+            </Button>
+            <Button variant="primary" size="sm" className="min-w-44">
+              <Link href="/doneaza">Donează</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
