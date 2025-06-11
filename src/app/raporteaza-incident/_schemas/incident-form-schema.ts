@@ -84,8 +84,8 @@ export const incidentFormSchema = z
       })
       .refine((file) => file.size <= VIDEO_MAX_SIZE, {
         message: `Videoclipul nu trebuie să depășească ${Math.round(
-          VIDEO_MAX_SIZE / (1024 * 1024 * 1024),
-        )}GB`,
+          VIDEO_MAX_SIZE / (1024 * 1024),
+        )}MB`,
       })
       .optional(),
   })
