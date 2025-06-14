@@ -1,7 +1,7 @@
 "use client";
 
 import { Label } from "@radix-ui/react-label";
-import { SVGArrowLeft, SVGArrowRight } from "~/components/icons";
+import { SVGArrowRight } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import { Checkbox } from "~/components/ui/simple/checkbox";
 import type { z } from "zod";
@@ -19,16 +19,15 @@ import { type ChangeEvent } from "react";
 import Image from "next/image";
 import { type conflictFormSchema } from "../_schemas/conflict-form-schema";
 import { useVideoThumbnail } from "~/hooks/useVideoThumbnail";
+import Link from "next/link";
 
 export default function Contact({
-  handlePreviousPage,
   conflictForm,
   conflictImageFiles,
   handleConflictImageChange,
   onConflictSubmit,
   isPending,
 }: {
-  handlePreviousPage: () => void;
   conflictForm: ReturnType<typeof useForm<z.infer<typeof conflictFormSchema>>>;
   conflictImageFiles: {
     image1: File | undefined;
@@ -248,10 +247,17 @@ export default function Contact({
                         "text-red-500"
                       }`}
                     >
-                      Prin trimiterea acestei solicitări, confirm că am citit
-                      Politica de confidențialitate și sunt de acord ca
-                      AnimAlert să stocheze datele mele personale pentru a putea
-                      procesa raportarea conflictului/interacțiunii.
+                      Prin trimiterea acestei solicitări, confirm că am citit{" "}
+                      <Link
+                        href="/politica-confidentialitate"
+                        target="_blank"
+                        className="underline"
+                      >
+                        Politica de confidențialitate
+                      </Link>{" "}
+                      și sunt de acord ca AnimAlert să stocheze datele mele
+                      personale pentru a putea procesa raportarea
+                      conflictului/interacțiunii.
                     </Label>
                   </FormItem>
                 )}
@@ -329,14 +335,6 @@ export default function Contact({
                   Salvează și continuă <SVGArrowRight />
                 </>
               )}
-            </Button>
-            <Button
-              className="m-0 w-full sm:w-auto"
-              variant="neutral"
-              size="md"
-              onClick={handlePreviousPage}
-            >
-              <SVGArrowLeft /> Înapoi
             </Button>
           </section>
         </Form>
