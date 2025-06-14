@@ -53,17 +53,16 @@ export default function Home() {
   return (
     <main className="bg-tertiary flex flex-col items-center justify-center gap-24 pb-24">
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero-sm.png)] bg-cover bg-[65%] bg-no-repeat md:bg-[url(/images/homepage-hero-lg.png)] md:bg-center">
-        <section className="text-neutral-foreground text-body bg-primary m-auto mt-6 w-[75%] self-center rounded-md px-3 py-1.5 opacity-50 md:px-6 md:py-3.5">
+        <section className="text-neutral-foreground text-body bg-primary m-auto mt-6 w-[65%] self-center rounded-md px-3 py-1.5 opacity-50 md:px-6 md:py-3.5">
           <div className="m-auto text-center select-none">
             <strong>
-              Aplicația este în lucru, este posibil ca unele acțiuni și
-              funcționalități să nu fie complet disponibile. <br />
-              Vă mulțumim pentru înțelegere și vă încurajăm să ne raportați
-              eventuale probleme în{" "}
+              Platforma se află în continuă dezvoltare, iar dacă observați erori
+              sau probleme, vă rugăm să le raportați în
+              <br />
+              <br />
               <Link className="text-blue-700 underline" href="/contact">
-                formularul de contact
+                <Button variant="secondary">Formularul de Contact</Button>
               </Link>
-              . 😊
             </strong>
           </div>
         </section>
