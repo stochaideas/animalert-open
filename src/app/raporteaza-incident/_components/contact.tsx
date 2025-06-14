@@ -19,6 +19,7 @@ import { type ChangeEvent } from "react";
 import Image from "next/image";
 import { type incidentFormSchema } from "../_schemas/incident-form-schema";
 import { useVideoThumbnail } from "~/hooks/useVideoThumbnail";
+import Link from "next/link";
 
 export default function Contact({
   handlePreviousPage,
@@ -248,10 +249,16 @@ export default function Contact({
                         "text-red-500"
                       }`}
                     >
-                      Prin trimiterea acestei solicitări, confirm că am citit
-                      Politica de confidențialitate și sunt de acord ca
-                      AnimAlert să stocheze datele mele personale pentru a putea
-                      procesa raportarea incidentului
+                      Prin trimiterea acestei solicitări, confirm că am citit{" "}
+                      <Link
+                        href="/politica-confidentialitate"
+                        target="_blank"
+                        className="underline"
+                      >
+                        Politica de confidențialitate
+                      </Link>{" "}
+                      și sunt de acord ca AnimAlert să stocheze datele mele
+                      personale pentru a putea procesa raportarea incidentului
                     </Label>
                   </FormItem>
                 )}
