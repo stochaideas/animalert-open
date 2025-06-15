@@ -101,6 +101,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(true);
+  const [isAlertAnimating, setIsAlertAnimating] = useState(false);
   const [menuContentOpen, setMenuContentOpen] = useState(false);
 
   useEffect(() => {
@@ -112,12 +113,15 @@ export default function Navbar() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const isSmallScreen = window.matchMedia("(max-width: 1023px)").matches;
+    const isSmallScreen = window.innerWidth < 1024; // or your breakpoint
     let timeoutId: NodeJS.Timeout;
     if (isSmallScreen && showAlert) {
       timeoutId = setTimeout(() => {
-        setShowAlert(false);
-      }, 10000); // 10 seconds
+        setIsAlertAnimating(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 1000); // Match the duration of the transition
+      }, 10000); // 10 seconds (or 30000 for 30 seconds)
     }
     return () => clearTimeout(timeoutId);
   }, [showAlert]);
@@ -292,7 +296,13 @@ export default function Navbar() {
         </NavigationMenu>
       </nav>
       {showAlert && (
-        <section className="text-neutral-foreground text-body-small w-full bg-[#ADABA8] px-3 py-1.5 md:px-6 md:py-3.5">
+        <section
+          className={`text-neutral-foreground text-body-small w-full overflow-hidden bg-[#ADABA8] px-3 py-1.5 transition-all duration-1000 md:px-6 md:py-3.5 ${
+            isAlertAnimating
+              ? "mt-0 max-h-0 py-0 opacity-0"
+              : "max-h-[100px] opacity-100"
+          }`}
+        >
           <div className="m-auto text-center">
             <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
             imediat la <b>112</b>, dacă te afli în pericol sau dacă observi un
