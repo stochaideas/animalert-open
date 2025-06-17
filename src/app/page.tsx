@@ -75,7 +75,7 @@ export default function Home() {
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero-sm.png)] bg-cover bg-[65%] bg-no-repeat md:bg-[url(/images/homepage-hero-lg.png)] md:bg-center">
         {isVisible && (
           <section
-            className={`text-neutral-foreground text-body bg-primary m-auto mt-6 w-[65%] self-center overflow-hidden rounded-md px-3 py-1.5 transition-all duration-1000 md:px-6 md:py-3.5 ${
+            className={`text-neutral-foreground text-body bg-primary m-auto mt-6 w-[85%] self-center overflow-hidden rounded-md px-3 py-1.5 transition-all duration-1000 md:px-6 md:py-3.5 ${
               isShrinking
                 ? "mt-0 max-h-0 py-0 opacity-0"
                 : "max-h-[500px] opacity-50"
@@ -86,7 +86,6 @@ export default function Home() {
                 Platforma se află în continuă dezvoltare, iar dacă observați
                 erori sau probleme, vă rugăm să le raportați în
                 <br />
-                <br />
                 <Link className="text-blue-700 underline" href="/contact">
                   <Button variant="secondary">Formularul de Contact</Button>
                 </Link>
@@ -94,7 +93,7 @@ export default function Home() {
             </div>
           </section>
         )}
-        <div className="flex flex-col items-start gap-8 p-6 pt-28 md:px-20 md:pt-32 xl:pt-40 xl:pl-80">
+        <div className="flex flex-col items-start gap-8 p-6 md:px-20 md:pt-32 xl:pt-40 xl:pl-80">
           <span className="text-heading-1 text-neutral lg:max-w-2xl">
             <b>Ai întâlnit un animal sălbatic rănit sau în pericol?</b>
           </span>
