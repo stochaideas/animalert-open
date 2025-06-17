@@ -9,12 +9,22 @@ import {
 
 export const incidentFormSchema = z
   .object({
-    lastName: z.string().min(1, {
-      message: "Numele de familie este necesar",
-    }),
-    firstName: z.string().min(1, {
-      message: "Prenumele este necesar",
-    }),
+    lastName: z
+      .string({
+        required_error: "Numele de familie este necesar",
+        invalid_type_error: "Numele de familie trebuie să fie un text",
+      })
+      .min(3, {
+        message: "Numele de familie trebuie să aibă cel puțin 3 caractere",
+      }),
+    firstName: z
+      .string({
+        required_error: "Prenumele este necesar",
+        invalid_type_error: "Prenumele trebuie să fie un text",
+      })
+      .min(3, {
+        message: "Prenumele trebuie să aibă cel puțin 3 caractere",
+      }),
     phone: phoneNumberSchema,
     email: z
       .string()

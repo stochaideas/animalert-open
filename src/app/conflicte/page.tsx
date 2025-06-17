@@ -460,13 +460,27 @@ export default function ConflictReport() {
       <Dialog
         open={!!errorDialog}
         onOpenChange={(open) => {
-          if (!open) setErrorDialog(null);
+          if (!open) {
+            setErrorDialog(null);
+            setSubmittingConflict(false);
+          }
         }}
       >
         <DialogContent className="bg-tertiary">
           <DialogHeader>
             <DialogTitle>{errorDialog?.title}</DialogTitle>
             <DialogDescription>{errorDialog?.description}</DialogDescription>
+            <Button
+              variant="primary"
+              className="mt-4"
+              onClick={() => {
+                setErrorDialog(null);
+                setSubmittingConflict(false);
+              }}
+              size="lg"
+            >
+              Am înțeles
+            </Button>
           </DialogHeader>
         </DialogContent>
       </Dialog>
