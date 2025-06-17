@@ -1,7 +1,16 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { CONVERSATION } from "../../../constants/chat-bot-conversation";
-import { SVGBot, SVGBotAvatar, SVGCross, SVGUser } from "~/components/icons";
+import {
+  SVGArrowLeft,
+  SVGBot,
+  SVGBotAvatar,
+  SVGCross,
+  SVGHeart,
+  SVGPaperPlane,
+  SVGStar,
+  SVGUser,
+} from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import { Checkbox } from "~/components/ui/simple/checkbox";
 import {
@@ -13,6 +22,8 @@ import {
   DialogTitle,
 } from "~/components/ui/simple/dialog";
 import { Textarea } from "~/components/ui/simple/textarea";
+import FeedbackDialog from "./feedback-dialog";
+import { redirect } from "next/navigation";
 
 export default function ChatBot({
   answers,
@@ -38,6 +49,8 @@ export default function ChatBot({
   const [reviewMode, setReviewMode] = useState(false);
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
 
   const [multiSelect, setMultiSelect] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -61,6 +74,7 @@ export default function ChatBot({
   useEffect(() => {
     if (incidentIsSuccess) {
       setShowConfirmDialog(false);
+      setShowSuccessDialog(true);
     }
   }, [incidentIsSuccess]);
 
@@ -329,6 +343,7 @@ export default function ChatBot({
               }}
               disabled={isPending}
             >
+              <SVGPaperPlane />
               {isPending ? <>Se salvează</> : <>Salvează și trimite</>}
             </Button>
             <Button
@@ -337,13 +352,31 @@ export default function ChatBot({
               variant="tertiary"
               onClick={() => setShowConfirmDialog(false)}
             >
+              <SVGArrowLeft />
               Modifică
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={incidentIsSuccess}>
-        <DialogContent className="bg-tertiary text-center">
+      <Dialog
+        open={showSuccessDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowConfirmDialog(false);
+            if (handleDialogClose)
+              handleDialogClose(
+                // Create a dummy MouseEvent to satisfy the signature
+                new MouseEvent(
+                  "click",
+                ) as unknown as React.MouseEvent<HTMLButtonElement>,
+              );
+          }
+        }}
+      >
+        <DialogContent
+          onPointerDownOutside={(event) => event.preventDefault()}
+          className="bg-tertiary text-center"
+        >
           <DialogHeader>
             <DialogDescription className="sr-only">
               Confirmare de înregistrare a incidentului.
@@ -360,17 +393,29 @@ export default function ChatBot({
             <Button
               variant="secondary"
               size="sm"
-              onClick={handleDialogClose}
               className="min-w-44"
+              onClick={() => {
+                setShowFeedbackDialog(true);
+                setShowSuccessDialog(false);
+              }}
             >
-              Întoarce-te acasă
+              <SVGStar /> Feedback
             </Button>
             <Button variant="primary" size="sm" className="min-w-44">
-              <Link href="/doneaza">Donează</Link>
+              <SVGHeart /> <Link href="/doneaza">Donează</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {showFeedbackDialog && (
+        <FeedbackDialog
+          open={showFeedbackDialog}
+          setOpen={setShowFeedbackDialog}
+          postFeedbackCallback={() => {
+            redirect("/");
+          }}
+        />
+      )}
     </section>
   );
 }

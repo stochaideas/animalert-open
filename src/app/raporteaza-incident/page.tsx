@@ -120,7 +120,7 @@ export default function IncidentReport() {
   const [mapCoordinates, setMapCoordinates] = useState<
     Coordinates | undefined
   >();
-  const [address, setAddress] = useState<string>();
+  const [address, setAddress] = useState<string>("Cluj-Napoca, Cluj, Romania");
 
   // CHAT BOT
   const [answers, setAnswers] = useState<
