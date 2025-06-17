@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { CONVERSATION } from "../../../app/raporteaza-incident/_constants/chat-bot-conversation";
+import { CONVERSATION } from "../../../constants/chat-bot-conversation";
 import { SVGBot, SVGBotAvatar, SVGCross, SVGUser } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
 import { Checkbox } from "~/components/ui/simple/checkbox";
@@ -229,14 +229,14 @@ export default function ChatBot({
               )}
               {stepItem.type === "input" && (
                 <form
-                  className="flex w-full flex-col gap-2 sm:w-96"
+                  className="flex w-full flex-col gap-2 sm:w-xl"
                   onSubmit={(e) => {
                     e.preventDefault();
                     handleAnswerSubmit(inputValue);
                   }}
                 >
                   <Textarea
-                    className="rounded border p-2"
+                    className="min-h-32 rounded border p-2"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Scrie răspunsul aici..."
