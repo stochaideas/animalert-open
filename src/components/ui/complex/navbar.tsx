@@ -1,5 +1,6 @@
 "use client";
 
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -233,6 +234,12 @@ export default function Navbar() {
                   </Link>
                 </NavigationMenuItem>
               ))}
+              <SignedOut>
+                <SignInButton />
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -274,6 +281,12 @@ export default function Navbar() {
                 </NavigationMenuItem>
               ),
             )}
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
           </NavigationMenuList>
           <NavigationMenuList className="flex flex-col items-start gap-3">
             {actionItems.map((item) => (
