@@ -11,6 +11,7 @@ import {
 } from "../simple/dialog";
 import { Textarea } from "../simple/textarea";
 import { FEEDBACK_RATINGS } from "~/constants/feedback-ratings";
+import { api } from "~/trpc/react";
 
 export default function FeedbackDialog({
   open,
@@ -21,14 +22,26 @@ export default function FeedbackDialog({
   setOpen: (open: boolean) => void;
   postFeedbackCallback?: (feedback: { emoji: string; text: string }) => void;
 }) {
-  const [selectedRating, setSelectedRating] = useState<string | null>(null);
+  const [selectedRating, setSelectedRating] = useState<FEEDBACK_RATINGS | null>(
+    null,
+  );
   const [feedbackText, setFeedbackText] = useState<string>("");
 
-  const handleSendFeedback = async () => {
-    console.log({
-      rating: selectedRating ?? "",
-      text: feedbackText.trim(),
+  const utils = api.useUtils();
+  const { mutateAsync: mutateFeedbackAsync, isPending: feedbackIsPending } =
+    api.feedback.create.useMutation({
+      onSuccess: async () => {
+        void utils.feedback.invalidate();
+      },
     });
+
+  const handleSendFeedback = async () => {
+    if (selectedRating && feedbackText.trim()) {
+      await mutateFeedbackAsync({
+        rating: selectedRating,
+        text: feedbackText.trim(),
+      });
+    }
   };
 
   return (
@@ -102,7 +115,8 @@ export default function FeedbackDialog({
             }}
             disabled={!selectedRating || !feedbackText.trim()}
           >
-            <SVGPaperPlane /> Trimite feedback
+            <SVGPaperPlane />{" "}
+            {feedbackIsPending ? "Se trimite..." : "Trimite feedback"}
           </Button>
         </DialogFooter>
       </DialogContent>
