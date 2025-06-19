@@ -51,19 +51,19 @@ export default function FeedbackDialog({
             platforma.
           </p>
           <div className="flex w-full flex-row justify-between sm:gap-2">
-            {FEEDBACK_RATINGS.map((rating) => (
+            {Object.entries(FEEDBACK_RATINGS).map(([label, value]) => (
               <button
-                key={rating.value}
+                key={value}
                 type="button"
-                onClick={() => setSelectedRating(rating.value)}
+                onClick={() => setSelectedRating(value)}
                 className={`hover:bg-secondary/10 flex h-12 w-12 items-center justify-center rounded-full border-2 text-2xl transition-colors hover:cursor-pointer sm:h-14 sm:w-14 sm:text-3xl ${
-                  selectedRating === rating.value
+                  selectedRating === value
                     ? "border-secondary bg-secondary/20"
                     : "border-secondary/50 hover:bg-neutral/10"
                 }`}
-                aria-label={rating.value}
+                aria-label={value}
               >
-                {rating.label}
+                {label}
               </button>
             ))}
           </div>

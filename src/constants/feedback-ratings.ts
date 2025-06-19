@@ -1,7 +1,7 @@
-export const FEEDBACK_RATINGS = [
-  { value: "very-bad", label: "☹️" },
-  { value: "bad", label: "😐" },
-  { value: "neutral", label: "🙂" },
-  { value: "good", label: "😊" },
-  { value: "very-good", label: "😍" },
-];
+export enum FEEDBACK_RATINGS {
+  "☹️" = "VERY_BAD",
+  "😐" = "BAD",
+  "🙂" = "NEUTRAL",
+  "😊" = "GOOD",
+  "😍" = "VERY_GOOD",
+}
