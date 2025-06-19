@@ -118,7 +118,7 @@ export default function PresenceReport() {
   const [mapCoordinates, setMapCoordinates] = useState<
     Coordinates | undefined
   >();
-  const [address, setAddress] = useState<string>();
+  const [address, setAddress] = useState<string>("Cluj-Napoca, Cluj, Romania");
 
   const [submittingPresence, setSubmittingPresence] = useState(false);
 

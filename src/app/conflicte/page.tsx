@@ -121,7 +121,7 @@ export default function ConflictReport() {
   const [mapCoordinates, setMapCoordinates] = useState<
     Coordinates | undefined
   >();
-  const [address, setAddress] = useState<string>();
+  const [address, setAddress] = useState<string>("Cluj-Napoca, Cluj, Romania");
 
   const [submittingConflict, setSubmittingConflict] = useState(false);
 
