@@ -215,45 +215,6 @@ Imagini: ${imagesCount} fișiere atașate
         Bună, <strong>${user.firstName}</strong>!<br>
         Îți mulțumim că ai raportat un incident pe AnimAlert. Am primit detaliile tale și vom reveni cu actualizări dacă este necesar.
       </div>
-      <div style="margin-bottom:24px;">
-        <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.15rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-          📍 Rezumat incident
-        </div>
-        <ul style="padding-left:18px;margin:0;list-style-type:none;">
-          <li><strong>Adresă:</strong> ${report.address ?? "Nespecificată"}</li>
-          ${
-            report.latitude && report.longitude
-              ? `<li><a href="https://www.google.com/maps?q=${report.latitude},${report.longitude}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">🗺️ Vezi locația pe Google Maps</a></li>`
-              : ""
-          }
-          <li><strong>Imagini trimise:</strong> ${
-            report.imageKeys && report.imageKeys.length > 0
-              ? `${report.imageKeys.length} imagine${report.imageKeys.length > 1 ? "i" : ""} atașat${report.imageKeys.length > 1 ? "e" : "ă"}`
-              : "Nicio imagine atașată"
-          }</li>
-        </ul>
-      </div>
-      ${
-        conversationArray.length > 0
-          ? `<div style="margin-bottom:24px;">
-              <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.15rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-                💬 Răspunsurile tale
-              </div>
-              <ul style="padding-left:18px;margin:0;">
-                ${conversationArray
-                  .map(
-                    (item, idx) => `
-                  <li style="margin-bottom:10px;">
-                    <div style="font-weight:600;">${item?.question ?? `Pasul ${idx + 1}`}</div>
-                    <div>${Array.isArray(item.answer) ? item.answer.join(", ") : item.answer}</div>
-                  </li>
-                `,
-                  )
-                  .join("")}
-              </ul>
-            </div>`
-          : ""
-      }
       <div style="font-size:0.95rem;color:#888;text-align:center;margin-top:32px;">
         Dacă ai întrebări sau dorești să adaugi detalii, răspunde la acest email sau contactează-ne.<br>
         Mulțumim pentru implicare!<br>

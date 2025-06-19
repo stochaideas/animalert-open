@@ -337,6 +337,15 @@ export default function ChatBot({
             <Button
               className="min-w-44"
               size="sm"
+              variant="tertiary"
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              <SVGArrowLeft />
+              Modifică
+            </Button>
+            <Button
+              className="min-w-44"
+              size="sm"
               variant="secondary"
               onClick={() => {
                 if (handleChatFinish) handleChatFinish();
@@ -345,15 +354,6 @@ export default function ChatBot({
             >
               <SVGPaperPlane />
               {isPending ? <>Se salvează</> : <>Salvează și trimite</>}
-            </Button>
-            <Button
-              className="min-w-44"
-              size="sm"
-              variant="tertiary"
-              onClick={() => setShowConfirmDialog(false)}
-            >
-              <SVGArrowLeft />
-              Modifică
             </Button>
           </DialogFooter>
         </DialogContent>

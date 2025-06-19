@@ -10,14 +10,7 @@ import {
   DialogTitle,
 } from "../simple/dialog";
 import { Textarea } from "../simple/textarea";
-
-const EMOJIS = [
-  { value: "very-bad", label: "☹️" },
-  { value: "bad", label: "😐" },
-  { value: "neutral", label: "🙂" },
-  { value: "good", label: "😊" },
-  { value: "very-good", label: "😍" },
-];
+import { FEEDBACK_RATINGS } from "~/constants/feedback-ratings";
 
 export default function FeedbackDialog({
   open,
@@ -26,10 +19,17 @@ export default function FeedbackDialog({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  postFeedbackCallback: (feedback: { emoji: string; text: string }) => void;
+  postFeedbackCallback?: (feedback: { emoji: string; text: string }) => void;
 }) {
-  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
+  const [selectedRating, setSelectedRating] = useState<string | null>(null);
   const [feedbackText, setFeedbackText] = useState<string>("");
+
+  const handleSendFeedback = async () => {
+    console.log({
+      rating: selectedRating ?? "",
+      text: feedbackText.trim(),
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -51,19 +51,19 @@ export default function FeedbackDialog({
             platforma.
           </p>
           <div className="flex w-full flex-row justify-between sm:gap-2">
-            {EMOJIS.map((emoji) => (
+            {FEEDBACK_RATINGS.map((rating) => (
               <button
-                key={emoji.value}
+                key={rating.value}
                 type="button"
-                onClick={() => setSelectedEmoji(emoji.value)}
-                className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-2xl transition-colors hover:cursor-pointer sm:h-14 sm:w-14 sm:text-3xl ${
-                  selectedEmoji === emoji.value
-                    ? "border-secondary-border bg-secondary/10"
-                    : "border-tertiary-border hover:bg-neutral-100"
+                onClick={() => setSelectedRating(rating.value)}
+                className={`hover:bg-secondary/10 flex h-12 w-12 items-center justify-center rounded-full border-2 text-2xl transition-colors hover:cursor-pointer sm:h-14 sm:w-14 sm:text-3xl ${
+                  selectedRating === rating.value
+                    ? "border-secondary bg-secondary/20"
+                    : "border-secondary/50 hover:bg-neutral/10"
                 }`}
-                aria-label={emoji.value}
+                aria-label={rating.value}
               >
-                {emoji.label}
+                {rating.label}
               </button>
             ))}
           </div>
@@ -88,15 +88,19 @@ export default function FeedbackDialog({
             variant="secondary"
             size="sm"
             className="min-w-44"
-            onClick={() => {
+            onClick={async (event) => {
+              event.preventDefault();
+
               // Handle feedback submission logic here
-              setOpen(false);
-              postFeedbackCallback({
-                emoji: selectedEmoji ?? "",
-                text: feedbackText.trim(),
-              });
+              // setOpen(false);
+              await handleSendFeedback();
+              if (postFeedbackCallback)
+                postFeedbackCallback({
+                  emoji: selectedRating ?? "",
+                  text: feedbackText.trim(),
+                });
             }}
-            disabled={!selectedEmoji || !feedbackText.trim()}
+            disabled={!selectedRating || !feedbackText.trim()}
           >
             <SVGPaperPlane /> Trimite feedback
           </Button>
