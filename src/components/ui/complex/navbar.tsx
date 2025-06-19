@@ -26,6 +26,7 @@ import {
 } from "~/components/ui/simple/navigation-menu";
 
 import { cn } from "~/lib/utils";
+import AuthButton from "./authButton";
 
 const navItems: {
   title: string;
@@ -234,12 +235,7 @@ export default function Navbar() {
                   </Link>
                 </NavigationMenuItem>
               ))}
-              <SignedOut>
-                <SignInButton />
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
+              <AuthButton />
             </NavigationMenuList>
           </NavigationMenu>
         </div>
