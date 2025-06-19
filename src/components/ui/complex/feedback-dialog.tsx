@@ -101,9 +101,7 @@ export default function FeedbackDialog({
             variant="secondary"
             size="sm"
             className="min-w-44"
-            onClick={async (event) => {
-              event.preventDefault();
-
+            onClick={async () => {
               // Handle feedback submission logic here
               // setOpen(false);
               await handleSendFeedback();
@@ -113,7 +111,9 @@ export default function FeedbackDialog({
                   text: feedbackText.trim(),
                 });
             }}
-            disabled={!selectedRating || !feedbackText.trim()}
+            disabled={
+              !selectedRating || !feedbackText.trim() || feedbackIsPending
+            }
           >
             <SVGPaperPlane />{" "}
             {feedbackIsPending ? "Se trimite..." : "Trimite feedback"}
