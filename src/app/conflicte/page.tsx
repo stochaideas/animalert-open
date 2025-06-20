@@ -386,7 +386,6 @@ export default function ConflictReport() {
       case 0:
         return (
           <Contact
-            handlePreviousPage={handlePreviousPage}
             conflictForm={conflictForm}
             conflictImageFiles={conflictImageFiles}
             handleConflictImageChange={handleConflictImageChange}

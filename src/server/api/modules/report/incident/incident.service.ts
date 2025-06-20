@@ -187,6 +187,7 @@ Coordonate: ${latitude ?? "N/A"}, ${longitude ?? "N/A"}
 ${mapsUrl ? `Harta: ${mapsUrl}` : ""}
 Imagini: ${imagesCount} fișiere atașate
           `.trim(),
+        attachments: attachments,
       });
 
       /*

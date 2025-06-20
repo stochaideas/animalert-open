@@ -384,7 +384,6 @@ export default function PresenceReport() {
       case 0:
         return (
           <Contact
-            handlePreviousPage={handlePreviousPage}
             presenceForm={presenceForm}
             presenceImageFiles={presenceImageFiles}
             handlePresenceImageChange={handlePresenceImageChange}

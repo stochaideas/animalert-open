@@ -134,13 +134,22 @@ export default function Footer() {
           <section className="flex flex-col gap-3">
             <h3 className="text-heading-3 mb-4">Termeni legali și Politici</h3>
             <span className="text-single-line-body-base">
-              Politica de confidențialitate
+              <Link
+                href="/politica-confidentialitate"
+                className="hover:underline"
+              >
+                Politica de confidențialitate
+              </Link>
             </span>
             <span className="text-single-line-body-base">
-              Politica de cookies
+              <Link href="/cookies" className="hover:underline">
+                Politica de cookies
+              </Link>
             </span>
             <span className="text-single-line-body-base">
-              Termeni și condiții
+              <Link href="/termeni-si-conditii" className="hover:underline">
+                Termeni și condiții
+              </Link>
             </span>
           </section>
           <section className="flex flex-col gap-3">
