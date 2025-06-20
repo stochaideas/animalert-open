@@ -379,10 +379,10 @@ export default function ChatBot({
         >
           <DialogHeader>
             <DialogDescription className="sr-only">
-              Confirmare de înregistrare a incidentului.
+              Confirmare de înregistrare a raportului.
             </DialogDescription>
             <DialogTitle className="text-center">
-              Incident înregistrat
+              Raport înregistrat
             </DialogTitle>
           </DialogHeader>
           <div>

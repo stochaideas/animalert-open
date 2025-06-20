@@ -93,7 +93,14 @@ export default function FeedbackDialog({
             variant="tertiary"
             size="sm"
             className="min-w-44"
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false);
+              if (postFeedbackCallback)
+                postFeedbackCallback({
+                  emoji: selectedRating ?? "",
+                  text: feedbackText.trim(),
+                });
+            }}
           >
             <SVGCross /> Anulați
           </Button>
