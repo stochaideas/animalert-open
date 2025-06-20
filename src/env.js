@@ -1,5 +1,6 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
+import { phoneNumberRefine } from "./lib/phone";
 
 export const env = createEnv({
   /**
@@ -22,6 +23,8 @@ export const env = createEnv({
     EMAIL_USER: z.string().email(),
     EMAIL_PASS: z.string(),
     EMAIL_FROM: z.string(),
+
+    ADMIN_PHONE_NUMBER: z.string().refine(phoneNumberRefine),
   },
 
   /**
@@ -40,6 +43,7 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    // Server-side environment variables
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
 
@@ -54,6 +58,9 @@ export const env = createEnv({
     EMAIL_PASS: process.env.EMAIL_PASS,
     EMAIL_FROM: process.env.EMAIL_FROM,
 
+    ADMIN_PHONE_NUMBER: process.env.ADMIN_PHONE_NUMBER,
+
+    // Client-side environment variables
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
