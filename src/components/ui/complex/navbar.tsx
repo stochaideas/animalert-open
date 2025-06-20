@@ -26,7 +26,7 @@ import {
 } from "~/components/ui/simple/navigation-menu";
 
 import { cn } from "~/lib/utils";
-import AuthButton from "./authButton";
+import AuthButton from "./auth-button";
 
 const navItems: {
   title: string;
