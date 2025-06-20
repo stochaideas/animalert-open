@@ -386,7 +386,7 @@ export default function ChatBot({
             </DialogTitle>
           </DialogHeader>
           <div>
-            Incidentul cu numărul <strong>{reportNumber}</strong> a fost
+            Raportul cu numărul <strong>{reportNumber}</strong> a fost
             înregistrat cu succes.
           </div>
           <DialogFooter>

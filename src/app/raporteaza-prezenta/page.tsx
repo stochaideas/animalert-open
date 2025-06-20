@@ -431,7 +431,7 @@ export default function PresenceReport() {
             </DialogTitle>
           </DialogHeader>
           <div>
-            Incidentul cu numărul <strong>{presenceReportNumber}</strong> a fost
+            Raportul cu numărul <strong>{presenceReportNumber}</strong> a fost
             înregistrat cu succes.
           </div>
           <DialogFooter>

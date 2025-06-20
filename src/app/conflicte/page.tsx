@@ -439,7 +439,7 @@ export default function ConflictReport() {
             </DialogTitle>
           </DialogHeader>
           <div>
-            Incidentul cu numărul <strong>{conflictReportNumber}</strong> a fost
+            Raportul cu numărul <strong>{conflictReportNumber}</strong> a fost
             înregistrat cu succes.
           </div>
           <DialogFooter>
