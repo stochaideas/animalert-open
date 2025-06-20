@@ -25,7 +25,7 @@ import {
 import { COUNTIES } from "~/constants/counties";
 import { Button } from "~/components/ui/simple/button";
 import { SVGPaperPlane } from "~/components/icons";
-import { SOLICITATION_TYPES } from "./_constants/solicitationTypes";
+import { SOLICITATION_TYPES } from "./_constants/solicitation-types";
 import { api } from "~/trpc/react";
 import { useState } from "react";
 import {

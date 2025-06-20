@@ -20,7 +20,7 @@ export default function Map({
   isPending,
 }: {
   address?: string;
-  setAddress: Dispatch<SetStateAction<string | undefined>>;
+  setAddress: Dispatch<SetStateAction<string>>;
   handlePreviousPage: () => void;
   onMapSubmit: () => void;
   mapCoordinates?: Coordinates;

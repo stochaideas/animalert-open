@@ -320,6 +320,11 @@ export default function Contact({
                 />
               ))}
             </div>
+            <p className="text-body-small mt-4 text-gray-500 italic">
+              Imaginile pot avea o dimensiune maximă de 10MB.
+              <br />
+              Videoclipurile pot avea o dimensiune maximă de 200MB.
+            </p>
           </section>
           <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse md:justify-start">
             <Button
