@@ -7,6 +7,7 @@ import { REPORT_TYPES } from "~/constants/report-types";
 import { S3Service } from "../../s3/s3.service";
 import { streamToBuffer } from "~/lib/stream-to-buffer";
 import type { Readable } from "stream";
+import { formatDateToRomaniaTimezone } from "~/lib/timezone-format";
 
 export class PresenceService extends ReportService {
   constructor() {
@@ -140,8 +141,8 @@ export class PresenceService extends ReportService {
                 : "Nicio imagine atașată"
             }
           </li>
-          <li><strong>Data creării:</strong> ${report.createdAt ? new Date(report.createdAt).toLocaleString("ro-RO") : "N/A"}</li>
-          <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? new Date(report.updatedAt).toLocaleString("ro-RO") : "N/A"}</li>
+          <li><strong>Data creării:</strong> ${report.createdAt ? formatDateToRomaniaTimezone(report.createdAt) : "N/A"}</li>
+          <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? formatDateToRomaniaTimezone(report.updatedAt) : "N/A"}</li>
         </ul>
       </div>
       <!-- Chatbot Conversation as List -->

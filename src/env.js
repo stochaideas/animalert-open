@@ -1,6 +1,8 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
-import { phoneNumberRefine } from "./lib/phone";
+import libphonenumber from "google-libphonenumber";
+
+const phoneUtil = new libphonenumber.PhoneNumberUtil();
 
 export const env = createEnv({
   /**
@@ -24,7 +26,10 @@ export const env = createEnv({
     EMAIL_PASS: z.string(),
     EMAIL_FROM: z.string(),
 
-    ADMIN_PHONE_NUMBER: z.string().refine(phoneNumberRefine),
+    ADMIN_PHONE_NUMBER: z.string().refine((value) => {
+      const phoneNumber = phoneUtil.parse(value, "RO");
+      return phoneUtil.isValidNumber(phoneNumber);
+    }),
   },
 
   /**
