@@ -82,7 +82,7 @@ export default function FeedbackDialog({
           </div>
           <Textarea
             placeholder="Scrie feedback-ul tău aici..."
-            className="mt-4 min-h-28 w-full"
+            className="mt-4 max-h-28 min-h-28 w-full"
             value={feedbackText}
             onChange={(e) => setFeedbackText(e.target.value)}
           />

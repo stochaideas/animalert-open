@@ -250,7 +250,7 @@ export default function ChatBot({
                   }}
                 >
                   <Textarea
-                    className="min-h-32 rounded border p-2"
+                    className="max-h-32 min-h-32 rounded border p-2"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Scrie răspunsul aici..."

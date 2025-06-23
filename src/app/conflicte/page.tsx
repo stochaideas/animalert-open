@@ -430,7 +430,12 @@ export default function ConflictReport() {
         <MaterialStepper steps={CONFLICT_STEPS} currentStep={currentPage} />
         {getCurrentPage()}
       </div>
-      <Dialog open={showSuccessDialog}>
+      <Dialog
+        open={showSuccessDialog}
+        onOpenChange={(open) => {
+          if (!open) redirect("/");
+        }}
+      >
         <DialogContent
           onPointerDownOutside={(event) => event.preventDefault()}
           className="bg-tertiary text-center"
