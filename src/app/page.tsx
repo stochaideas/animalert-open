@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { SVGAlert, SVGPin } from "~/components/icons";
 import { Button } from "~/components/ui/simple/button";
+import { useState, useEffect } from "react";
 
 const cards = [
   {
@@ -50,24 +53,47 @@ const cards = [
 ];
 
 export default function Home() {
+  const [isShrinking, setIsShrinking] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      const timer = setTimeout(() => {
+        setIsShrinking(true);
+        setTimeout(() => {
+          setIsVisible(false);
+        }, 1000); // Match the duration of the height transition
+      }, 30000); // 30 seconds
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, []);
+
   return (
     <main className="bg-tertiary flex flex-col items-center justify-center gap-24 pb-24">
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero-sm.png)] bg-cover bg-[65%] bg-no-repeat md:bg-[url(/images/homepage-hero-lg.png)] md:bg-center">
-        <section className="text-neutral-foreground text-body bg-primary m-auto mt-6 w-[75%] self-center rounded-md px-3 py-1.5 opacity-50 md:px-6 md:py-3.5">
-          <div className="m-auto text-center select-none">
-            <strong>
-              Aplicația este în lucru, este posibil ca unele acțiuni și
-              funcționalități să nu fie complet disponibile. <br />
-              Vă mulțumim pentru înțelegere și vă încurajăm să ne raportați
-              eventuale probleme în{" "}
-              <Link className="text-blue-700 underline" href="/contact">
-                formularul de contact
-              </Link>
-              . 😊
-            </strong>
-          </div>
-        </section>
-        <div className="flex flex-col items-start gap-8 p-6 pt-28 md:px-20 md:pt-32 xl:pt-40 xl:pl-80">
+        {isVisible && (
+          <section
+            className={`text-neutral-foreground text-body bg-primary m-auto mt-6 w-[85%] self-center overflow-hidden rounded-md px-3 py-1.5 transition-all duration-1000 md:px-6 md:py-3.5 ${
+              isShrinking
+                ? "mt-0 max-h-0 py-0 opacity-0"
+                : "max-h-[500px] opacity-50"
+            }`}
+          >
+            <div className="m-auto text-center select-none">
+              <strong>
+                Platforma se află în continuă dezvoltare, iar dacă observați
+                erori sau probleme, vă rugăm să le raportați în
+                <br />
+                <Link className="text-blue-700 underline" href="/contact">
+                  <Button variant="secondary">Formularul de Contact</Button>
+                </Link>
+              </strong>
+            </div>
+          </section>
+        )}
+        <div className="flex flex-col items-start gap-8 p-6 md:px-20 md:pt-32 xl:pt-40 xl:pl-80">
           <span className="text-heading-1 text-neutral lg:max-w-2xl">
             <b>Ai întâlnit un animal sălbatic rănit sau în pericol?</b>
           </span>

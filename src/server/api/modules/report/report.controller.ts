@@ -10,6 +10,6 @@ export class ReportController {
   }
 
   async upsertReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
-    return this.reportService.upsertReportWithUser(data);
+    return await this.reportService.upsertReportWithUser(data);
   }
 }

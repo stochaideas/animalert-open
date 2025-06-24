@@ -3,7 +3,7 @@ import { env } from "~/env";
 import { type contactSchema } from "./contact.schema";
 import { EmailService } from "../email/email.service";
 import { COUNTIES } from "~/constants/counties";
-import { SOLICITATION_TYPES } from "~/app/contact/_constants/solicitationTypes";
+import { SOLICITATION_TYPES } from "~/app/contact/_constants/solicitation-types";
 
 export class ContactService {
   private emailService: EmailService;

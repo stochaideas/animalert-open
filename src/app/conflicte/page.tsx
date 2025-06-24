@@ -31,7 +31,9 @@ import { TRPCClientError } from "@trpc/client";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { CONFLICT_STEPS } from "./_constants/conflict-steps";
 import Recommendations from "./_components/recommendations";
-import { Link } from "lucide-react";
+import Link from "next/link";
+import { SVGHeart, SVGStar } from "~/components/icons";
+import FeedbackDialog from "~/components/ui/complex/feedback-dialog";
 
 export default function ConflictReport() {
   const lastSubmittedPayload = useRef<{
@@ -79,6 +81,7 @@ export default function ConflictReport() {
 
   const [recommendationsFinished, setRecommendationsFinished] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
   const [errorDialog, setErrorDialog] = useState<{
     title: string;
     description: string;
@@ -121,7 +124,7 @@ export default function ConflictReport() {
   const [mapCoordinates, setMapCoordinates] = useState<
     Coordinates | undefined
   >();
-  const [address, setAddress] = useState<string>();
+  const [address, setAddress] = useState<string>("Cluj-Napoca, Cluj, Romania");
 
   const [submittingConflict, setSubmittingConflict] = useState(false);
 
@@ -427,45 +430,79 @@ export default function ConflictReport() {
         <MaterialStepper steps={CONFLICT_STEPS} currentStep={currentPage} />
         {getCurrentPage()}
       </div>
-      <Dialog open={showSuccessDialog}>
-        <DialogContent className="bg-tertiary text-center">
+      <Dialog
+        open={showSuccessDialog}
+        onOpenChange={(open) => {
+          if (!open) redirect("/");
+        }}
+      >
+        <DialogContent
+          onPointerDownOutside={(event) => event.preventDefault()}
+          className="bg-tertiary text-center"
+        >
           <DialogHeader>
             <DialogDescription className="sr-only">
-              Confirmare de înregistrare a incidentului.
+              Confirmare de înregistrare a raportului.
             </DialogDescription>
             <DialogTitle className="text-center">
-              Incident înregistrat
+              Raport înregistrat
             </DialogTitle>
           </DialogHeader>
           <div>
-            Incidentul cu numărul <strong>{conflictReportNumber}</strong> a fost
+            Raportul cu numărul <strong>{conflictReportNumber}</strong> a fost
             înregistrat cu succes.
           </div>
           <DialogFooter>
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => redirect("/")}
               className="min-w-44"
+              onClick={() => {
+                setShowFeedbackDialog(true);
+                setShowSuccessDialog(false);
+              }}
             >
-              Întoarce-te acasă
+              <SVGStar /> Feedback
             </Button>
             <Button variant="primary" size="sm" className="min-w-44">
-              <Link href="/doneaza">Donează</Link>
+              <SVGHeart /> <Link href="/doneaza">Donează</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {showFeedbackDialog && (
+        <FeedbackDialog
+          open={showFeedbackDialog}
+          setOpen={setShowFeedbackDialog}
+          postFeedbackCallback={() => {
+            redirect("/");
+          }}
+        />
+      )}
       <Dialog
         open={!!errorDialog}
         onOpenChange={(open) => {
-          if (!open) setErrorDialog(null);
+          if (!open) {
+            setErrorDialog(null);
+            setSubmittingConflict(false);
+          }
         }}
       >
         <DialogContent className="bg-tertiary">
           <DialogHeader>
             <DialogTitle>{errorDialog?.title}</DialogTitle>
             <DialogDescription>{errorDialog?.description}</DialogDescription>
+            <Button
+              variant="primary"
+              className="mt-4"
+              onClick={() => {
+                setErrorDialog(null);
+                setSubmittingConflict(false);
+              }}
+              size="lg"
+            >
+              Am înțeles
+            </Button>
           </DialogHeader>
         </DialogContent>
       </Dialog>

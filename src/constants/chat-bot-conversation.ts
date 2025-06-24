@@ -25,7 +25,7 @@ export const CONVERSATION: {
     options: [
       "Răni vizibile: plăgi deschise, hemoragie, oase la vedere",
       "Nu se mișcă (inert)",
-      "Problema la mers",
+      "Problemă la mers",
       "Posibilă problemă (nu majoră)",
     ],
     type: "options",
@@ -38,7 +38,11 @@ export const CONVERSATION: {
     type: "options",
   },
   {
-    question: "Cum se poate localiza victima?",
+    question: "În ce loc se află și cum poate fi găsit animalul?",
+    type: "input",
+  },
+  {
+    question: "Introdu detalii despre situație și despre victimă.",
     type: "input",
   },
 ];
