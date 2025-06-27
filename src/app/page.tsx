@@ -27,7 +27,7 @@ const cards = [
     body: "Raportează ilegalități aici.",
     href: "/sesizari",
     button: "Trimite sesizare",
-    disabled: true, // TODO: temporary, remove when ready
+    disabled: false, 
   },
   {
     img: "/images/homepage-card-3.png",
