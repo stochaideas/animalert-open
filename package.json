@@ -54,6 +54,7 @@
     "next": "^15.2.3",
     "nodemailer": "^7.0.3",
     "postgres": "^3.4.4",
+    "puppeteer": "^24.10.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.0",
