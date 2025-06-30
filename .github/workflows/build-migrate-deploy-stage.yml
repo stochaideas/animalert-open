@@ -1,21 +1,16 @@
 name: Deploy T3 App (prod)
 
 on:
-  push:
-    branches: [main]
-
+ workflow_dispatch:
 env:
   AWS_REGION: eu-central-1
-  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-  IMAGE_REPO_NAME: animalert-webapp
-  ECS_CLUSTER: animalert-ecs-cluster
-  SUBNETS: "subnet-aaa,subnet-bbb"
-  SECURITY_GROUP: "sg-xxxxxxxxxxxxxxxxx"
-  WEB_FAMILY:  animalert-web-app-task
-  MIGRATE_FAMILY: animalert-db-migrate-task
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  CLUSTER_NAME: ${{ secrets.ECR_CLUSTER_NAME }}
+  SERVICE_NAME: ${{ secrets.ECR_SERVICE_NAME }}-stage
 
 jobs:
-  deploy:
+  migrate:
+    name: Prepare and Run Migrations
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -27,7 +22,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_GH_ROLE }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
 
       - uses: aws-actions/amazon-ecr-login@v2
 
@@ -38,23 +33,13 @@ jobs:
           push: true
           tags: |
             ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:${{ github.sha }}
-            ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:latest
-      - id: render-web
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-family: ${{ env.WEB_FAMILY }}
-          container-name: web-app
-          image: ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:${{ github.sha }}
-
-      - run: |
-          WEB=$(aws ecs register-task-definition --cli-input-json '${{ steps.render-web.outputs.task-definition }}' --query 'taskDefinition.taskDefinitionArn' --output text)
-          echo "WEB_TASK_DEF=$WEB" >> "$GITHUB_ENV"
+            ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:latest_migrate_stage
       - id: render-migrate
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-family: ${{ env.MIGRATE_FAMILY }}
           container-name: db-migrate
-          image: ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:${{ github.sha }}
+          image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_stage:latest_migrate_stage
 
       - run: |
           MIG=$(aws ecs register-task-definition --cli-input-json '${{ steps.render-migrate.outputs.task-definition }}' --query 'taskDefinition.taskDefinitionArn' --output text)
@@ -79,3 +64,66 @@ jobs:
           service:  animalert-web-app-service
           task-definition: ${{ env.WEB_TASK_DEF }}
           wait-for-service-stability: true
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+  
+    permissions:
+      id-token: write        # for OIDC
+      contents: read
+  
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+  
+      # --- 1. Configure AWS credentials -------------------------------
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
+          aws-region:     ${{ env.AWS_REGION }}
+  
+      # --- 2. Log in to ECR -------------------------------------------
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        # The file exists only in the runner’s workspace; it’s never committed.
+      - name: Write .env for the build
+        run: |
+          cat > .env <<EOF
+          
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ secrets.GOOGLE_MAPS_MAP_ID }}
+          EOF
+      # --- 3. Build & push --------------------------------------------
+      - name: Build, tag & push image to ECR
+        id: build-image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_stage
+  
+          
+  deploy:
+    permissions:
+      id-token: write        # for OIDC
+      contents: read
+    name: Deploy ECS
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+         # --- 1. Configure AWS credentials -------------------------------
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
+          aws-region:     ${{ env.AWS_REGION }}
+      - name: Force new ECS deployment
+        run: |
+              aws ecs update-service \
+                --cluster  ${{ env.CLUSTER_NAME }} \
+                --service  ${{ env.SERVICE_NAME }} \
+                --force-new-deployment \
+                --region   eu-central-1
