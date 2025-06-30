@@ -1,0 +1,81 @@
+name: Deploy T3 App (prod)
+
+on:
+  push:
+    branches: [main]
+
+env:
+  AWS_REGION: eu-central-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+  IMAGE_REPO_NAME: animalert-webapp
+  ECS_CLUSTER: animalert-ecs-cluster
+  SUBNETS: "subnet-aaa,subnet-bbb"
+  SECURITY_GROUP: "sg-xxxxxxxxxxxxxxxxx"
+  WEB_FAMILY:  animalert-web-app-task
+  MIGRATE_FAMILY: animalert-db-migrate-task
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_GH_ROLE }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:${{ github.sha }}
+            ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:latest
+      - id: render-web
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-family: ${{ env.WEB_FAMILY }}
+          container-name: web-app
+          image: ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:${{ github.sha }}
+
+      - run: |
+          WEB=$(aws ecs register-task-definition --cli-input-json '${{ steps.render-web.outputs.task-definition }}' --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "WEB_TASK_DEF=$WEB" >> "$GITHUB_ENV"
+      - id: render-migrate
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-family: ${{ env.MIGRATE_FAMILY }}
+          container-name: db-migrate
+          image: ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:${{ github.sha }}
+
+      - run: |
+          MIG=$(aws ecs register-task-definition --cli-input-json '${{ steps.render-migrate.outputs.task-definition }}' --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "MIGRATE_TASK_DEF=$MIG" >> "$GITHUB_ENV"
+
+      - name: Run migrations on Fargate
+        run: |
+          TASK=$(aws ecs run-task \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --launch-type FARGATE \
+            --task-definition $MIGRATE_TASK_DEF \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ env.SUBNETS }}],securityGroups=[${{ env.SECURITY_GROUP }}],assignPublicIp=DISABLED}" \
+            --query 'tasks[0].taskArn' --output text)
+          aws ecs wait tasks-stopped --cluster ${{ env.ECS_CLUSTER }} --tasks $TASK
+          EXIT=$(aws ecs describe-tasks --cluster ${{ env.ECS_CLUSTER }} --tasks $TASK --query 'tasks[0].containers[0].exitCode' --output text)
+          if [ "$EXIT" != "0" ]; then
+            echo " Drizzle migration failed"; exit 1
+          fi
+      - uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service:  animalert-web-app-service
+          task-definition: ${{ env.WEB_TASK_DEF }}
+          wait-for-service-stability: true
