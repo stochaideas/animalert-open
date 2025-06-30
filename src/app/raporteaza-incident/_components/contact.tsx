@@ -26,6 +26,7 @@ export default function Contact({
   incidentForm,
   incidentImageFiles,
   handleIncidentImageChange,
+  handleClearIncidentImage,
   onIncidentSubmit,
   isPending,
 }: {
@@ -42,6 +43,7 @@ export default function Contact({
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => void;
+  handleClearIncidentImage: (name: string) => void;
   onIncidentSubmit: (data: z.infer<typeof incidentFormSchema>) => void;
   isPending?: boolean;
 }) {
@@ -107,6 +109,35 @@ export default function Contact({
                     background: "#e3e3e3",
                   }}
                 />
+                {url && (
+                  <button
+                    type="button"
+                    aria-label="Șterge fișier"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleClearIncidentImage(file);
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: 6,
+                      right: 6,
+                      background: "rgba(0,0,0,0.5)",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: 24,
+                      height: 24,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      zIndex: 2,
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
                 {!url && (
                   <div
                     style={{
