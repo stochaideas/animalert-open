@@ -107,6 +107,19 @@ export default function Contact({
                     background: "#e3e3e3",
                   }}
                 />
+                {!url && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        file === "video1"
+                          ? "rgba(128, 90, 213, 0.35)" // purple tint
+                          : "rgba(255, 140, 0, 0.25)", // orange tint
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
                 <div
                   style={{
                     position: "absolute",
