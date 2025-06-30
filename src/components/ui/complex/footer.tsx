@@ -125,7 +125,7 @@ export default function Footer() {
               <strong>Email</strong>:{" "}
               <Link
                 className="text-primary underline"
-                href="mailto:darius.bogdan3080@gmail.com"
+                href="mailto:ancbp.cluj@gmail.com"
               >
                 ancbp.cluj@gmail.com
               </Link>
