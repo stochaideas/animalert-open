@@ -5,11 +5,11 @@ import { complaintTemplates } from "./complaint_template.schema";
 export class ComplaintTemplateService {
   async getTemplate(id: number) {
     const [template] = await db
-      .select({ html: complaintTemplates.html })
+      .select({ html: complaintTemplates.html, displayName: complaintTemplates.displayName })
       .from(complaintTemplates)
       .where(eq(complaintTemplates.id, id));
 
-    return template?.html ?? null;
+    return template ?? null;
   }
 
   async getTemplateTypes() {
