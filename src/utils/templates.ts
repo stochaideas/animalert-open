@@ -1,11 +1,11 @@
 import { omit } from "lodash";
 import type { z } from "zod";
-import type { policeReportSchema } from "~/app/sesizari/_schemas/police-report-form-schema";
 import { COUNTIES } from "~/constants/counties";
 import type { petitionPlaceholderMap } from "~/constants/petition-form-constants";
+import type { complaintSchema } from "~/shared/sesizari/complaint.schema";
 
 export function getCombinedTemplateData(
-  formValues: z.infer<typeof policeReportSchema>,
+  formValues: z.infer<typeof complaintSchema>,
 ) {
   const derivedValues = {
     name: `${formValues.firstName} ${formValues.lastName}`.trim(),
@@ -57,16 +57,15 @@ export function getCombinedTemplateData(
 
 export function fillTemplate(
   template: string,
-  formValues: z.infer<typeof policeReportSchema>,
+  formValues: z.infer<typeof complaintSchema>,
   map: typeof petitionPlaceholderMap,
 ): string {
   const values = getCombinedTemplateData(formValues);
-  console.log(values);
   return Object.entries(map).reduce((result, [formKey, placeholderKey]) => {
     const value = values[formKey as keyof typeof values] ?? "";
     return result.replace(
       new RegExp(`{{\\s*${placeholderKey}\\s*}}`, "g"),
-      value,
+      String(value),
     );
   }, template);
 }

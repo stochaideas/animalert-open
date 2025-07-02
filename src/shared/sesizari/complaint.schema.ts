@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { COUNTIES } from "../../../constants/counties";
+import { COUNTIES } from "~/constants/counties";
 
 const countyCodes = Object.keys(COUNTIES) as [keyof typeof COUNTIES];
 
-export const policeReportSchema = z.object({
+export const complaintSchema = z.object({
   firstName: z.string().min(1, "Prenumele este obligatoriu"),
   lastName: z.string().min(1, "Numele de familie este obligatoriu"),
   email: z.string().email("Adresa de email invalida"),
@@ -25,7 +25,7 @@ export const policeReportSchema = z.object({
     .min(10, "Numarul de telefon este prea scurt")
     .max(15, "Numarul de telefon este prea lung"),
 
-  incidentType: z.number().optional(),
+  incidentType: z.number(),
   incidentDate: z.string().optional(),
   incidentCounty: z.enum(countyCodes, {
     errorMap: () => ({ message: "Va rugam sa selectati un judet" }),
