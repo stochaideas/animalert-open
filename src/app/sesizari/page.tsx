@@ -37,12 +37,12 @@ import {
 import { api } from "~/trpc/react";
 import { fillTemplate } from "~/utils/templates";
 import { COUNTIES } from "../../constants/counties";
-import { policeReportSchema } from "./_schemas/police-report-form-schema";
+import { complaintSchema } from "~/shared/sesizari/complaint.schema";
 
 export default function Sesizari({
   reportSchema,
 }: {
-  reportSchema: ReturnType<typeof useForm<z.infer<typeof policeReportSchema>>>;
+  reportSchema: ReturnType<typeof useForm<z.infer<typeof complaintSchema>>>;
 }) {
   const [petitionTemplate, setPetitionTemplate] = useState<string | undefined>(
     undefined,
@@ -51,8 +51,8 @@ export default function Sesizari({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [templateTypes, setTemplateTypes] = useState<PetitionType[]>([]);
 
-  const form = useForm<z.infer<typeof policeReportSchema>>({
-    resolver: zodResolver(policeReportSchema),
+  const form = useForm<z.infer<typeof complaintSchema>>({
+    resolver: zodResolver(complaintSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -70,25 +70,22 @@ export default function Sesizari({
       incidentDescription: "",
       incidentAddress: "",
       incidentCity: "",
+      incidentType: -1,
       incidentCounty: "CJ",
       incidentDate: "",
     },
   });
 
   const utils = api.useUtils();
-  const {
-    mutateAsync: mutateComplaintAsync,
-    isSuccess: isComplaintSuccess,
-  } = api.complaint.generatePDF.useMutation({
-    onSuccess: () => {
-      void utils.complaint.invalidate();
-    },
-  });
+  const { mutateAsync: mutateComplaintAsync, isSuccess: isComplaintSuccess } =
+    api.complaint.generateAndSendComplaint.useMutation({
+      onSuccess: () => {
+        void utils.complaint.invalidate();
+      },
+    });
 
   const selectedPetition = Number(form.watch("incidentType"));
-  const {
-    data: templateData,
-  } = api.complaintTemplate.getTemplate.useQuery(
+  const { data: templateData } = api.complaintTemplate.getTemplate.useQuery(
     { id: selectedPetition! },
     {
       enabled: !!selectedPetition,
@@ -111,7 +108,7 @@ export default function Sesizari({
     }
   }, [templateType]);
 
-  const onSubmit = (values: z.infer<typeof policeReportSchema>) => {
+  const onSubmit = (values: z.infer<typeof complaintSchema>) => {
     console.log(values);
   };
 
@@ -132,10 +129,10 @@ export default function Sesizari({
   }
 
   async function sendAndSave() {
-    const generatorInput = {
-      template: petitionTemplate || "",
-    };
-    await mutateComplaintAsync(generatorInput);
+    await mutateComplaintAsync({
+      ...form.getValues(),
+      incidentType: Number(form.getValues().incidentType),
+    });
   }
 
   useEffect(() => {
@@ -468,7 +465,11 @@ export default function Sesizari({
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="neutral" onClick={onPreviewClick}>
+                <Button
+                  variant="neutral"
+                  onClick={onPreviewClick}
+                  disabled={!petitionTemplate}
+                >
                   Previzualizare document
                 </Button>
               </DialogTrigger>
@@ -497,7 +498,7 @@ export default function Sesizari({
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <br/>
+            <br />
             {errorMessage ?? (
               <Label className="block text-amber-900">{errorMessage}</Label>
             )}
