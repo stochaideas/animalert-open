@@ -96,7 +96,7 @@ export default function Sesizari({
 
   useEffect(() => {
     if (templateData) {
-      setPetitionTemplate(templateData);
+      setPetitionTemplate(templateData.html);
     }
   }, [templateData]);
 

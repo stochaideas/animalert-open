@@ -7,6 +7,7 @@ import { db } from "~/server/db";
 import { complaintSchema } from "~/shared/sesizari/complaint.schema";
 import { fillTemplate } from "~/utils/templates";
 import { ComplaintTemplateService } from "../complaint-template/complaintTemplate.service";
+import { EmailService } from "../email/email.service";
 import {
   complaintReportContent,
   complaintReportPersonalData,
@@ -14,18 +15,51 @@ import {
 
 export class ComplaintService {
   private complaintTemplateService: ComplaintTemplateService;
+  private emailService: EmailService;
+
+  private petitionName: string;
+  private sender: string;
   constructor() {
     this.complaintTemplateService = new ComplaintTemplateService();
+    this.emailService = new EmailService();
+    this.petitionName = "";
+    this.sender="";
   }
 
   async generateAndSendComplaint(input: z.infer<typeof complaintSchema>) {
-    const result = await this.saveComplaint(input);
-    console.log("Saving result " + result.message);
+    this.sender = input.firstName + " " + input.lastName;
+    await this.saveComplaint(input);
     const filledTempalte = await this.fillPDFTemplate(input);
     if (filledTempalte) {
-      const buffer = this.generatePdfFromTemplate(filledTempalte);
+      const buffer = await this.generatePdfFromTemplate(filledTempalte);
+      this.sendEmail(Buffer.from(buffer));
       //TODO: save to s3?
     }
+  }
+
+  async sendEmail(buffer: Buffer) {
+    const temporaryTo = "atimali43@gmail.com";
+    const ccList = ["mszabi0310@gmail.com", "buciuman.daria@gmail.com"];
+    const text = `Stimate Doamnă/Domn!
+Atașez în acest email o petiție legat de o activiatate de tip ${this.petitionName}.
+Vă rog să analizați această petiție și să luați în considerare demersurile necesare pentru soluționarea aspectelor semnalate.
+Vă mulțumesc anticipat pentru timpul acordat și pentru implicare.
+Cu stimă,
+${this.sender}`;
+    await this.emailService.sendEmail({
+      to: temporaryTo,
+      cc: ccList,
+      subject: `Petitie ${this.petitionName}`,
+      text: text,
+      attachments: [
+        {
+          filename: `petitie-${this.petitionName}`,
+          content: buffer,
+          contentType: "application/pdf",
+        },
+      ],
+    });
+    console.log("Email sent to " + temporaryTo + " " + ccList);
   }
 
   async saveComplaint(input: z.infer<typeof complaintSchema>) {
@@ -78,8 +112,9 @@ export class ComplaintService {
       input.incidentType,
     );
     if (petitionTemplate) {
+      this.petitionName = petitionTemplate.displayName;
       const filledTemplate = fillTemplate(
-        petitionTemplate,
+        petitionTemplate.html,
         input,
         petitionPlaceholderMap,
       );

@@ -30,6 +30,7 @@ export class EmailService {
       await this.transporter.sendMail({
         from: env.EMAIL_FROM,
         to: data.to,
+        cc: data.cc,
         subject: subjectPrefix + data.subject,
         text: data.text,
         html: data.html,
