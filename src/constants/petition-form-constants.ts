@@ -24,14 +24,7 @@ export type petitionPlaceHolder = {
   attachments: string;
 };
 
-export const PETITION_TYPES = {
-  POACHING: { name: "BRACONAJ", path: "/templates/petitie-braconaj.html" },
-  CRUELTY: {
-    name: "CRUZIME ÎMPOTRIVA ANIMALELOR",
-    path: "/templates/petitie-cruzime.html",
-  },
-  WASTE_DUMP: {
-    name: "DEPUNERE ILEGALĂ DE DEȘEURI",
-    path: "/templates/petitie-deseu.html",
-  },
+export type PetitionType = {
+  id: number,
+  displayName: string
 };
