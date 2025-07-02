@@ -30,7 +30,11 @@ import {
   SelectValue,
 } from "~/components/ui/simple/select";
 import { Textarea } from "~/components/ui/simple/textarea";
-import { PETITION_TYPES, petitionPlaceholderMap } from "~/constants/petition-form-constants";
+import {
+  PETITION_TYPES,
+  petitionPlaceholderMap,
+} from "~/constants/petition-form-constants";
+import { useLocations } from "~/hooks/useLocation";
 import { api } from "~/trpc/react";
 import { fillTemplate } from "~/utils/templates";
 import { COUNTIES } from "../../constants/counties";
@@ -45,32 +49,7 @@ export default function Sesizari({
     undefined,
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [petitionType, setPetitionType] = useState<string>(
-    "/templates/petite-capturare-specie-salbatica.html",
-  );
-
-  const utils = api.useUtils();
-  const {
-    mutateAsync: mutateComplaintAsync,
-    isPending: complaintIsPending,
-    reset: resetConflictMutation,
-  } = api.complaint.generatePDF.useMutation({
-    onSuccess: () => {
-      void utils.complaint.invalidate();
-    },
-  });
-
-  useEffect(() => {
-    const loadTemplate = async () => {
-      const res = fetch(petitionType)
-        .then((res) => res.text())
-        .then(setPetitionTemplate)
-        .catch((err) => {
-          console.error("Failed to load template:", err);
-        });
-    };
-    loadTemplate();
-  }, [petitionType]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof policeReportSchema>>({
     resolver: zodResolver(policeReportSchema),
@@ -88,7 +67,6 @@ export default function Sesizari({
       apartment: "",
       phoneNumber: "",
       destinationInstitute: "",
-      subject: "",
       incidentDescription: "",
       incidentAddress: "",
       incidentCity: "",
@@ -97,16 +75,44 @@ export default function Sesizari({
     },
   });
 
+  const selectedPetition = form.watch("incidentType");
+
+  const utils = api.useUtils();
+  const {
+    mutateAsync: mutateComplaintAsync,
+    isPending: complaintIsPending,
+    reset: resetConflictMutation,
+    isSuccess: isComplaintSuccess,
+  } = api.complaint.generatePDF.useMutation({
+    onSuccess: () => {
+      void utils.complaint.invalidate();
+    },
+  });
+
+  useEffect(() => {
+    const selectedPath = selectedPetition
+      ? PETITION_TYPES[selectedPetition as keyof typeof PETITION_TYPES].path
+      : undefined;
+    if (selectedPath) {
+      const loadTemplate = async () => {
+        const res = fetch(selectedPath)
+          .then((res) => res.text())
+          .then(setPetitionTemplate)
+          .catch((err) => {
+            console.error("Failed to load template:", err);
+          });
+      };
+      loadTemplate();
+    }
+  }, [selectedPetition]);
+
   const onSubmit = (values: z.infer<typeof policeReportSchema>) => {
     console.log(values);
   };
 
   function onPreviewClick() {
-    console.log("preview doc");
     if (petitionTemplate) {
       const formData = form.getValues();
-      console.log("formData before filling");
-      console.log(formData);
       const filledTemplate = fillTemplate(
         petitionTemplate,
         formData,
@@ -120,17 +126,22 @@ export default function Sesizari({
     }
   }
 
-  async function sendAndSave(){
-      const generatorInput = {
-        template: petitionTemplate || "",
-      };
-      console.log("calling endpoint")
-     await mutateComplaintAsync(generatorInput);
+  async function sendAndSave() {
+    const generatorInput = {
+      template: petitionTemplate || "",
+    };
+    await mutateComplaintAsync(generatorInput);
   }
+
+  useEffect(() => {
+    if (isComplaintSuccess) {
+      setToastMessage("Petiția a fost generată cu succes!");
+    }
+  }, [isComplaintSuccess]);
 
   return (
     <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
-      <h1 className="text-4xl font-bold text-center text-black mb-10">
+      <h1 className="mb-10 text-center text-4xl font-bold text-black">
         Sesizare Poliție
       </h1>
       <Form {...form}>
@@ -220,7 +231,7 @@ export default function Sesizari({
                   <FormItem>
                     <FormLabel>Oraș / Localitate</FormLabel>
                     <FormControl>
-                      <Input placeholder="Numele localitatii" {...field} />
+                      <Input placeholder="Numele localității" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -297,33 +308,36 @@ export default function Sesizari({
               )}
             />
             <Label className="block">Detalii incident</Label>
-             <FormField
-                control={form.control}
-                name="incidentType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tip incident</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selectează tipul de incident" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-neutral">
-                        {Object.keys(PETITION_TYPES).map((code) => (
-                          <SelectItem key={code} value={code}>
-                            {PETITION_TYPES[code as keyof typeof PETITION_TYPES]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="incidentType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tip incident</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selectează tipul de incident" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-neutral">
+                      {Object.keys(PETITION_TYPES).map((code) => (
+                        <SelectItem key={code} value={code}>
+                          {
+                            PETITION_TYPES[code as keyof typeof PETITION_TYPES]
+                              .name
+                          }
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="destinationInstitute"
@@ -341,19 +355,6 @@ export default function Sesizari({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="subject"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subiect</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Subiectul sesizarii" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <Label className="block">Locatie incident</Label>
 
             <div className="flex items-start gap-x-4">
@@ -391,7 +392,7 @@ export default function Sesizari({
                   <FormItem>
                     <FormLabel>Oraș/Localitate</FormLabel>
                     <FormControl>
-                      <Input placeholder="Numele localitatii" {...field} />
+                      <Input placeholder="Numele localității" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -451,7 +452,12 @@ export default function Sesizari({
               )}
             />
 
-            <Button type="submit" variant="secondary" className="mr-4" onClick={sendAndSave}>
+            <Button
+              type="submit"
+              variant="secondary"
+              className="mr-4"
+              onClick={sendAndSave}
+            >
               Trimite
             </Button>
 
@@ -475,7 +481,12 @@ export default function Sesizari({
                 />
 
                 <DialogFooter>
-                  <Button variant="primary" size="sm" className="min-w-44" onClick={sendAndSave}>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="min-w-44"
+                    onClick={sendAndSave}
+                  >
                     Salveaza si trimite
                   </Button>
                 </DialogFooter>

@@ -12,7 +12,7 @@ export const policeReportSchema = z.object({
   lastName: z.string().min(1, "Numele de familie este obligatoriu"),
   email: z.string().email("Adresa de email invalida"),
 
-  country: z.literal("Romania"), //  country currently only Romania ?
+  country: z.literal("Romania"), 
   county: z.enum(countyCodes, {
     errorMap: () => ({ message: "Va rugam sa selectati un judet" }),
   }),
@@ -42,9 +42,6 @@ export const policeReportSchema = z.object({
     .string()
     .min(1, "Destinatarul petitiei este obligatorie"),
 
-  subject: z
-    .string()
-    .min(3, "Subiectul trebuie sa aiba o lungime minima de 3 caractere"),
   incidentDescription: z
     .string()
     .min(10, "Continutul trebuie sa aiba o lungime minima de 10 caractere"),
