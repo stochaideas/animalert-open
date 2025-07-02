@@ -4,7 +4,6 @@ export const petitionPlaceholderMap = {
   phoneNumber: "telefon_utilizator",
   address: "adresa_utilizator",
   generationDate: "data_generare",
-  species: "denumire_specie",
   destinationInstitute: "institutie_selectata",
   incidentDate: "data_incident",
   incidentLocation: "locatie_incident",
@@ -18,7 +17,6 @@ export type petitionPlaceHolder = {
   phoneNumber: string;
   address: string;
   generationDate: Date;
-  species: string;
   destinationInstitute: string;
   incidentDate: string;
   incidentLocation: string;
@@ -27,6 +25,13 @@ export type petitionPlaceHolder = {
 };
 
 export const PETITION_TYPES = {
-  POACHING : "BRACONAJ",
-  CRUELTY: "CRUZIME ÎMPOTRIVA ANIMALELOR",
-}
+  POACHING: { name: "BRACONAJ", path: "/templates/petitie-braconaj.html" },
+  CRUELTY: {
+    name: "CRUZIME ÎMPOTRIVA ANIMALELOR",
+    path: "/templates/petitie-cruzime.html",
+  },
+  WASTE_DUMP: {
+    name: "DEPUNERE ILEGALĂ DE DEȘEURI",
+    path: "/templates/petitie-deseu.html",
+  },
+};
