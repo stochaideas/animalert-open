@@ -31,10 +31,9 @@ import {
 } from "~/components/ui/simple/select";
 import { Textarea } from "~/components/ui/simple/textarea";
 import {
-  PETITION_TYPES,
   petitionPlaceholderMap,
+  type PetitionType,
 } from "~/constants/petition-form-constants";
-import { useLocations } from "~/hooks/useLocation";
 import { api } from "~/trpc/react";
 import { fillTemplate } from "~/utils/templates";
 import { COUNTIES } from "../../constants/counties";
@@ -50,6 +49,7 @@ export default function Sesizari({
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [templateTypes, setTemplateTypes] = useState<PetitionType[]>([]);
 
   const form = useForm<z.infer<typeof policeReportSchema>>({
     resolver: zodResolver(policeReportSchema),
@@ -75,13 +75,9 @@ export default function Sesizari({
     },
   });
 
-  const selectedPetition = form.watch("incidentType");
-
   const utils = api.useUtils();
   const {
     mutateAsync: mutateComplaintAsync,
-    isPending: complaintIsPending,
-    reset: resetConflictMutation,
     isSuccess: isComplaintSuccess,
   } = api.complaint.generatePDF.useMutation({
     onSuccess: () => {
@@ -89,22 +85,31 @@ export default function Sesizari({
     },
   });
 
+  const selectedPetition = Number(form.watch("incidentType"));
+  const {
+    data: templateData,
+  } = api.complaintTemplate.getTemplate.useQuery(
+    { id: selectedPetition! },
+    {
+      enabled: !!selectedPetition,
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+    },
+  );
+
   useEffect(() => {
-    const selectedPath = selectedPetition
-      ? PETITION_TYPES[selectedPetition as keyof typeof PETITION_TYPES].path
-      : undefined;
-    if (selectedPath) {
-      const loadTemplate = async () => {
-        const res = fetch(selectedPath)
-          .then((res) => res.text())
-          .then(setPetitionTemplate)
-          .catch((err) => {
-            console.error("Failed to load template:", err);
-          });
-      };
-      loadTemplate();
+    if (templateData) {
+      setPetitionTemplate(templateData);
     }
-  }, [selectedPetition]);
+  }, [templateData]);
+
+  const templateType = api.complaintTemplate.getTemplateTypes.useQuery();
+
+  useEffect(() => {
+    if (templateType.data) {
+      setTemplateTypes(templateType.data);
+    }
+  }, [templateType]);
 
   const onSubmit = (values: z.infer<typeof policeReportSchema>) => {
     console.log(values);
@@ -121,7 +126,7 @@ export default function Sesizari({
       setPetitionTemplate(filledTemplate);
     } else {
       setErrorMessage(
-        "Something went wrong with creating your petition. Please try again later. If the problem persits, please report it!",
+        "A fost o eroare la crearea petiției dvs. Vă rugăm să încercați din nou mai târziu. Dacă problema persistă, vă rugăm să o raportați!",
       );
     }
   }
@@ -316,7 +321,7 @@ export default function Sesizari({
                   <FormLabel>Tip incident</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value?.toString()}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -324,12 +329,12 @@ export default function Sesizari({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="bg-neutral">
-                      {Object.keys(PETITION_TYPES).map((code) => (
-                        <SelectItem key={code} value={code}>
-                          {
-                            PETITION_TYPES[code as keyof typeof PETITION_TYPES]
-                              .name
-                          }
+                      {templateTypes.map((template) => (
+                        <SelectItem
+                          key={template.id}
+                          value={template.id.toString()}
+                        >
+                          {template.displayName}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -492,6 +497,7 @@ export default function Sesizari({
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+            <br/>
             {errorMessage ?? (
               <Label className="block text-amber-900">{errorMessage}</Label>
             )}

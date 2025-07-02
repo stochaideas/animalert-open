@@ -8,6 +8,7 @@ import { geolocationRouter } from "./modules/geolocation/geolocation.router";
 import { s3Router } from "./modules/s3/s3.router";
 import { complaintRouter } from "./modules/complaint/complaint.router";
 import { feedbackRouter } from "./modules/feedback/feedback.router";
+import { complaintTemplateRouter } from "./modules/complaint-template/complaintTemplate.router";
 
 /**
  * This is the primary router for your server.
@@ -20,6 +21,7 @@ export const appRouter = createTRPCRouter({
   presence: presenceRouter,
   conflict: conflictRouter,
   contact: contactRouter,
+  complaintTemplate: complaintTemplateRouter,
   feedback: feedbackRouter,
   geolocation: geolocationRouter,
   s3: s3Router,

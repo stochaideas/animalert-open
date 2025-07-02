@@ -1,11 +1,7 @@
 import { z } from "zod";
-import { PETITION_TYPES } from "~/constants/petition-form-constants";
 import { COUNTIES } from "../../../constants/counties";
 
 const countyCodes = Object.keys(COUNTIES) as [keyof typeof COUNTIES];
-const petitonTypes = Object.keys(PETITION_TYPES) as [
-  keyof typeof PETITION_TYPES,
-];
 
 export const policeReportSchema = z.object({
   firstName: z.string().min(1, "Prenumele este obligatoriu"),
@@ -29,9 +25,7 @@ export const policeReportSchema = z.object({
     .min(10, "Numarul de telefon este prea scurt")
     .max(15, "Numarul de telefon este prea lung"),
 
-  incidentType: z.enum(petitonTypes, {
-    errorMap: () => ({ message: "Va rugam selectati tipul de incident" }),
-  }),
+  incidentType: z.number().optional(),
   incidentDate: z.string().optional(),
   incidentCounty: z.enum(countyCodes, {
     errorMap: () => ({ message: "Va rugam sa selectati un judet" }),
