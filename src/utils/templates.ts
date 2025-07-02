@@ -10,21 +10,23 @@ export function getCombinedTemplateData(
   const derivedValues = {
     name: `${formValues.firstName} ${formValues.lastName}`.trim(),
     address: [
-      formValues.country,
-      COUNTIES[formValues.county],
-      formValues.city,
-      formValues.street,
-      formValues.houseNumber,
-      formValues.building,
-      formValues.staircase,
-      formValues.apartment,
+      formValues.country, 
+      formValues.county ? `jud. ${COUNTIES[formValues.county]}` : null,
+      formValues.city ? `loc. ${formValues.city}` : null,
+      formValues.street ? `str. ${formValues.street}` : null,
+      formValues.houseNumber ? `nr. ${formValues.houseNumber}` : null,
+      formValues.building ? `bl. ${formValues.building}` : null,
+      formValues.staircase ? `sc. ${formValues.staircase}` : null,
+      formValues.apartment ? `ap. ${formValues.apartment}` : null,
     ]
       .filter(Boolean)
       .join(", "),
     generationDate: new Date().toLocaleDateString("ro-RO"),
     incidentLocation: [
-      COUNTIES[formValues.incidentCounty],
-      formValues.incidentCity,
+      COUNTIES[formValues.incidentCounty]
+        ? `jud. ${COUNTIES[formValues.incidentCounty]}`
+        : null,
+      formValues.incidentCity ? `loc. ${formValues.incidentCity}` : null,
       formValues.incidentAddress,
     ]
       .filter(Boolean)
@@ -59,7 +61,7 @@ export function fillTemplate(
   map: typeof petitionPlaceholderMap,
 ): string {
   const values = getCombinedTemplateData(formValues);
-  console.log(values)
+  console.log(values);
   return Object.entries(map).reduce((result, [formKey, placeholderKey]) => {
     const value = values[formKey as keyof typeof values] ?? "";
     return result.replace(
