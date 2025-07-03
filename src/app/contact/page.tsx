@@ -301,7 +301,7 @@ export default function Contact() {
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="w-full p-6 hover:cursor-pointer">
+                          <SelectTrigger className="w-full overflow-hidden p-6 hover:cursor-pointer">
                             <SelectValue placeholder="Selectează tipul solicitării" />
                           </SelectTrigger>
                         </FormControl>
@@ -338,7 +338,7 @@ export default function Contact() {
                       <FormControl>
                         <Textarea
                           placeholder="Scrie aici mesajul tău..."
-                          className="resize-none"
+                          className="max-h-32 min-h-32 resize-none"
                           {...field}
                         />
                       </FormControl>

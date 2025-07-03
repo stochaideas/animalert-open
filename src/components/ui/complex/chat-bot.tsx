@@ -162,7 +162,7 @@ export default function ChatBot({
         {answered && !isEditing && (
           <div className="mt-8 flex flex-col-reverse items-end gap-2 sm:flex-row sm:items-start sm:justify-end sm:gap-4">
             <div className="flex w-full flex-col items-end">
-              <div className="text-neutral-foreground text-single-line-body-base mb-2 max-w-full rounded-t-lg rounded-l-lg bg-[#F2F2F2] p-4 sm:max-w-[60%]">
+              <div className="text-neutral-foreground text-single-line-body-base mb-2 max-w-full rounded-t-lg rounded-l-lg bg-[#F2F2F2] p-4 break-words whitespace-pre-wrap sm:max-w-[60%]">
                 {Array.isArray(answered.answer)
                   ? answered.answer.join(", ")
                   : answered.answer}
