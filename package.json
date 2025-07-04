@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.802.0",
+    "@aws-sdk/client-sns": "^3.840.0",
     "@aws-sdk/s3-request-presigner": "^3.802.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
