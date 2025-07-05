@@ -23,7 +23,7 @@ RUN \
   elif [ -f pnpm-lock.yaml ];    then npm install -g pnpm                && SKIP_ENV_VALIDATION=1 pnpm run build && pnpm dlx drizzle-kit generate; \
   else echo "Lockfile not found." && exit 1; fi
 
-FROM --platform=linux/amd64 node:20-alpine AS migrator
+FROM --platform=linux/amd64 node:20-alpine
 WORKDIR /app
 
 # copy only what the CLI needs
