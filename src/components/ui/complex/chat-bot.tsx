@@ -168,15 +168,17 @@ export default function ChatBot({
                   : answered.answer}
               </div>
               <div className="flex flex-row justify-end">
-                <span
-                  className="text-secondary text-body-small mb-8 cursor-pointer font-bold"
+                <Button
+                  variant="primary"
+                  size="sm"
+                  // className="text-secondary text-body-small mb-8 cursor-pointer font-bold"
                   onClick={() => {
                     setEditingIdx(idx);
                     setStep(idx);
                   }}
                 >
                   🔄 Modifică răspuns
-                </span>
+                </Button>
               </div>
             </div>
             <SVGUser width="32" height="32" />
@@ -264,7 +266,7 @@ export default function ChatBot({
                   </Button>
                 </form>
               )}
-              {answers.length > 1 && (
+              {answers.length > 1 && reviewMode && (
                 <Button
                   variant="tertiary"
                   className="mt-2"
