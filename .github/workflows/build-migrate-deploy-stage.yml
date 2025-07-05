@@ -46,7 +46,7 @@ jobs:
       - id: render-migrate
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-family: ${{ env.MIGRATE_FAMILY }}
+          task-definition-family: ${{ env.MIGRATE_FAMILY }}
           container-name: db-migrate
           image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_migrate_stage
 
