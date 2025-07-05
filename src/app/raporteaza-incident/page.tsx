@@ -344,6 +344,20 @@ export default function IncidentReport() {
     }
   }
 
+  function handleClearIncidentImage(name: string) {
+    setIncidentImageFiles((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
+    incidentForm.setValue(
+      name as keyof z.infer<typeof incidentFormSchema>,
+      undefined,
+      {
+        shouldValidate: true,
+      },
+    );
+  }
+
   function handleIncidentImageChange(
     e: ChangeEvent<HTMLInputElement>,
     name: string,
@@ -416,6 +430,7 @@ export default function IncidentReport() {
             incidentForm={incidentForm}
             incidentImageFiles={incidentImageFiles}
             handleIncidentImageChange={handleIncidentImageChange}
+            handleClearIncidentImage={handleClearIncidentImage}
             onIncidentSubmit={onIncidentSubmit}
             isPending={
               submittingIncident || incidentIsPending || uploadFileToS3IsPending
