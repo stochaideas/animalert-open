@@ -82,4 +82,29 @@ export class S3Service {
 
     return { key, url: signedUrl };
   }
+
+  /**
+   * Uploads a PDF buffer to the `animalert-pdfs` bucket.
+   *
+   * @param buffer - The PDF content as a Buffer
+   * @param fileName - The desired S3 key 
+   * @returns The uploaded key
+   */
+  async uploadPdfBuffer(buffer: Buffer, fileName: string): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: env.AWS_S3_PDF_BUCKET_NAME, 
+      Key: fileName,
+      Body: buffer,
+      ContentType: "application/pdf",
+      ACL: "private", 
+    });
+
+    try {
+      await this.s3.send(command);
+      return fileName;
+    } catch (error) {
+      console.error("Failed to upload PDF to S3:", error);
+      throw error;
+    }
+  }
 }
