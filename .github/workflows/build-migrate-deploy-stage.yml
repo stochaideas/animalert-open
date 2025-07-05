@@ -34,14 +34,13 @@ jobs:
           context: Dockerfile.migrate
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:${{ github.sha }}
-            ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:latest_migrate_stage
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_migrate_stage
       - id: render-migrate
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-family: ${{ env.MIGRATE_FAMILY }}
           container-name: db-migrate
-          image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_stage:latest_migrate_stage
+          image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_migrate_stage
 
       - run: |
           MIG=$(aws ecs register-task-definition --cli-input-json '${{ steps.render-migrate.outputs.task-definition }}' --query 'taskDefinition.taskDefinitionArn' --output text)
