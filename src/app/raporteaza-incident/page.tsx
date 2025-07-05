@@ -120,7 +120,7 @@ export default function IncidentReport() {
   const [mapCoordinates, setMapCoordinates] = useState<
     Coordinates | undefined
   >();
-  const [address, setAddress] = useState<string>();
+  const [address, setAddress] = useState<string>("Cluj-Napoca, Cluj, Romania");
 
   // CHAT BOT
   const [answers, setAnswers] = useState<
@@ -344,6 +344,20 @@ export default function IncidentReport() {
     }
   }
 
+  function handleClearIncidentImage(name: string) {
+    setIncidentImageFiles((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
+    incidentForm.setValue(
+      name as keyof z.infer<typeof incidentFormSchema>,
+      undefined,
+      {
+        shouldValidate: true,
+      },
+    );
+  }
+
   function handleIncidentImageChange(
     e: ChangeEvent<HTMLInputElement>,
     name: string,
@@ -416,6 +430,7 @@ export default function IncidentReport() {
             incidentForm={incidentForm}
             incidentImageFiles={incidentImageFiles}
             handleIncidentImageChange={handleIncidentImageChange}
+            handleClearIncidentImage={handleClearIncidentImage}
             onIncidentSubmit={onIncidentSubmit}
             isPending={
               submittingIncident || incidentIsPending || uploadFileToS3IsPending
@@ -470,13 +485,27 @@ export default function IncidentReport() {
       <Dialog
         open={!!errorDialog}
         onOpenChange={(open) => {
-          if (!open) setErrorDialog(null);
+          if (!open) {
+            setErrorDialog(null);
+            setSubmittingIncident(false);
+          }
         }}
       >
         <DialogContent className="bg-tertiary">
           <DialogHeader>
             <DialogTitle>{errorDialog?.title}</DialogTitle>
             <DialogDescription>{errorDialog?.description}</DialogDescription>
+            <Button
+              variant="primary"
+              className="mt-4"
+              onClick={() => {
+                setErrorDialog(null);
+                setSubmittingIncident(false);
+              }}
+              size="lg"
+            >
+              Am înțeles
+            </Button>
           </DialogHeader>
         </DialogContent>
       </Dialog>

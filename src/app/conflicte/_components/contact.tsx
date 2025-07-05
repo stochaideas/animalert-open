@@ -25,6 +25,7 @@ export default function Contact({
   conflictForm,
   conflictImageFiles,
   handleConflictImageChange,
+  handleClearConflictImage,
   onConflictSubmit,
   isPending,
 }: {
@@ -40,6 +41,7 @@ export default function Contact({
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => void;
+  handleClearConflictImage: (name: string) => void;
   onConflictSubmit: (data: z.infer<typeof conflictFormSchema>) => void;
   isPending?: boolean;
 }) {
@@ -81,9 +83,9 @@ export default function Contact({
                   position: "relative",
                   width: "100%",
                   height: "116px",
-                  aspectRatio: "1/1", // or "16/9" or any aspect ratio you want
-                  borderRadius: "8px", // optional, for rounded corners
-                  overflow: "hidden", // optional, for clean edges
+                  aspectRatio: "1/1",
+                  borderRadius: "8px",
+                  overflow: "hidden",
                   cursor: "pointer",
                 }}
               >
@@ -105,6 +107,48 @@ export default function Contact({
                     background: "#e3e3e3",
                   }}
                 />
+                {url && (
+                  <button
+                    type="button"
+                    aria-label="Șterge fișier"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleClearConflictImage(file);
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: 6,
+                      right: 6,
+                      background: "rgba(0,0,0,0.5)",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: 24,
+                      height: 24,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      zIndex: 2,
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+                {!url && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        file === "video1"
+                          ? "rgba(128, 90, 213, 0.35)"
+                          : "rgba(255, 140, 0, 0.25)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
                 <div
                   style={{
                     position: "absolute",
@@ -115,9 +159,9 @@ export default function Contact({
                     display: `${!url ? "flex" : "none"}`,
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#000", // or any color that contrasts the image
+                    color: "#000",
                     fontSize: "1rem",
-                    pointerEvents: "none", // so clicks pass through to the image/container
+                    pointerEvents: "none",
                   }}
                 >
                   <span className="text-center">

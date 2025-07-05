@@ -26,6 +26,7 @@ export default function Contact({
   incidentForm,
   incidentImageFiles,
   handleIncidentImageChange,
+  handleClearIncidentImage,
   onIncidentSubmit,
   isPending,
 }: {
@@ -42,6 +43,7 @@ export default function Contact({
     name: string,
     fieldOnChange: (value: File | null, shouldValidate?: boolean) => void,
   ) => void;
+  handleClearIncidentImage: (name: string) => void;
   onIncidentSubmit: (data: z.infer<typeof incidentFormSchema>) => void;
   isPending?: boolean;
 }) {
@@ -107,6 +109,48 @@ export default function Contact({
                     background: "#e3e3e3",
                   }}
                 />
+                {url && (
+                  <button
+                    type="button"
+                    aria-label="Șterge fișier"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleClearIncidentImage(file);
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: 6,
+                      right: 6,
+                      background: "rgba(0,0,0,0.5)",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: 24,
+                      height: 24,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      zIndex: 2,
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+                {!url && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        file === "video1"
+                          ? "rgba(128, 90, 213, 0.35)" // purple tint
+                          : "rgba(255, 140, 0, 0.25)", // orange tint
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
                 <div
                   style={{
                     position: "absolute",
@@ -310,7 +354,7 @@ export default function Contact({
           <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-12 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Fișiere foto și video</h3>
             <p className="text-body pb-3">
-              Adăugați fotografii atât cu animalul cât și cu incidentul.
+              Adăugați imagini cu victima și cu locul.
             </p>
             <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
               {Object.keys(incidentImageFiles).map((key) => (
@@ -320,6 +364,11 @@ export default function Contact({
                 />
               ))}
             </div>
+            <p className="text-body-small mt-4 text-gray-500 italic">
+              Imaginile pot avea o dimensiune maximă de 10MB.
+              <br />
+              Videoclipurile pot avea o dimensiune maximă de 200MB.
+            </p>
           </section>
           <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse md:justify-start">
             <Button

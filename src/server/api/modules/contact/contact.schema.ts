@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { COUNTIES } from "~/constants/counties";
 import { phoneNumberSchema } from "~/lib/phone";
-import { SOLICITATION_TYPES } from "~/app/contact/_constants/solicitationTypes";
+import { SOLICITATION_TYPES } from "~/app/contact/_constants/solicitation-types";
 
 export const contactSchema = z.object({
   lastName: z.string(),

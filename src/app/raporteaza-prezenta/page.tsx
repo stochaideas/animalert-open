@@ -31,6 +31,8 @@ import { TRPCClientError } from "@trpc/client";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { PRESENCE_STEPS } from "./_constants/presence-steps";
 import Link from "next/link";
+import { SVGHeart, SVGStar } from "~/components/icons";
+import FeedbackDialog from "~/components/ui/complex/feedback-dialog";
 
 export default function PresenceReport() {
   const lastSubmittedPayload = useRef<{
@@ -76,6 +78,7 @@ export default function PresenceReport() {
   >();
   const [userId, setUserId] = useState<string | undefined>();
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
   const [errorDialog, setErrorDialog] = useState<{
     title: string;
     description: string;
@@ -118,7 +121,7 @@ export default function PresenceReport() {
   const [mapCoordinates, setMapCoordinates] = useState<
     Coordinates | undefined
   >();
-  const [address, setAddress] = useState<string>();
+  const [address, setAddress] = useState<string>("Cluj-Napoca, Cluj, Romania");
 
   const [submittingPresence, setSubmittingPresence] = useState(false);
 
@@ -341,6 +344,20 @@ export default function PresenceReport() {
     }
   }
 
+  function handleClearPresenceImage(name: string) {
+    setPresenceImageFiles((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
+    presenceForm.setValue(
+      name as keyof z.infer<typeof presenceFormSchema>,
+      undefined,
+      {
+        shouldValidate: true,
+      },
+    );
+  }
+
   function handlePresenceImageChange(
     e: ChangeEvent<HTMLInputElement>,
     name: string,
@@ -384,6 +401,7 @@ export default function PresenceReport() {
             presenceForm={presenceForm}
             presenceImageFiles={presenceImageFiles}
             handlePresenceImageChange={handlePresenceImageChange}
+            handleClearPresenceImage={handleClearPresenceImage}
             onPresenceSubmit={onPresenceSubmit}
             isPending={
               submittingPresence || presenceIsPending || uploadFileToS3IsPending
@@ -419,45 +437,79 @@ export default function PresenceReport() {
         <MaterialStepper steps={PRESENCE_STEPS} currentStep={currentPage} />
         {getCurrentPage()}
       </div>
-      <Dialog open={showSuccessDialog}>
-        <DialogContent className="bg-tertiary text-center">
+      <Dialog
+        open={showSuccessDialog}
+        onOpenChange={(open) => {
+          if (!open) redirect("/");
+        }}
+      >
+        <DialogContent
+          onPointerDownOutside={(event) => event.preventDefault()}
+          className="bg-tertiary text-center"
+        >
           <DialogHeader>
             <DialogDescription className="sr-only">
-              Confirmare de înregistrare a incidentului.
+              Confirmare de înregistrare a raportului.
             </DialogDescription>
             <DialogTitle className="text-center">
-              Incident înregistrat
+              Raport înregistrat
             </DialogTitle>
           </DialogHeader>
           <div>
-            Incidentul cu numărul <strong>{presenceReportNumber}</strong> a fost
+            Raportul cu numărul <strong>{presenceReportNumber}</strong> a fost
             înregistrat cu succes.
           </div>
           <DialogFooter>
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => redirect("/")}
               className="min-w-44"
+              onClick={() => {
+                setShowFeedbackDialog(true);
+                setShowSuccessDialog(false);
+              }}
             >
-              Întoarce-te acasă
+              <SVGStar /> Feedback
             </Button>
             <Button variant="primary" size="sm" className="min-w-44">
-              <Link href="/doneaza">Donează</Link>
+              <SVGHeart /> <Link href="/doneaza">Donează</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {showFeedbackDialog && (
+        <FeedbackDialog
+          open={showFeedbackDialog}
+          setOpen={setShowFeedbackDialog}
+          postFeedbackCallback={() => {
+            redirect("/");
+          }}
+        />
+      )}
       <Dialog
         open={!!errorDialog}
         onOpenChange={(open) => {
-          if (!open) setErrorDialog(null);
+          if (!open) {
+            setErrorDialog(null);
+            setSubmittingPresence(false);
+          }
         }}
       >
         <DialogContent className="bg-tertiary">
           <DialogHeader>
             <DialogTitle>{errorDialog?.title}</DialogTitle>
             <DialogDescription>{errorDialog?.description}</DialogDescription>
+            <Button
+              variant="primary"
+              className="mt-4"
+              onClick={() => {
+                setErrorDialog(null);
+                setSubmittingPresence(false);
+              }}
+              size="lg"
+            >
+              Am înțeles
+            </Button>
           </DialogHeader>
         </DialogContent>
       </Dialog>
