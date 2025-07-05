@@ -1,4 +1,4 @@
-name: Deploy T3 App (prod)
+name: Migrate and Deploy - Stage 
 
 on:
  workflow_dispatch:
@@ -7,7 +7,9 @@ env:
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
   CLUSTER_NAME: ${{ secrets.ECR_CLUSTER_NAME }}
   SERVICE_NAME: ${{ secrets.ECR_SERVICE_NAME }}-stage
-
+  MIGRATE_FAMILY: animalert-db-migrate-task-stage
+  SUBNETS:       ${{ secrets.SUBNETS_STAGE }}
+  SECURITY_GROUP: ${{ secrets.SG_STAGE }}
 jobs:
   migrate:
     name: Prepare and Run Migrations
@@ -29,7 +31,7 @@ jobs:
       - id: build
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: Dockerfile.migrate
           push: true
           tags: |
             ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_REPO_NAME }}:${{ github.sha }}
