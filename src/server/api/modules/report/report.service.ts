@@ -15,6 +15,7 @@ import { streamToBuffer } from "~/lib/stream-to-buffer";
 import type { Readable } from "stream";
 import { env } from "~/env";
 import { REPORT_TYPES } from "~/constants/report-types";
+import { format } from "~/lib/date-formatter";
 
 export class ReportService {
   protected emailService: EmailService;
@@ -314,8 +315,8 @@ export class ReportService {
                 : "Nicio imagine atașată"
             }
           </li>
-          <li><strong>Data creării:</strong> ${report.createdAt ? new Date(report.createdAt).toLocaleString("ro-RO") : "N/A"}</li>
-          <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? new Date(report.updatedAt).toLocaleString("ro-RO") : "N/A"}</li>
+          <li><strong>Data creării:</strong> ${report.createdAt ? format(report.createdAt) : "N/A"}</li>
+          <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? format(report.updatedAt) : "N/A"}</li>
         </ul>
       </div>
       <!-- Chatbot Conversation as List -->
