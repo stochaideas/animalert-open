@@ -33,10 +33,14 @@ export const complaintSchema = z.object({
   incidentCity: z.string().optional(),
   incidentAddress: z.string().optional(),
   destinationInstitute: z
-    .string()
-    .min(1, "Destinatarul petitiei este obligatorie"),
+    .string().min(3,"Destinatarul petitiei este obligatorie"),
+  destionationInstituteEmail: z.string().email(),
 
   incidentDescription: z
     .string()
     .min(10, "Continutul trebuie sa aiba o lungime minima de 10 caractere"),
+  attachments: z.array(z.string()).optional(),
+  confidentiality: z.boolean().refine((val) => val === true, {
+      message: "Trebuie să accepți Politica de confidențialitate",
+    }),
 });

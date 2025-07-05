@@ -16,6 +16,9 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: z.string().default(""),
     AWS_REGION: z.string(),
     AWS_S3_BUCKET_NAME: z.string(),
+    AWS_S3_PDF_BUCKET_NAME: z.string(),
+
+    PETITION_CC: z.string(),
 
     NODEMAILER_SERVICE: z.string(),
     EMAIL_ADMIN: z.string().email(),
@@ -49,6 +52,9 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_REGION: process.env.AWS_REGION,
     AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME,
+    AWS_S3_PDF_BUCKET_NAME: process.env.AWS_S3_PDF_BUCKET_NAME,
+
+    PETITION_CC: process.env.PETITION_CC,
 
     NODEMAILER_SERVICE: process.env.NODEMAILER_SERVICE,
     EMAIL_ADMIN: process.env.EMAIL_ADMIN,

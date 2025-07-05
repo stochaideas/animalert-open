@@ -45,6 +45,8 @@ export const complaintReportContent = pgTable("complaint_report_content", {
   incidentAddress: varchar("incident_address", { length: 255 }),
   destinationInstitute: varchar("destination_institute", { length: 255 }),
   incidentDescription: text("incident_description"),
+  s3Key: varchar("document_s3_key"),
+  attachmentsS3: varchar("attachments_s3", {length: 255}),
 
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
