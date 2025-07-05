@@ -73,7 +73,7 @@ jobs:
     permissions:
       id-token: write        # for OIDC
       contents: read
-  
+    if: env.runECS123 == "true"
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
