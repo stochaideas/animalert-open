@@ -4,6 +4,8 @@ import {
   type SNSClientConfig,
 } from "@aws-sdk/client-sns";
 import { env } from "~/env";
+import type { smsOptionsSchema } from "./sms.schema";
+import type { z } from "zod";
 
 export class SmsService {
   private snsClient: SNSClient;
@@ -35,9 +37,9 @@ export class SmsService {
    * @returns A promise that resolves when the SMS has been sent successfully.
    * @throws Will throw an error if the SMS fails to send.
    */
-  async sendSms(message: string) {
+  async sendSms(input: z.infer<typeof smsOptionsSchema>) {
     const command = new PublishCommand({
-      Message: message,
+      Message: input.message,
       TopicArn: env.SNS_TOPIC_ARN,
     });
 

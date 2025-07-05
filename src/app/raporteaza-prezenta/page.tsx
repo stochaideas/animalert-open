@@ -344,6 +344,20 @@ export default function PresenceReport() {
     }
   }
 
+  function handleClearPresenceImage(name: string) {
+    setPresenceImageFiles((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
+    presenceForm.setValue(
+      name as keyof z.infer<typeof presenceFormSchema>,
+      undefined,
+      {
+        shouldValidate: true,
+      },
+    );
+  }
+
   function handlePresenceImageChange(
     e: ChangeEvent<HTMLInputElement>,
     name: string,
@@ -387,6 +401,7 @@ export default function PresenceReport() {
             presenceForm={presenceForm}
             presenceImageFiles={presenceImageFiles}
             handlePresenceImageChange={handlePresenceImageChange}
+            handleClearPresenceImage={handleClearPresenceImage}
             onPresenceSubmit={onPresenceSubmit}
             isPending={
               submittingPresence || presenceIsPending || uploadFileToS3IsPending
