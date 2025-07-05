@@ -296,25 +296,6 @@ export class ReportService {
                 : ""
             }
           </li>
-          <li>
-            <strong>Imagini atașate:</strong>
-            ${
-              report.imageKeys && report.imageKeys.length > 0
-                ? `<ul style="padding-left:18px;margin:0;">
-                  ${report.imageKeys
-                    .map(
-                      (url, idx) =>
-                        `<li style="margin-bottom:4px;">
-                          <a href="${url}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">
-                            fișier ${idx + 1}
-                          </a>
-                        </li>`,
-                    )
-                    .join("")}
-                </ul>`
-                : "Nicio imagine atașată"
-            }
-          </li>
           <li><strong>Data creării:</strong> ${report.createdAt ? format(report.createdAt) : "N/A"}</li>
           <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? format(report.updatedAt) : "N/A"}</li>
         </ul>
@@ -363,11 +344,7 @@ export class ReportService {
 </html>
 `.trim();
 
-    await this.emailService.sendEmail({
-      to: env.EMAIL_ADMIN,
-      subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber}`,
-      html: adminHtml,
-      text: `
+    const adminEmailText = `
 ${adminTitle}
 ----------------
 Utilizator: ${user.lastName} ${user.firstName}
@@ -380,9 +357,40 @@ Detalii raport
 Coordonate: ${latitude ?? "N/A"}, ${longitude ?? "N/A"}
 ${mapsUrl ? `Harta: ${mapsUrl}` : ""}
 Imagini: ${imagesCount} fișiere atașate
-          `.trim(),
-      attachments: attachments,
-    });
+          `.trim();
+
+    try {
+      await this.emailService.sendEmail({
+        to: env.EMAIL_ADMIN,
+        subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber}`,
+        html: adminHtml,
+        text: adminEmailText,
+        attachments: attachments,
+      });
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "responseCode" in error &&
+        (error as { responseCode?: unknown }).responseCode === 552
+      ) {
+        // Retry without attachments if size limit exceeded
+        console.warn("Email size limit exceeded, retrying without attachments");
+
+        try {
+          await this.emailService.sendEmail({
+            to: env.EMAIL_ADMIN,
+            subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber} - FĂRĂ ATAȘAMENTE`,
+            html: adminHtml,
+            text: adminEmailText,
+          });
+        } catch (error) {
+          console.error("Error sending admin email:", error);
+        }
+      } else {
+        console.error("Error sending admin email:", error);
+      }
+    }
 
     /*
       EMAIL TO BE SENT TO USER
@@ -421,11 +429,12 @@ Imagini: ${imagesCount} fișiere atașate
 </html>
 `.trim();
 
-      await this.emailService.sendEmail({
-        to: user.email,
-        subject: `✅ ${subjectPrefix} ${actionType} - AnimAlert`,
-        html: userHtml,
-        text: `
+      try {
+        await this.emailService.sendEmail({
+          to: user.email,
+          subject: `✅ ${subjectPrefix} ${actionType} - AnimAlert`,
+          html: userHtml,
+          text: `
 Salut, ${user.firstName},
 
 ${userThanks}
@@ -435,7 +444,10 @@ Dacă ai nevoie de ajutor sau vrei să adaugi detalii, răspunde la acest email.
 
 Echipa AnimAlert
     `.trim(),
-      });
+        });
+      } catch (error) {
+        console.error("Error sending user email:", error);
+      }
     }
   }
 }
