@@ -73,7 +73,7 @@ jobs:
     permissions:
       id-token: write        # for OIDC
       contents: read
-    if: env.runECS123 == "true"
+    if: ${{ false }} 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -113,6 +113,7 @@ jobs:
       id-token: write        # for OIDC
       contents: read
     name: Deploy ECS
+    if: ${{ false }} 
     needs: build
     runs-on: ubuntu-latest
     steps:
