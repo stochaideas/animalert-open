@@ -20,14 +20,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
-
-      - uses: aws-actions/amazon-ecr-login@v2
-
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
       - id: build
         uses: docker/build-push-action@v5
         with:
