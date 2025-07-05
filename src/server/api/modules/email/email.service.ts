@@ -23,9 +23,8 @@ export class EmailService {
    * Sends an email using configured transporter
    */
   async sendEmail(data: z.infer<typeof emailOptionsSchema>): Promise<void> {
-    try {
-      const subjectPrefix =
-        environment === "production" ? "" : `[${environment.toUpperCase()}] `;
+    const subjectPrefix =
+      environment === "production" ? "" : `[${environment.toUpperCase()}] `;
 
       await this.transporter.sendMail({
         from: env.EMAIL_FROM,
