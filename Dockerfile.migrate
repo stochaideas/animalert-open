@@ -32,4 +32,5 @@ COPY --from=builder /app/migrations        ./migrations
 COPY                 drizzle.config.*      ./          # ts or js
 COPY package.json                           ./
 
-ENTRYPOINT ["npx","drizzle-kit","migrate","--yes"]
+#ENTRYPOINT ["npx","drizzle-kit","migrate","--yes"]
+ENTRYPOINT ["sh", "-c", "echo 'hello and goodbye test'"]
