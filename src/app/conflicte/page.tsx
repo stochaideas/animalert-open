@@ -346,6 +346,20 @@ export default function ConflictReport() {
     }
   }
 
+  function handleClearConflictImage(name: string) {
+    setConflictImageFiles((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
+    conflictForm.setValue(
+      name as keyof z.infer<typeof conflictFormSchema>,
+      undefined,
+      {
+        shouldValidate: true,
+      },
+    );
+  }
+
   function handleConflictImageChange(
     e: ChangeEvent<HTMLInputElement>,
     name: string,
@@ -389,6 +403,7 @@ export default function ConflictReport() {
             conflictForm={conflictForm}
             conflictImageFiles={conflictImageFiles}
             handleConflictImageChange={handleConflictImageChange}
+            handleClearConflictImage={handleClearConflictImage}
             onConflictSubmit={onConflictSubmit}
             isPending={
               submittingConflict || conflictIsPending || uploadFileToS3IsPending
