@@ -49,9 +49,15 @@ jobs:
           task-definition-family: ${{ env.MIGRATE_FAMILY }}
           container-name: db-migrate-stage
           image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_migrate_stage
-
+      - name: Strip empty tags (if any)
+        id: cleaned
+        run: |
+          jq 'del(.tags | select(length == 0))' \
+             "${{ steps.render-migrate.outputs.task-definition }}" \
+             > cleaned-task-def.json
+          echo "CLEANED_DEF=cleaned-task-def.json" >> "$GITHUB_ENV"
       - run: |
-          MIG=$(aws ecs register-task-definition --cli-input-json file://'${{ steps.render-migrate.outputs.task-definition }}' --query 'taskDefinition.taskDefinitionArn' --output text)
+          MIG=$(aws ecs register-task-definition --cli-input-json file://'${{ CLEANED_DEF }}' --query 'taskDefinition.taskDefinitionArn' --output text)
           echo "MIGRATE_TASK_DEF=$MIG" >> "$GITHUB_ENV"
 
       - name: Run migrations on Fargate
