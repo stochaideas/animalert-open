@@ -1,22 +1,20 @@
 import { and, eq } from "drizzle-orm";
-import fs from "fs/promises";
-import path from "path";
 import puppeteer from "puppeteer";
+import type { Readable } from "stream";
 import type { z } from "zod";
 import { petitionPlaceholderMap } from "~/constants/petition-form-constants";
+import { env } from "~/env";
+import { streamToBuffer } from "~/lib/stream-to-buffer";
 import { db } from "~/server/db";
 import { complaintSchema } from "~/shared/sesizari/complaint.schema";
 import { fillTemplate } from "~/utils/templates";
 import { ComplaintTemplateService } from "../complaint-template/complaintTemplate.service";
 import { EmailService } from "../email/email.service";
+import { S3Service } from "./../s3/s3.service";
 import {
   complaintReportContent,
   complaintReportPersonalData,
 } from "./complaint.schema";
-import { env } from "~/env";
-import { S3Service } from "./../s3/s3.service";
-import { streamToBuffer } from "~/lib/stream-to-buffer";
-import type { Readable } from "stream";
 
 export class ComplaintService {
   private complaintTemplateService: ComplaintTemplateService;
@@ -36,26 +34,56 @@ export class ComplaintService {
   }
 
   async generateAndSendComplaint(input: z.infer<typeof complaintSchema>) {
-    this.sender = input.firstName + " " + input.lastName;
-    //TODO refactor this once we have the complete list of destination emails
-    this.emailTo = input.destionationInstituteEmail;
-    const filledTempalte = await this.fillPDFTemplate(input);
+    try {
+      this.sender = input.firstName + " " + input.lastName;
+      this.emailTo = input.destionationInstituteEmail;
 
-    const safePetitionName = this.petitionName.replace(/[^a-zA-Z0-9-_]/g, "_");
-    const pdfFileName = `Petitie-${safePetitionName}-${Date.now()}`;
-    await this.saveComplaint(input, pdfFileName);
-    if (filledTempalte) {
-      const buffer = await this.generatePdfFromTemplate(filledTempalte);
-      const pdfBuffer = Buffer.from(buffer);
+      const filledTemplate = await this.fillPDFTemplate(input);
+      if (!filledTemplate) {
+        return {
+          success: false,
+          error: "Template could not be loaded or filled.",
+        };
+      }
 
-      this.sendEmail(pdfFileName, pdfBuffer, input.attachments);
-      const result = await this.s3Service.uploadPdfBuffer(
+      const safePetitionName = this.petitionName.replace(
+        /[^a-zA-Z0-9-_]/g,
+        "_",
+      );
+      const pdfFileName = `Petitie-${safePetitionName}-${Date.now()}`;
+
+      const pdfBuffer = Buffer.from(
+        await this.generatePdfFromTemplate(filledTemplate),
+      );
+
+      const emailSent = await this.sendEmail(
+        pdfFileName,
+        pdfBuffer,
+        input.attachments,
+      );
+      if (!emailSent.success) {
+        return emailSent;
+      }
+
+      const uploaded = await this.s3Service.uploadPdfBuffer(
         pdfBuffer,
         pdfFileName,
       );
-      if (result) {
-        console.log(`PDF ${pdfFileName} uploaded to S3 successfully`);
+      if (!uploaded) {
+        return {
+          success: false,
+          error: "Failed to upload PDF to S3",
+        };
       }
+
+      const saveResult = await this.saveComplaint(input, pdfFileName);
+      return saveResult;
+    } catch (err) {
+      console.error("Complaint generation failed:", err);
+      return {
+        success: false,
+        error: "Internal server error while generating complaint.",
+      };
     }
   }
 
@@ -63,7 +91,7 @@ export class ComplaintService {
     fileName: string,
     buffer: Buffer,
     formAttachments?: string[],
-  ) {
+  ): Promise<{ success: boolean; error?: string }> {
     const text = `Stimate Doamnă/Domn!
 Atașez în acest email o petiție legat de o activiatate de tip ${this.petitionName}.
 Vă rog să analizați această petiție și să luați în considerare demersurile necesare pentru soluționarea aspectelor semnalate.
@@ -78,6 +106,7 @@ ${this.sender}`;
         contentType: "application/pdf",
       },
     ];
+
     if (formAttachments) {
       for (const key of formAttachments) {
         try {
@@ -95,86 +124,105 @@ ${this.sender}`;
           });
         } catch (error) {
           console.error(`Failed to fetch S3 object ${key}:`, error);
+          return { success: false, error: `Attachment fetch failed: ${key}` };
         }
       }
     }
 
-    await this.emailService.sendEmail({
-      to: this.emailTo,
-      cc: env.PETITION_CC,
-      subject: `Petitie ${this.petitionName}`,
-      text: text,
-      attachments,
-    });
-    console.log("Email sent to " + this.emailTo);
+    try {
+      await this.emailService.sendEmail({
+        to: this.emailTo,
+        cc: env.PETITION_CC,
+        subject: `Petitie ${this.petitionName}`,
+        text,
+        attachments,
+      });
+      console.log("Email sent to " + this.emailTo);
+      return { success: true };
+    } catch (err) {
+      console.error("Failed to send email:", err);
+      return { success: false, error: "Failed to send email." };
+    }
   }
 
   async saveComplaint(
     input: z.infer<typeof complaintSchema>,
     pdfFileName: string,
-  ) {
-    return await db.transaction(async (tx) => {
-      const existingPersonalData = await tx
-        .select()
-        .from(complaintReportPersonalData)
-        .where(
-          and(
-            eq(complaintReportPersonalData.email, input.email),
-            eq(complaintReportPersonalData.phoneNumber, input.phoneNumber),
-          ),
-        )
-        .limit(1);
+  ): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      return await db.transaction(async (tx) => {
+        const existingPersonalData = await tx
+          .select()
+          .from(complaintReportPersonalData)
+          .where(
+            and(
+              eq(complaintReportPersonalData.email, input.email),
+              eq(complaintReportPersonalData.phoneNumber, input.phoneNumber),
+            ),
+          )
+          .limit(1);
 
-      let personalDataId: number | undefined;
+        let personalDataId: number | undefined;
 
-      if (existingPersonalData.length > 0) {
-        personalDataId = existingPersonalData[0]!.id;
-      } else {
-        const personalDataInsertResult = await tx
-          .insert(complaintReportPersonalData)
-          .values({
-            firstName: input.firstName,
-            lastName: input.lastName,
-            email: input.email,
-            country: input.country,
-            county: input.county,
-            city: input.city,
-            street: input.street,
-            houseNumber: input.houseNumber,
-            building: input.building ?? null,
-            staircase: input.staircase ?? null,
-            apartment: input.apartment ?? null,
-            phoneNumber: input.phoneNumber,
-          })
-          .returning({ id: complaintReportPersonalData.id });
-        if (personalDataInsertResult.length > 0) {
-          personalDataId = personalDataInsertResult[0]!.id;
+        if (existingPersonalData.length > 0) {
+          personalDataId = existingPersonalData[0]!.id;
+        } else {
+          const personalDataInsertResult = await tx
+            .insert(complaintReportPersonalData)
+            .values({
+              firstName: input.firstName,
+              lastName: input.lastName,
+              email: input.email,
+              country: input.country,
+              county: input.county,
+              city: input.city,
+              street: input.street,
+              houseNumber: input.houseNumber,
+              building: input.building ?? null,
+              staircase: input.staircase ?? null,
+              apartment: input.apartment ?? null,
+              phoneNumber: input.phoneNumber,
+            })
+            .returning({ id: complaintReportPersonalData.id });
+
+          if (personalDataInsertResult.length > 0) {
+            personalDataId = personalDataInsertResult[0]!.id;
+          }
         }
-      }
 
-      const incidentDateValue = input.incidentDate
-        ? new Date(input.incidentDate).toISOString()
-        : new Date().toISOString();
+        const incidentDateValue = input.incidentDate
+          ? new Date(input.incidentDate).toISOString()
+          : new Date().toISOString();
 
-      if (personalDataId) {
-        await tx.insert(complaintReportContent).values({
-          personalDataId,
-          incidentTypeId: input.incidentType,
-          incidentDate: incidentDateValue,
-          incidentCounty: input.incidentCounty,
-          incidentCity: input.incidentCity ?? null,
-          incidentAddress: input.incidentAddress ?? null,
-          destinationInstitute: input.destinationInstitute,
-          incidentDescription: input.incidentDescription,
-          s3Key: pdfFileName,
-          attachmentsS3: input.attachments,
-        });
-      } else {
-        throw Error("Failed to insert personal data");
-      }
+        if (personalDataId) {
+          await tx.insert(complaintReportContent).values({
+            personalDataId,
+            incidentTypeId: input.incidentType,
+            incidentDate: incidentDateValue,
+            incidentCounty: input.incidentCounty,
+            incidentCity: input.incidentCity ?? null,
+            incidentAddress: input.incidentAddress ?? null,
+            destinationInstitute: input.destinationInstitute,
+            incidentDescription: input.incidentDescription,
+            s3Key: pdfFileName,
+            attachmentsS3: input.attachments,
+          });
 
-      return { success: true, message: "Police report created successfully" };
-    });
+          return {
+            success: true,
+            message: "Complaint saved successfully.",
+          };
+        } else {
+          throw new Error("Failed to insert personal data");
+        }
+      });
+    } catch (err) {
+      console.error("Failed to save complaint:", err);
+      return {
+        success: false,
+        error: "Error saving complaint to the database.",
+      };
+    }
   }
 
   private async fillPDFTemplate(input: z.infer<typeof complaintSchema>) {
@@ -205,17 +253,6 @@ ${this.sender}`;
         format: "A4",
         printBackground: true,
       });
-      // for local development and testing purposes
-      // const filename = "petitie-" + Date.now().toString();
-
-      // const outputDir = path.resolve(process.cwd(), "generated-pdfs");
-
-      // await fs.mkdir(outputDir, { recursive: true });
-
-      // const filePath = path.join(outputDir, `${filename}.pdf`);
-      // await fs.writeFile(filePath, pdfBuffer);
-      // console.log("PDF generated at");
-      // console.log(filePath);
       return pdfBuffer;
     } finally {
       await browser.close();

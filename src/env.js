@@ -18,7 +18,7 @@ export const env = createEnv({
     AWS_S3_BUCKET_NAME: z.string(),
     AWS_S3_PDF_BUCKET_NAME: z.string(),
 
-    PETITION_CC: z.string(),
+    PETITION_CC: z.string().optional(),
 
     NODEMAILER_SERVICE: z.string(),
     EMAIL_ADMIN: z.string().email(),
