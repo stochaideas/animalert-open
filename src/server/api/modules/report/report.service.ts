@@ -36,36 +36,19 @@ export class ReportService {
     this.smsService = smsService;
   }
 
-  async getReportFiles(reportNumber: number) {
-    const report = await db.query.reports.findFirst({
-      where: eq(reports.reportNumber, reportNumber),
-      columns: {
-        imageKeys: true,
-      },
-    });
-
-    if (!report) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: `Report with number ${reportNumber} not found`,
-      });
-    }
-
-    if (!report.imageKeys?.length) {
-      return [];
-    }
-
-    const fileKeys = report.imageKeys.filter(
-      (key): key is string => key !== undefined,
-    );
-
-    const fileUrls = await Promise.all(
-      fileKeys.map((key) => this.s3Service.getObjectSignedUrl(key)),
-    );
-
-    return fileUrls;
-  }
-
+  /**
+   * Creates or updates a report and its associated user in a single transaction.
+   *
+   * - If `data.report.id` is provided, updates the existing report and user.
+   * - If `data.report.id` is not provided, creates a new user (if not found by phone) and a new report.
+   * - Normalizes the user's phone number before database operations.
+   * - Throws a `TRPCError` if required user information is missing or if user creation fails.
+   * - On update, sends an admin SMS notification for certain report types.
+   *
+   * @param data - The input data containing user and report information, validated by `upsertReportWithUserSchema`.
+   * @returns An object containing the user, report, and a boolean `isUpdate` indicating if the operation was an update.
+   * @throws {TRPCError} If required fields are missing or if a database error occurs.
+   */
   async upsertReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
     let isUpdate = false;
 
@@ -253,8 +236,6 @@ export class ReportService {
         ? `https://www.google.com/maps?q=${latitude},${longitude}`
         : null;
 
-    const imagesCount = report.imageKeys?.length;
-
     let objectNameRomanian = "";
 
     switch (reportType as REPORT_TYPES) {
@@ -272,32 +253,115 @@ export class ReportService {
         break;
     }
 
+    // Map for each question (by index)
+    const answerShortForms: Record<number, Record<string, string>> = {
+      0: {
+        // Categorie animal
+        Pasăre: "Pasăre",
+        "Mamifer (vulpe, liliac, arici, mistreț, rozător, pisică sălbatică etc.)":
+          "Mamifer",
+        "Reptilă (șarpe, șopârlă, țestoasă)": "Reptilă",
+        "Amfibian (broască, salamandră, triton etc.)": "Amfibian",
+        "Pește (decedat, pescuit ilegal)": "Pește",
+      },
+      1: {
+        // Este viu animalul?
+        Da: "Viu",
+        Nu: "Mort",
+      },
+      2: {
+        // Care este problema identificată?
+        "Răni vizibile: plăgi deschise, hemoragie, oase la vedere":
+          "Răni vizibile",
+        "Nu se mișcă (inert)": "Inert",
+        "Problemă la mers": "Problemă la mers",
+        "Posibilă problemă (nu majoră)": "Posibilă problemă",
+      },
+      3: {
+        // Există pericole...
+        Da: "Pericol",
+        Nu: "Fără pericol",
+      },
+      // 4 and 5 are free text, no mapping needed
+    };
+
+    function mapAnswer(questionIdx: number, answer: string | string[]) {
+      // For multiple-choice questions (e.g., problem identified)
+      if (Array.isArray(answer)) {
+        return answer
+          .map((opt) => answerShortForms[questionIdx]?.[opt] ?? opt)
+          .join(", ");
+      }
+      // For single-choice or input
+      return answerShortForms[questionIdx]?.[answer] ?? answer;
+    }
+
+    const mappedAnswers = conversationArray.map((conversationItem, idx) =>
+      mapAnswer(idx, conversationItem.answer),
+    );
+
+    // Determine base URL based on environment
+    let baseUrl = "https://anim-alert.org/";
+    if (process.env.NODE_ENV === "development") {
+      baseUrl = "http://localhost:3000";
+    } else if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") {
+      baseUrl = "https://stage.anim-alert.org";
+    }
+
+    const fileUploadsUrl = `${baseUrl}/file-uploads/${report.reportNumber}`;
+
     const message = `
-${objectNameRomanian} nou creat
-----------------
-Utilizator: ${user.lastName} ${user.firstName}
-Telefon: ${user.phone}
-Email: ${user.email ?? "Nespecificat"}
-Actualizări: ${user.receiveOtherReportUpdates ? "Da" : "Nu"}
+  ${objectNameRomanian} nou creat
+  Nume: ${user.lastName} ${user.firstName}
+  Telefon: ${user.phone}
+  Email: ${user.email ?? "Nespecificat"}
+  Detalii raport:
+  ${mapsUrl ? `Locație: ${mapsUrl}` : ""}
+  Fișiere: ${fileUploadsUrl}
+  Răspunsuri:
+  ${mappedAnswers.length > 0 ? mappedAnswers.join("\n") : "N/A"}`.trim();
 
-Detalii raport
-----------------
-${mapsUrl ? `Harta: ${mapsUrl}` : ""}
-Imagini: ${imagesCount} fișiere atașate
-Răspunsuri utilizator (chat-bot):
-${
-  conversationArray.length > 0
-    ? conversationArray
-        .map(
-          (item) =>
-            `Q: ${item.question}\nA: ${Array.isArray(item.answer) ? item.answer.join(", ") : item.answer}`,
-        )
-        .join("\n")
-    : "N/A"
-}`.trim();
+    console.log(message, "\nMessage length:", message.length);
 
-    await this.smsService.sendSms({
-      message,
+    // await this.smsService.sendSms({
+    //   message,
+    // });
+  }
+
+  /**
+   * Retrieves signed URLs for the image files associated with a specific report.
+   *
+   * @param reportNumber - The unique number identifying the report.
+   * @returns A promise that resolves to an array of signed URLs for the report's image files.
+   * @throws {TRPCError} If the report with the specified number is not found.
+   */
+  async getReportFiles({ reportNumber }: { reportNumber: number }) {
+    const report = await db.query.reports.findFirst({
+      where: eq(reports.reportNumber, reportNumber),
+      columns: {
+        imageKeys: true,
+      },
     });
+
+    if (!report) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Report with number ${reportNumber} not found`,
+      });
+    }
+
+    if (!report.imageKeys?.length) {
+      return [];
+    }
+
+    const fileKeys = report.imageKeys.filter(
+      (key): key is string => key !== undefined,
+    );
+
+    const fileUrls = await Promise.all(
+      fileKeys.map((key) => this.s3Service.getObjectSignedUrl(key)),
+    );
+
+    return fileUrls;
   }
 }

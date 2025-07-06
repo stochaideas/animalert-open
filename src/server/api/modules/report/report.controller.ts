@@ -14,6 +14,6 @@ export class ReportController {
   }
 
   async getReportFiles({ reportNumber }: { reportNumber: number }) {
-    return await this.reportService.getReportFiles(reportNumber);
+    return await this.reportService.getReportFiles({ reportNumber });
   }
 }
