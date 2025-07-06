@@ -44,6 +44,7 @@ import {
 } from "~/constants/file-constants";
 import { Checkbox } from "~/components/ui/simple/checkbox";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function Sesizari({
   reportSchema,
@@ -54,10 +55,10 @@ export default function Sesizari({
   const [petitionTemplate, setPetitionTemplate] = useState<string | undefined>(
     undefined,
   );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [templateTypes, setTemplateTypes] = useState<PetitionType[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [sendDisabled, setSendDisabled] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof complaintSchema>>({
     resolver: zodResolver(complaintSchema),
@@ -88,7 +89,7 @@ export default function Sesizari({
   });
 
   const utils = api.useUtils();
-  const { mutateAsync: mutateComplaintAsync, isSuccess: isComplaintSuccess } =
+  const { mutateAsync: mutateComplaintAsync, isPending: isComplaintPending } =
     api.complaint.generateAndSendComplaint.useMutation({
       onSuccess: () => {
         void utils.complaint.invalidate();
@@ -142,28 +143,51 @@ export default function Sesizari({
       );
       setPetitionTemplate(filledTemplate);
     } else {
-      setErrorMessage(
+      toast.error(
         "A fost o eroare la crearea petiției dvs. Vă rugăm să încercați din nou mai târziu. Dacă problema persistă, vă rugăm să o raportați!",
       );
     }
   }
 
   async function sendAndSave() {
-    await mutateComplaintAsync({
-      ...form.getValues(),
-      incidentType: Number(form.getValues().incidentType),
-    });
-    if (isComplaintSuccess) {
-      form.reset();
-      window.location.reload();
+    setSendDisabled(true);
+    if (selectedFiles.length > 0) {
+      setUploading(true);
+      try {
+        const keys = await handleImagesUpload(selectedFiles);
+        const successfulKeys = keys.filter(Boolean) as string[];
+        form.setValue("attachments", successfulKeys);
+      } catch (error) {
+        toast.error("Eroare la încărcarea fișierelor.");
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+
+    try {
+      const result = await mutateComplaintAsync({
+        ...form.getValues(),
+        incidentType: Number(form.getValues().incidentType),
+      });
+
+      if (result && (result as any).success) {
+        toast("Petiția a fost generată cu succes!");
+        form.reset();
+        setSelectedFiles([]);
+      } else {
+        toast.error("Eroare la generarea petiției.");
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "A apărut o eroare neașteptată.",
+      );
+    } finally {
+      setSendDisabled(false);
     }
   }
-
-  useEffect(() => {
-    if (isComplaintSuccess) {
-      setToastMessage("Petiția a fost generată cu succes!");
-    }
-  }, [isComplaintSuccess]);
 
   /**
    * Uploads an array of image files to S3 asynchronously and returns their keys.
@@ -180,14 +204,15 @@ export default function Sesizari({
    * @returns A promise that resolves to an array of S3 keys (or `null` for skipped files).
    * @throws If any upload or pre-signed URL request fails, the error is shown and re-thrown.
    */
-  async function handleImagesUpload(files: (File | undefined)[]) {
+  async function handleImagesUpload(files: File[]) {
     try {
       const urls = await Promise.all(
-        Array.from(files).map(async (file, index) => {
-          if (!file) return null;
+        files.map(async (file, index) => {
+          const extension = file.name.split(".").pop();
+          const fileName = `file_${Date.now()}_${index}.${extension}`;
 
           const response = await uploadFileToS3Async({
-            fileName: `file_${index}`,
+            fileName,
             fileType: file.type,
             fileSize: file.size,
           });
@@ -196,31 +221,20 @@ export default function Sesizari({
             throw new Error("Failed to get a valid URL for the file upload");
           }
 
-          if (!response?.url) {
-            throw new Error("Failed to get a valid URL for the file upload");
-          }
-
-          const url = response.url;
-          const key = response.key;
-
-          if (!url) {
-            throw new Error("Failed to get a valid URL for the file upload");
-          }
-
-          await fetch(url, {
+          await fetch(response.url, {
             method: "PUT",
             body: file,
             headers: { "Content-Type": file.type },
             mode: "cors",
           });
 
-          return key;
+          return response.key;
         }),
       );
       return urls;
     } catch (error) {
-      setErrorMessage("Eroare la încărcarea imaginilor");
-      form.setError("root", {
+      toast.error("Eroare la încărcarea fișierelor.");
+      form.setError("attachments", {
         message:
           error instanceof Error
             ? error.message
@@ -230,22 +244,26 @@ export default function Sesizari({
     }
   }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-    //TODO refactor exisitng file upload component from incidents to be usable accross all components
-    const validFiles = files.filter((file) => {
-      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFiles = Array.from(e.target.files || []);
+    if (newFiles.length === 0) return;
+
+    // Filter valid files by your conditions
+    const validFiles = newFiles.filter((file) => {
+      const isAcceptedType =
+        ACCEPTED_IMAGE_TYPES.includes(file.type) ||
+        ACCEPTED_VIDEO_TYPES.includes(file.type);
+      if (!isAcceptedType) {
         form.setError("attachments", {
           type: "manual",
-          message: `Invalid type: ${file.name}`,
+          message: `Tipul fișierului nu este acceptat: ${file.name}`,
         });
         return false;
       }
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
         form.setError("attachments", {
           type: "manual",
-          message: `File too large: ${file.name}`,
+          message: `Fișier prea mare: ${file.name}`,
         });
         return false;
       }
@@ -254,24 +272,16 @@ export default function Sesizari({
 
     if (validFiles.length === 0) return;
 
-    setUploading(true);
+    setSelectedFiles((prevFiles) => [...prevFiles, ...validFiles]);
 
-    try {
-      const keys = await handleImagesUpload(files);
-      const successfulKeys = keys.filter(Boolean) as string[];
-
-      form.setValue("attachments", successfulKeys);
-    } catch (error) {
-      console.error("Upload error", error);
-    } finally {
-      setUploading(false);
-    }
+    form.clearErrors("attachments");
   };
 
   const confidentiality = form.watch("confidentiality");
-  function isSendingDisabled() {
-    return !confidentiality || uploading;
-  }
+
+  useEffect(() => {
+    setSendDisabled(!confidentiality || uploading);
+  }, [confidentiality, uploading]);
 
   return (
     <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
@@ -658,7 +668,7 @@ export default function Sesizari({
               variant="secondary"
               className="mr-4"
               onClick={sendAndSave}
-              disabled={isSendingDisabled()}
+              disabled={sendDisabled}
             >
               Trimite
             </Button>
@@ -691,7 +701,7 @@ export default function Sesizari({
                     variant="primary"
                     size="sm"
                     className="min-w-44"
-                    disabled={isSendingDisabled()}
+                    disabled={sendDisabled}
                     onClick={sendAndSave}
                   >
                     Salveaza si trimite
@@ -699,10 +709,6 @@ export default function Sesizari({
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <br />
-            {errorMessage ?? (
-              <Label className="block text-amber-900">{errorMessage}</Label>
-            )}
           </form>
         </section>
       </Form>

@@ -5,7 +5,7 @@ import {
   serial,
   text,
   timestamp,
-  varchar
+  varchar,
 } from "drizzle-orm/pg-core";
 import { complaintTemplates } from "../complaint-template/complaint_template.schema";
 
@@ -46,7 +46,7 @@ export const complaintReportContent = pgTable("complaint_report_content", {
   destinationInstitute: varchar("destination_institute", { length: 255 }),
   incidentDescription: text("incident_description"),
   s3Key: varchar("document_s3_key"),
-  attachmentsS3: varchar("attachments_s3", {length: 255}),
+  attachmentsS3: varchar("attachments_s3", { length: 255 }),
 
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
