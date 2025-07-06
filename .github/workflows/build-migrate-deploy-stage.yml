@@ -63,7 +63,7 @@ jobs:
       - name: Run migrations on Fargate
         run: |
           TASK=$(aws ecs run-task \
-            --cluster ${{ env.ECS_CLUSTER }} \
+            --cluster ${{ env.CLUSTER_NAME }} \
             --launch-type FARGATE \
             --task-definition $MIGRATE_TASK_DEF \
             --network-configuration "awsvpcConfiguration={subnets=[${{ env.SUBNETS }}],securityGroups=[${{ env.SECURITY_GROUP }}],assignPublicIp=DISABLED}" \
