@@ -73,12 +73,6 @@ jobs:
           if [ "$EXIT" != "0" ]; then
             echo " Drizzle migration failed"; exit 1
           fi
-      - uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          cluster: ${{ env.ECS_CLUSTER }}
-          service:  animalert-web-app-service
-          task-definition: ${{ env.WEB_TASK_DEF }}
-          wait-for-service-stability: true
   build:
     name: Build
     runs-on: ubuntu-latest
