@@ -19,6 +19,16 @@ const config = {
     ],
   },
   transpilePackages: ["@clerk/nextjs"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "animalert-images.s3.eu-central-1.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
