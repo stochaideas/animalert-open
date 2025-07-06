@@ -47,7 +47,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition-family: ${{ env.MIGRATE_FAMILY }}
-          container-name: db-migrate
+          container-name: db-migrate-stage
           image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_migrate_stage
 
       - run: |
