@@ -51,7 +51,7 @@ jobs:
           image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_migrate_stage
 
       - run: |
-          MIG=$(aws ecs register-task-definition --cli-input-json '${{ steps.render-migrate.outputs.task-definition }}' --query 'taskDefinition.taskDefinitionArn' --output text)
+          MIG=$(aws ecs register-task-definition --cli-input-json file://'${{ steps.render-migrate.outputs.task-definition }}' --query 'taskDefinition.taskDefinitionArn' --output text)
           echo "MIGRATE_TASK_DEF=$MIG" >> "$GITHUB_ENV"
 
       - name: Run migrations on Fargate
@@ -59,7 +59,7 @@ jobs:
           TASK=$(aws ecs run-task \
             --cluster ${{ env.ECS_CLUSTER }} \
             --launch-type FARGATE \
-            --task-definition-family $MIGRATE_TASK_DEF \
+            --task-definition $MIGRATE_TASK_DEF \
             --network-configuration "awsvpcConfiguration={subnets=[${{ env.SUBNETS }}],securityGroups=[${{ env.SECURITY_GROUP }}],assignPublicIp=DISABLED}" \
             --query 'tasks[0].taskArn' --output text)
           aws ecs wait tasks-stopped --cluster ${{ env.ECS_CLUSTER }} --tasks $TASK
