@@ -12,4 +12,8 @@ export class ReportController {
   async upsertReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
     return await this.reportService.upsertReportWithUser(data);
   }
+
+  async getReportFiles({ reportNumber }: { reportNumber: number }) {
+    return await this.reportService.getReportFiles(reportNumber);
+  }
 }

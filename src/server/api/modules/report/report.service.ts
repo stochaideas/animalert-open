@@ -36,6 +36,36 @@ export class ReportService {
     this.smsService = smsService;
   }
 
+  async getReportFiles(reportNumber: number) {
+    const report = await db.query.reports.findFirst({
+      where: eq(reports.reportNumber, reportNumber),
+      columns: {
+        imageKeys: true,
+      },
+    });
+
+    if (!report) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Report with number ${reportNumber} not found`,
+      });
+    }
+
+    if (!report.imageKeys?.length) {
+      return [];
+    }
+
+    const fileKeys = report.imageKeys.filter(
+      (key): key is string => key !== undefined,
+    );
+
+    const fileUrls = await Promise.all(
+      fileKeys.map((key) => this.s3Service.getObjectSignedUrl(key)),
+    );
+
+    return fileUrls;
+  }
+
   async upsertReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
     let isUpdate = false;
 
