@@ -57,7 +57,7 @@ jobs:
              > cleaned-task-def.json
           echo "CLEANED_DEF=cleaned-task-def.json" >> "$GITHUB_ENV"
       - run: |
-          MIG=$(aws ecs register-task-definition --cli-input-json file://'${{ CLEANED_DEF }}' --query 'taskDefinition.taskDefinitionArn' --output text)
+          MIG=$(aws ecs register-task-definition --cli-input-json file://'$CLEANED_DEF' --query 'taskDefinition.taskDefinitionArn' --output text)
           echo "MIGRATE_TASK_DEF=$MIG" >> "$GITHUB_ENV"
 
       - name: Run migrations on Fargate
