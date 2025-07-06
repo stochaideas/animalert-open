@@ -321,11 +321,9 @@ export class ReportService {
   Răspunsuri:
   ${mappedAnswers.length > 0 ? mappedAnswers.join("\n") : "N/A"}`.trim();
 
-    console.log(message, "\nMessage length:", message.length);
-
-    // await this.smsService.sendSms({
-    //   message,
-    // });
+    await this.smsService.sendSms({
+      message,
+    });
   }
 
   /**
