@@ -41,6 +41,7 @@ jobs:
           NODE_ENV=production
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
           NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ secrets.GOOGLE_MAPS_MAP_ID }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }}
           EOF
       # --- 3. Build & push --------------------------------------------
       - name: Build, tag & push image to ECR
@@ -73,4 +74,3 @@ jobs:
             --service  ${{ env.SERVICE_NAME }} \
             --force-new-deployment \
             --region   eu-central-1
-

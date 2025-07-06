@@ -1,9 +1,7 @@
 name: Build & Deploy to ECS Fargate - Stage
 
 on:
- workflow_dispatch:
-  
-  
+  workflow_dispatch:
 
 env:
   AWS_REGION: eu-central-1
@@ -17,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: write        # for OIDC
+      id-token: write # for OIDC
       contents: read
 
     steps:
@@ -29,7 +27,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
-          aws-region:     ${{ env.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       # --- 2. Log in to ECR -------------------------------------------
       - name: Login to Amazon ECR
@@ -39,9 +37,10 @@ jobs:
       - name: Write .env for the build
         run: |
           cat > .env <<EOF
-          
+
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
           NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ secrets.GOOGLE_MAPS_MAP_ID }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.STAGE_CLERK_PUBLISHABLE_KEY }}
           EOF
       # --- 3. Build & push --------------------------------------------
       - name: Build, tag & push image to ECR
@@ -53,25 +52,24 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_stage
 
-          
   deploy:
     permissions:
-      id-token: write        # for OIDC
+      id-token: write # for OIDC
       contents: read
     name: Deploy ECS
     needs: build
     runs-on: ubuntu-latest
     steps:
-         # --- 1. Configure AWS credentials -------------------------------
+      # --- 1. Configure AWS credentials -------------------------------
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
-          aws-region:     ${{ env.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
       - name: Force new ECS deployment
         run: |
-              aws ecs update-service \
-                --cluster  ${{ env.CLUSTER_NAME }} \
-                --service  ${{ env.SERVICE_NAME }} \
-                --force-new-deployment \
-                --region   eu-central-1
+          aws ecs update-service \
+            --cluster  ${{ env.CLUSTER_NAME }} \
+            --service  ${{ env.SERVICE_NAME }} \
+            --force-new-deployment \
+            --region   eu-central-1
