@@ -134,6 +134,20 @@
       "when": 1751721169626,
       "tag": "0018_last_mojo",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1751909506921,
+      "tag": "0019_massive_flatman",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1751909701561,
+      "tag": "0020_charming_rattler",
+      "breakpoints": true
     }
   ]
 }
