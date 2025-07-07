@@ -9,6 +9,7 @@ import Navbar from "../components/ui/complex/navbar";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "~/components/ui/simple/sonner";
+import { env } from "~/env";
 
 export const metadata: Metadata = {
   title: "Animalert",
@@ -40,7 +41,7 @@ export default function RootLayout({
         },
       }}
       signInUrl="/sign-in"
-      signUpUrl="/sign-up"
+      signUpUrl="/sign-up" publishableKey={env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     >
       <html lang="en" className={`${poppins.className}`}>
         <body>
