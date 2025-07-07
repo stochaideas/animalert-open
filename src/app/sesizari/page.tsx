@@ -45,6 +45,7 @@ import {
 import { Checkbox } from "~/components/ui/simple/checkbox";
 import Link from "next/link";
 import { toast } from "sonner";
+import { values } from "lodash";
 
 export default function Sesizari() {
   const MAX_SIZE_MB = 10;
@@ -85,27 +86,25 @@ export default function Sesizari() {
   });
 
   const utils = api.useUtils();
-  const { mutateAsync: mutateComplaintAsync, isPending: isComplaintPending } =
+  const { mutateAsync: mutateComplaintAsync } =
     api.complaint.generateAndSendComplaint.useMutation({
       onSuccess: () => {
         void utils.complaint.invalidate();
       },
     });
 
-  const {
-    mutateAsync: uploadFileToS3Async,
-    isPending: uploadFileToS3IsPending,
-  } = api.s3.getUploadFileSignedUrl.useMutation({
-    onSuccess: () => {
-      void utils.s3.invalidate();
-    },
-  });
+  const { mutateAsync: uploadFileToS3Async } =
+    api.s3.getUploadFileSignedUrl.useMutation({
+      onSuccess: () => {
+        void utils.s3.invalidate();
+      },
+    });
 
   const selectedPetition = Number(form.watch("incidentType"));
   const { data: templateData } = api.complaintTemplate.getTemplate.useQuery(
-    { id: selectedPetition! },
+    { id: selectedPetition },
     {
-      enabled: !!selectedPetition,
+      enabled: Boolean(selectedPetition),
       staleTime: Infinity,
       refetchOnWindowFocus: false,
     },
@@ -124,10 +123,6 @@ export default function Sesizari() {
       setTemplateTypes(templateType.data);
     }
   }, [templateType]);
-
-  const onSubmit = (values: z.infer<typeof complaintSchema>) => {
-    sendAndSave();
-  };
 
   function onPreviewClick() {
     if (petitionTemplate) {
@@ -151,9 +146,9 @@ export default function Sesizari() {
       setUploading(true);
       try {
         const keys = await handleImagesUpload(selectedFiles);
-        const successfulKeys = keys.filter(Boolean) as string[];
+        const successfulKeys = keys.filter(Boolean);
         form.setValue("attachments", successfulKeys);
-      } catch (error) {
+      } catch  {
         toast.error("Eroare la încărcarea fișierelor.");
         setUploading(false);
         return;
@@ -167,7 +162,7 @@ export default function Sesizari() {
         incidentType: Number(form.getValues().incidentType),
       });
 
-      if (result && (result as any).success) {
+      if (result?.success) {
         toast("Petiția a fost generată cu succes!");
         form.reset();
         setSelectedFiles([]);
@@ -241,7 +236,7 @@ export default function Sesizari() {
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(e.target.files || []);
+    const newFiles = Array.from(e.target.files ?? []);
     if (newFiles.length === 0) return;
 
     // Filter valid files by your conditions
@@ -286,7 +281,7 @@ export default function Sesizari() {
       </h1>
       <Form {...form}>
         <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 px-4 py-8 md:p-12">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(values)} className="space-y-6">
             <Label className="block">Date personale</Label>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
@@ -609,7 +604,7 @@ export default function Sesizari() {
             <FormField
               control={form.control}
               name="attachments"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Incarcă imagini/video despre incident</FormLabel>
                   <FormControl>

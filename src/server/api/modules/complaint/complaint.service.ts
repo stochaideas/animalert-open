@@ -6,7 +6,7 @@ import { petitionPlaceholderMap } from "~/constants/petition-form-constants";
 import { env } from "~/env";
 import { streamToBuffer } from "~/lib/stream-to-buffer";
 import { db } from "~/server/db";
-import { complaintSchema } from "~/shared/sesizari/complaint.schema";
+import type { complaintSchema } from "~/shared/sesizari/complaint.schema";
 import { fillTemplate } from "~/utils/templates";
 import { ComplaintTemplateService } from "../complaint-template/complaintTemplate.service";
 import { EmailService } from "../email/email.service";
@@ -118,7 +118,7 @@ ${this.sender}`;
             s3Object.ContentType ?? "application/octet-stream";
 
           attachments.push({
-            filename: key.split("/").pop() || key,
+            filename: key.split("/").pop() ?? key,
             content: fileBuffer,
             contentType,
           });
