@@ -8,6 +8,7 @@ import Footer from "../components/ui/complex/footer";
 import Navbar from "../components/ui/complex/navbar";
 
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "~/components/ui/simple/sonner";
 
 export const metadata: Metadata = {
   title: "Animalert",
@@ -48,6 +49,7 @@ export default function RootLayout({
             <TRPCReactProvider>{children}</TRPCReactProvider>
             <Footer />
           </main>
+          <Toaster position="bottom-center" />
         </body>
       </html>
     </ClerkProvider>

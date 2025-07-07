@@ -1,0 +1,2 @@
+ALTER TABLE "complaint_templates" ADD COLUMN "display_name" varchar(100) NOT NULL;--> statement-breakpoint
+ALTER TABLE "complaint_templates" ADD CONSTRAINT "complaint_templates_display_name_unique" UNIQUE("display_name");

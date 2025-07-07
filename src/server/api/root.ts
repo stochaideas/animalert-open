@@ -6,7 +6,9 @@ import { conflictRouter } from "./modules/report/conflict/conflict.router";
 import { contactRouter } from "./modules/contact/contact.router";
 import { geolocationRouter } from "./modules/geolocation/geolocation.router";
 import { s3Router } from "./modules/s3/s3.router";
+import { complaintRouter } from "./modules/complaint/complaint.router";
 import { feedbackRouter } from "./modules/feedback/feedback.router";
+import { complaintTemplateRouter } from "./modules/complaint-template/complaintTemplate.router";
 
 /**
  * This is the primary router for your server.
@@ -14,10 +16,12 @@ import { feedbackRouter } from "./modules/feedback/feedback.router";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  complaint: complaintRouter,
   incident: incidentRouter,
   presence: presenceRouter,
   conflict: conflictRouter,
   contact: contactRouter,
+  complaintTemplate: complaintTemplateRouter,
   feedback: feedbackRouter,
   geolocation: geolocationRouter,
   s3: s3Router,
