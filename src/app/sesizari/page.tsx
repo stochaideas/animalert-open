@@ -46,11 +46,7 @@ import { Checkbox } from "~/components/ui/simple/checkbox";
 import Link from "next/link";
 import { toast } from "sonner";
 
-export default function Sesizari({
-  reportSchema,
-}: {
-  reportSchema: ReturnType<typeof useForm<z.infer<typeof complaintSchema>>>;
-}) {
+export default function Sesizari() {
   const MAX_SIZE_MB = 10;
   const [petitionTemplate, setPetitionTemplate] = useState<string | undefined>(
     undefined,
