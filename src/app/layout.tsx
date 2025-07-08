@@ -41,7 +41,8 @@ export default function RootLayout({
         },
       }}
       signInUrl="/sign-in"
-      signUpUrl="/sign-up" publishableKey={env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      signUpUrl="/sign-up"
+      publishableKey={env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     >
       <html lang="en" className={`${poppins.className}`}>
         <body>
