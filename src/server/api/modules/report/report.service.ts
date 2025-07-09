@@ -13,6 +13,9 @@ import type { z } from "zod";
 import type { S3Service } from "../s3/s3.service";
 import type { SmsService } from "../sms/sms.service";
 import { REPORT_TYPES } from "~/constants/report-types";
+import { env } from "~/env";
+
+const environment = env.NODE_ENV;
 
 export class ReportService {
   protected emailService: EmailService;
@@ -302,9 +305,9 @@ export class ReportService {
 
     // Determine base URL based on environment
     let baseUrl = "https://anim-alert.org/";
-    if (process.env.NODE_ENV === "development") {
+    if (environment === "development") {
       baseUrl = "http://localhost:3000";
-    } else if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") {
+    } else if (environment === "test") {
       baseUrl = "https://stage.anim-alert.org";
     }
 
