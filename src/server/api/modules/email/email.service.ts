@@ -26,20 +26,16 @@ export class EmailService {
     const subjectPrefix =
       environment === "production" ? "" : `[${environment.toUpperCase()}] `;
 
-      await this.transporter.sendMail({
-        from: env.EMAIL_FROM,
-        to: data.to,
-        cc: data.cc,
-        subject: subjectPrefix + data.subject,
-        text: data.text,
-        html: data.html,
-        attachments: data.attachments,
-      });
+    await this.transporter.sendMail({
+      from: env.EMAIL_FROM,
+      to: data.to,
+      cc: data.cc,
+      subject: subjectPrefix + data.subject,
+      text: data.text,
+      html: data.html,
+      attachments: data.attachments,
+    });
 
-      console.log("Email sent successfully");
-    } catch (error) {
-      console.error("Error sending email:", error);
-      throw new Error("Failed to send email");
-    }
+    console.log("Email sent successfully");
   }
 }
