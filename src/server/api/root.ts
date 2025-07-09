@@ -20,7 +20,6 @@ import { reportRouter } from "./modules/report/report.router";
 export const appRouter = createTRPCRouter({
   report: reportRouter,
   complaint: complaintRouter,
-  report: reportRouter,
   incident: incidentRouter,
   presence: presenceRouter,
   conflict: conflictRouter,
