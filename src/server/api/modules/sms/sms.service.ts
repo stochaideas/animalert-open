@@ -7,6 +7,8 @@ import { env } from "~/env";
 import type { smsOptionsSchema } from "./sms.schema";
 import type { z } from "zod";
 
+const environment = env.NODE_ENV;
+
 export class SmsService {
   private snsClient: SNSClient;
 
@@ -38,13 +40,19 @@ export class SmsService {
    * @throws Will throw an error if the SMS fails to send.
    */
   async sendSms(input: z.infer<typeof smsOptionsSchema>) {
+    const messagePrefix =
+      environment === "production" ? "" : `[${environment.toUpperCase()}] `;
+
     const command = new PublishCommand({
-      Message: input.message,
+      Message: messagePrefix + input.message,
       TopicArn: env.SNS_TOPIC_ARN,
     });
 
     try {
       const response = await this.snsClient.send(command);
+
+      console.log("SMS sent successfully");
+
       return response;
     } catch (error) {
       console.error("Error sending SMS:", error);

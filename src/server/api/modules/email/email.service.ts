@@ -35,6 +35,7 @@ export class EmailService {
         html: data.html,
         attachments: data.attachments,
       });
+
       console.log("Email sent successfully");
     } catch (error) {
       console.error("Error sending email:", error);

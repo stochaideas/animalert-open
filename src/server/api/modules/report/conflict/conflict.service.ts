@@ -7,10 +7,11 @@ import { REPORT_TYPES } from "~/constants/report-types";
 import { S3Service } from "../../s3/s3.service";
 import { streamToBuffer } from "~/lib/stream-to-buffer";
 import type { Readable } from "stream";
+import { SmsService } from "../../sms/sms.service";
 
 export class ConflictService extends ReportService {
   constructor() {
-    super(new EmailService(), new S3Service());
+    super(new EmailService(), new S3Service(), new SmsService());
   }
 
   async upsertReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
