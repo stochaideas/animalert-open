@@ -10,10 +10,6 @@ import { Toaster } from "~/components/ui/simple/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
 import { env } from "~/env";
 
-import { ClerkProvider } from "@clerk/nextjs";
-import { Toaster } from "~/components/ui/simple/sonner";
-import { env } from "~/env";
-
 export const metadata: Metadata = {
   title: "Animalert",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
