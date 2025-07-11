@@ -18,12 +18,12 @@ export class SmsService {
 
   private createSnsClient() {
     const config: SNSClientConfig = {
-      region: process.env.AWS_REGION,
+      region: env.AWS_REGION,
       credentials:
         env.NODE_ENV === "development"
           ? {
-              accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
-              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
+              accessKeyId: env.AWS_ACCESS_KEY_ID ?? "",
+              secretAccessKey: env.AWS_SECRET_ACCESS_KEY ?? "",
             }
           : undefined,
     };
