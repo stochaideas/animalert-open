@@ -18,7 +18,7 @@ export class SmsService {
 
   private createSnsClient() {
     const config: SNSClientConfig = {
-      region: env.AWS_REGION,
+      region: "eu-central-1",
       credentials:
         env.NODE_ENV === "development"
           ? {
