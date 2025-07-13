@@ -4,6 +4,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   type S3ClientConfig,
+  HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
@@ -50,6 +51,40 @@ export class S3Service {
       return response;
     } catch (error) {
       console.error("Error getting object from S3:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generates a pre-signed URL for accessing an object stored in an AWS S3 bucket.
+   *
+   * @param key - The key (path/filename) of the S3 object for which to generate the signed URL.
+   * @returns A promise that resolves to the signed URL string, valid for 60 seconds.
+   * @throws Will throw an error if the signed URL cannot be generated.
+   */
+  async getObjectSignedUrl(key: string) {
+    const command = new GetObjectCommand({
+      Bucket: env.AWS_S3_BUCKET_NAME,
+      Key: key,
+    });
+
+    // Get file type
+    const headCommand = new HeadObjectCommand({
+      Bucket: env.AWS_S3_BUCKET_NAME,
+      Key: key,
+    });
+
+    try {
+      const headResponse = await this.s3.send(headCommand);
+      const contentType = headResponse.ContentType;
+
+      const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
+      return {
+        url: signedUrl,
+        type: contentType ?? "application/octet-stream", // Default to binary if no type is found
+      };
+    } catch (error) {
+      console.error("Error generating signed URL for S3 object:", error);
       throw error;
     }
   }

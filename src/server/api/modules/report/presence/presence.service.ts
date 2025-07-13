@@ -7,7 +7,7 @@ import { S3Service } from "../../s3/s3.service";
 
 export class PresenceService extends ReportService {
   constructor() {
-    super(new EmailService(), new S3Service());
+    super(new EmailService(), new S3Service(), new SmsService());
   }
 
   async upsertReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {

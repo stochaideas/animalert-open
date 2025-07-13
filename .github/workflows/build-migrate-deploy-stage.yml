@@ -1,0 +1,140 @@
+name: Migrate and Deploy - Stage 
+
+on:
+ workflow_dispatch:
+env:
+  AWS_REGION: eu-central-1
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  CLUSTER_NAME: ${{ secrets.ECR_CLUSTER_NAME }}
+  SERVICE_NAME: ${{ secrets.ECR_SERVICE_NAME }}-stage
+  MIGRATE_FAMILY: animalert-db-migrate-task-stage
+  SUBNETS:       ${{ secrets.SUBNETS_STAGE }}
+  SECURITY_GROUP: ${{ secrets.SG_STAGE }}
+jobs:
+  migrate:
+    name: Prepare and Run Migrations
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Write .env for the build
+        run: |
+          cat > .env <<EOF
+          
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ secrets.GOOGLE_MAPS_MAP_ID }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.STAGE_CLERK_PUBLISHABLE_KEY }}
+          EOF
+      - id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.migrate
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_migrate_stage
+      - id: render-migrate
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition-family: ${{ env.MIGRATE_FAMILY }}
+          container-name: db-migrate-stage
+          image:  ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_migrate_stage
+      - name: Strip empty tags (if any)
+        id: cleaned
+        run: |
+          jq 'del(.tags | select(length == 0))' \
+             "${{ steps.render-migrate.outputs.task-definition }}" \
+             > cleaned-task-def.json
+          echo "CLEANED_DEF=cleaned-task-def.json" >> "$GITHUB_ENV"
+      - run: |
+          MIG=$(aws ecs register-task-definition --cli-input-json file://'$CLEANED_DEF' --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "MIGRATE_TASK_DEF=$MIG" >> "$GITHUB_ENV"
+
+      - name: Run migrations on Fargate
+        run: |
+          TASK=$(aws ecs run-task \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --launch-type FARGATE \
+            --task-definition $MIGRATE_TASK_DEF \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ env.SUBNETS }}],securityGroups=[${{ env.SECURITY_GROUP }}],assignPublicIp=DISABLED}" \
+            --query 'tasks[0].taskArn' --output text)
+          aws ecs wait tasks-stopped --cluster ${{ env.CLUSTER_NAME }} --tasks $TASK
+          EXIT=$(aws ecs describe-tasks --cluster ${{ env.CLUSTER_NAME }} --tasks $TASK --query 'tasks[0].containers[0].exitCode' --output text)
+          if [ "$EXIT" != "0" ]; then
+            echo " Drizzle migration failed"; exit 1
+          fi
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+  
+    permissions:
+      id-token: write        # for OIDC
+      contents: read
+    if: ${{ false }} 
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+  
+      # --- 1. Configure AWS credentials -------------------------------
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
+          aws-region:     ${{ env.AWS_REGION }}
+  
+      # --- 2. Log in to ECR -------------------------------------------
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        # The file exists only in the runner’s workspace; it’s never committed.
+      - name: Write .env for the build
+        run: |
+          cat > .env <<EOF
+          
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ secrets.GOOGLE_MAPS_MAP_ID }}
+          EOF
+      # --- 3. Build & push --------------------------------------------
+      - name: Build, tag & push image to ECR
+        id: build-image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest_stage
+  
+          
+  deploy:
+    permissions:
+      id-token: write        # for OIDC
+      contents: read
+    name: Deploy ECS
+    if: ${{ false }} 
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+         # --- 1. Configure AWS credentials -------------------------------
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubWebappDeploy
+          aws-region:     ${{ env.AWS_REGION }}
+      - name: Force new ECS deployment
+        run: |
+              aws ecs update-service \
+                --cluster  ${{ env.CLUSTER_NAME }} \
+                --service  ${{ env.SERVICE_NAME }} \
+                --force-new-deployment \
+                --region   eu-central-1
