@@ -1,21 +1,29 @@
+// External dependencies
 import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+import type { z } from "zod";
+
+// Application-specific modules
 import { db } from "~/server/db";
 import { reports, type upsertReportWithUserSchema } from "./report.schema";
 import { users } from "../user/user.schema";
-import { TRPCError } from "@trpc/server";
 import { normalizePhoneNumber } from "~/lib/phone";
-import { type EmailService } from "../email/email.service";
-import {
-  handlePostgresError,
-  type PostgresError,
-} from "~/server/db/postgres-error";
-import type { z } from "zod";
-import type { S3Service } from "../s3/s3.service";
-import type { SmsService } from "../sms/sms.service";
 import { env } from "~/env";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { format } from "~/lib/date-formatter";
 
+// Service and error handling types
+import { type EmailService } from "../email/email.service";
+import type { S3Service } from "../s3/s3.service";
+import type { SmsService } from "../sms/sms.service";
+import {
+  handlePostgresError,
+  type PostgresError,
+} from "~/server/db/postgres-error";
+
+/**
+ * Service for handling report creation, updates, notifications, and file retrieval.
+ */
 export class ReportService {
   protected emailService: EmailService;
   protected s3Service: S3Service;
@@ -67,6 +75,7 @@ export class ReportService {
             });
           }
 
+          // Ensure phone number is normalized before updating
           const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
           await tx
             .update(users)
@@ -143,15 +152,18 @@ export class ReportService {
       } catch (error) {
         if (error instanceof TRPCError) throw error;
 
+        // Handle and rethrow Postgres-specific errors
         handlePostgresError(error as PostgresError);
       }
     });
 
+    // Send notification emails after transaction
     await this.sendReportEmail(result);
 
     const reportType = result.report?.reportType as REPORT_TYPES;
     const conversation = result.report?.conversation;
 
+    // Send admin SMS notification for specific scenarios
     if (
       isUpdate &&
       (reportType === REPORT_TYPES.PRESENCE ||
@@ -161,7 +173,6 @@ export class ReportService {
           Array.isArray(JSON.parse(conversation) as unknown[]) &&
           (JSON.parse(conversation) as unknown[]).length > 0))
     ) {
-      // Send admin SMS notification for new report
       await this.sendAdminReportSms(result.report?.reportNumber);
     }
 
@@ -191,7 +202,6 @@ export class ReportService {
    * // templates.userTitle === "✅ Raportul tău de prezență a fost creat"
    * // templates.userThanks === "Îți mulțumim că ai raportat o prezență pe AnimAlert."
    */
-
   protected getEmailTemplates(reportType: REPORT_TYPES, actionType: string) {
     let subjectPrefix = "";
     let adminTitle = "";
@@ -254,7 +264,6 @@ export class ReportService {
    *   isUpdate: false
    * });
    */
-
   protected async sendReportEmail(result: {
     user:
       | {
@@ -299,6 +308,7 @@ export class ReportService {
       answer: string | string[];
     }[] = [];
 
+    // Parse chatbot conversation if present
     if (conversation) {
       try {
         conversationArray = JSON.parse(conversation) as {
@@ -589,6 +599,7 @@ Echipa AnimAlert
       return [];
     }
 
+    // Filter out undefined keys before requesting signed URLs
     const fileKeys = report.imageKeys.filter(
       (key): key is string => key !== undefined,
     );
