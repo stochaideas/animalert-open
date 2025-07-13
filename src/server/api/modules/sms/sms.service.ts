@@ -39,11 +39,10 @@ export class SmsService {
    */
   async sendSms(input: z.infer<typeof smsOptionsSchema>) {
     const messagePrefix =
-      environment === "production" ? "" : `[${environment.toUpperCase()}] `;
+      env.NODE_ENV === "production" ? "" : `[${env.NODE_ENV.toUpperCase()}] `;
 
     const command = new PublishCommand({
-      // Message: messagePrefix + input.message,
-      Message: `${environment} raport nou creat`,
+      Message: messagePrefix + input.message,
       TopicArn: env.SNS_TOPIC_ARN,
     });
 

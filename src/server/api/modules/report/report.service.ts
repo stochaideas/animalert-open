@@ -170,6 +170,30 @@ export class ReportService {
     return result;
   }
 
+  /**
+   * Generates localized email template strings (subject prefix, admin title, user title, and user thank you message)
+   * based on the provided report type and action type.
+   *
+   * @param reportType - The type of report (e.g., PRESENCE, INCIDENT, CONFLICT) from the REPORT_TYPES enum.
+   * @param actionType - A string describing the action performed (e.g., "creat", "actualizat").
+   * @returns An object containing the following template strings:
+   *   - subjectPrefix: The prefix for the email subject line.
+   *   - adminTitle: The title used in emails sent to administrators.
+   *   - userTitle: The title used in emails sent to users.
+   *   - userThanks: A thank you message for the user.
+   *
+   * @remarks
+   * This method is used to ensure consistent and context-aware email content for both admins and users,
+   * adapting the message to the specific type of report and action performed.
+   *
+   * @example
+   * const templates = this.getEmailTemplates(REPORT_TYPES.PRESENCE, "nou creat");
+   * // templates.subjectPrefix === "Raport prezență"
+   * // templates.adminTitle === "📋 Raport creat - AnimAlert"
+   * // templates.userTitle === "✅ Raportul tău de prezență a fost creat"
+   * // templates.userThanks === "Îți mulțumim că ai raportat o prezență pe AnimAlert."
+   */
+
   protected getEmailTemplates(reportType: REPORT_TYPES, actionType: string) {
     let subjectPrefix = "";
     let adminTitle = "";
@@ -208,7 +232,31 @@ export class ReportService {
       userThanks,
     };
   }
-    
+
+  /**
+   * Sends detailed report emails to both the admin and the reporting user, including all relevant report and user information,
+   * formatted for both HTML and plain text, and handles attachments and error scenarios.
+   *
+   * @param result - An object containing:
+   *   - user: The reporting user's details (id, name, phone, email, notification preferences).
+   *   - report: The report details (id, number, type, coordinates, address, conversation, update preferences, images, timestamps).
+   *   - isUpdate (optional): Boolean indicating if the report is an update or a new creation.
+   * @throws {TRPCError} Throws an error with code "INTERNAL_SERVER_ERROR" if user or report data is missing.
+   * @remarks
+   * This method generates and sends two types of emails:
+   *   1. **Admin Email**: Contains comprehensive report and user details, chatbot Q&A, and attaches images if present. If the email size exceeds limits, retries without attachments.
+   *   2. **User Email**: Sent only for new reports when the user has opted in for updates and provided an email. Includes a thank you message and confirmation.
+   *
+   * The method also parses chatbot conversation data, generates Google Maps links for coordinates, and localizes content using `getEmailTemplates`.
+   *
+   * @example
+   * await this.sendReportEmail({
+   *   user: { id: "1", firstName: "Ana", lastName: "Pop", phone: "0712345678", email: "ana@example.com", receiveOtherReportUpdates: true },
+   *   report: { id: "r1", reportNumber: 123, reportType: REPORT_TYPES.PRESENCE, latitude: 46.77, longitude: 23.59, receiveUpdates: true },
+   *   isUpdate: false
+   * });
+   */
+
   protected async sendReportEmail(result: {
     user:
       | {
@@ -237,9 +285,8 @@ export class ReportService {
       | undefined;
     isUpdate?: boolean;
   }) {
-    
     const { user, report, isUpdate } = result;
-    
+
     if (!user || !report) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -253,7 +300,7 @@ export class ReportService {
       question: string;
       answer: string | string[];
     }[] = [];
-    
+
     if (conversation) {
       try {
         conversationArray = JSON.parse(conversation) as {
@@ -269,7 +316,7 @@ export class ReportService {
       latitude && longitude
         ? `https://www.google.com/maps?q=${latitude},${longitude}`
         : null;
-    
+
     const actionType = isUpdate ? "actualizat" : "nou creat";
     const imagesCount = report.imageKeys?.length;
 
@@ -494,7 +541,8 @@ Echipa AnimAlert
         console.error("Error sending user email:", error);
       }
     }
-    
+  }
+
   /**
    * Sends an SMS notification to the admin with details about a newly created or updated report.
    *

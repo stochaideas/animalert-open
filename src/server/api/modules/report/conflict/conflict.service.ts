@@ -4,6 +4,7 @@ import { ReportService } from "../report.service";
 import type { z } from "zod";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { S3Service } from "../../s3/s3.service";
+import { SmsService } from "../../sms/sms.service";
 
 export class ConflictService extends ReportService {
   constructor() {
