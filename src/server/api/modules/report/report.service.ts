@@ -12,8 +12,6 @@ import {
 import type { z } from "zod";
 import type { S3Service } from "../s3/s3.service";
 import type { SmsService } from "../sms/sms.service";
-import type { Readable } from "stream";
-import { streamToBuffer } from "~/lib/stream-to-buffer";
 import { env } from "~/env";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { format } from "~/lib/date-formatter";
@@ -164,7 +162,7 @@ export class ReportService {
           (JSON.parse(conversation) as unknown[]).length > 0))
     ) {
       // Send admin SMS notification for new report
-      await this.sendAdminReportSms(result);
+      await this.sendAdminReportSms(result.report?.reportNumber);
     }
 
     return result;
@@ -318,27 +316,21 @@ export class ReportService {
         : null;
 
     const actionType = isUpdate ? "actualizat" : "nou creat";
+
     const imagesCount = report.imageKeys?.length;
+
+    // Determine base URL based on environment
+    let baseUrl = "https://anim-alert.org/";
+    if (process.env.NODE_ENV === "development") {
+      baseUrl = "http://localhost:3000";
+    } else if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") {
+      baseUrl = "https://stage.anim-alert.org";
+    }
+
+    const fileUploadsUrl = `${baseUrl}/file-uploads/${report.reportNumber}`;
 
     const { subjectPrefix, adminTitle, userTitle, userThanks } =
       this.getEmailTemplates(reportType as REPORT_TYPES, actionType);
-
-    const attachments = [];
-
-    if (report.imageKeys && report.imageKeys.length > 0) {
-      for (const [idx, key] of report.imageKeys.entries()) {
-        const s3ObjectResponse = await this.s3Service.getObject(key);
-        const buffer = await streamToBuffer(s3ObjectResponse.Body as Readable);
-        const contentType =
-          s3ObjectResponse.ContentType ?? "application/octet-stream";
-        const filename = `file-${idx + 1}`;
-        attachments.push({
-          filename: filename + "." + contentType.split("/")[1],
-          content: buffer,
-          contentType,
-        });
-      }
-    }
 
     /*
       EMAIL TO BE SENT TO ADMIN
@@ -373,10 +365,10 @@ export class ReportService {
           <li><strong>Primește alte actualizări:</strong> ${user.receiveOtherReportUpdates ? "Da" : "Nu"}</li>
         </ul>
       </div>
-      <!-- Presence Info -->
+      <!-- Report Info -->
       <div style="margin-bottom:24px;">
         <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-          📍 Detalii raport prezență
+          📍 Detalii raport
         </div>
         <ul style="padding-left:18px;margin:0;list-style-type:none;">
           <li><strong>Status actualizări:</strong> ${report.receiveUpdates ? "Activat" : "Dezactivat"}</li>
@@ -388,6 +380,7 @@ export class ReportService {
                 : ""
             }
           </li>
+          <li>Link imagini și videoclipuri atașate: <a href="${fileUploadsUrl}">${fileUploadsUrl}</a></li>
           <li><strong>Data creării:</strong> ${report.createdAt ? format(report.createdAt) : "N/A"}</li>
           <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? format(report.updatedAt) : "N/A"}</li>
         </ul>
@@ -457,7 +450,6 @@ Imagini: ${imagesCount} fișiere atașate
         subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber}`,
         html: adminHtml,
         text: adminEmailText,
-        attachments: attachments,
       });
     } catch (error) {
       if (
@@ -544,161 +536,27 @@ Echipa AnimAlert
   }
 
   /**
-   * Sends an SMS notification to the admin with details about a newly created or updated report.
+   * Sends a simple SMS notification to the admin when a new report is created.
    *
-   * The SMS includes user information, report details (such as coordinates, images, and chatbot conversation),
-   * and a Google Maps link if coordinates are available. The message is formatted in Romanian.
+   * The SMS message will contain only the report number in the following format:
+   * "Raport nou creat: {reportNumber}"
    *
-   * @param result - The result object containing user and report data.
-   * @param result.user - The user who submitted the report. If undefined, an error is thrown.
-   * @param result.report - The report details. If undefined, an error is thrown.
-   * @param result.isUpdate - Optional flag indicating if the report is an update.
-   * @throws {TRPCError} If either the user or report data is missing.
+   * @param reportNumber - The unique number identifying the newly created report.
+   * @throws {TRPCError} Throws an error with code "INTERNAL_SERVER_ERROR" if the report number is missing.
+   *
+   * @example
+   * await this.sendAdminReportSms(1234);
+   * // SMS sent: "Raport nou creat: 1234"
    */
-  protected async sendAdminReportSms(result: {
-    user:
-      | {
-          id: string;
-          firstName: string;
-          lastName: string;
-          phone: string;
-          email: string | null;
-          receiveOtherReportUpdates: boolean | null;
-        }
-      | undefined;
-    report:
-      | {
-          id: string;
-          reportNumber: number;
-          reportType: string;
-          latitude?: number | null;
-          longitude?: number | null;
-          address?: string | null;
-          conversation?: string | null;
-          receiveUpdates: boolean | null;
-          imageKeys?: string[] | null;
-          createdAt?: Date | null;
-          updatedAt?: Date | null;
-        }
-      | undefined;
-    isUpdate?: boolean;
-  }) {
-    const { user, report } = result;
-
-    if (!user || !report) {
+  protected async sendAdminReportSms(reportNumber?: number) {
+    if (!reportNumber) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "User or report data is missing",
+        message: "Report number is missing",
       });
     }
 
-    const { latitude, longitude, conversation, reportType } = report;
-
-    let conversationArray: {
-      question: string;
-      answer: string | string[];
-    }[] = [];
-
-    if (conversation) {
-      try {
-        conversationArray = JSON.parse(conversation) as {
-          question: string;
-          answer: string | string[];
-        }[];
-      } catch {
-        conversationArray = [];
-      }
-    }
-
-    const mapsUrl =
-      latitude && longitude
-        ? `https://www.google.com/maps?q=${latitude},${longitude}`
-        : null;
-
-    let objectNameRomanian = "";
-
-    switch (reportType as REPORT_TYPES) {
-      case REPORT_TYPES.INCIDENT:
-        objectNameRomanian = "Raport incident";
-        break;
-      case REPORT_TYPES.PRESENCE:
-        objectNameRomanian = "Raport prezență";
-        break;
-      case REPORT_TYPES.CONFLICT:
-        objectNameRomanian = "Raport conflict/interacțiune";
-        break;
-      default:
-        objectNameRomanian = "Raport";
-        break;
-    }
-
-    // Map for each question (by index)
-    const answerShortForms: Record<number, Record<string, string>> = {
-      0: {
-        // Categorie animal
-        Pasăre: "Pasăre",
-        "Mamifer (vulpe, liliac, arici, mistreț, rozător, pisică sălbatică etc.)":
-          "Mamifer",
-        "Reptilă (șarpe, șopârlă, țestoasă)": "Reptilă",
-        "Amfibian (broască, salamandră, triton etc.)": "Amfibian",
-        "Pește (decedat, pescuit ilegal)": "Pește",
-      },
-      1: {
-        // Este viu animalul?
-        Da: "Viu",
-        Nu: "Mort",
-      },
-      2: {
-        // Care este problema identificată?
-        "Răni vizibile: plăgi deschise, hemoragie, oase la vedere":
-          "Răni vizibile",
-        "Nu se mișcă (inert)": "Inert",
-        "Problemă la mers": "Problemă la mers",
-        "Posibilă problemă (nu majoră)": "Posibilă problemă",
-      },
-      3: {
-        // Există pericole...
-        Da: "Pericol",
-        Nu: "Fără pericol",
-      },
-      // 4 and 5 are free text, no mapping needed
-    };
-
-    function mapAnswer(questionIdx: number, answer: string | string[]) {
-      // For multiple-choice questions (e.g., problem identified)
-      if (Array.isArray(answer)) {
-        return answer
-          .map((opt) => answerShortForms[questionIdx]?.[opt] ?? opt)
-          .join(", ");
-      }
-      // For single-choice or input
-      return answerShortForms[questionIdx]?.[answer] ?? answer;
-    }
-
-    const mappedAnswers = conversationArray.map((conversationItem, idx) =>
-      mapAnswer(idx, conversationItem.answer),
-    );
-
-    // Determine base URL based on environment
-    let baseUrl = "https://anim-alert.org/";
-    if (process.env.NODE_ENV === "development") {
-      baseUrl = "http://localhost:3000";
-    } else if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") {
-      baseUrl = "https://stage.anim-alert.org";
-    }
-
-    const fileUploadsUrl = `${baseUrl}/file-uploads/${report.reportNumber}`;
-
-    const message = `
-  ${objectNameRomanian} nou creat
-  Nume: ${user.lastName} ${user.firstName}
-  Telefon: ${user.phone}
-  Email: ${user.email ?? "Nespecificat"}
-  Detalii raport:
-  ${mapsUrl ? `Locație: ${mapsUrl}` : ""}
-  Fișiere: ${fileUploadsUrl}
-  Răspunsuri:
-  ${mappedAnswers.length > 0 ? mappedAnswers.join("\n") : "N/A"}`.trim();
+    const message = `Raport nou creat: ${reportNumber}`;
 
     await this.smsService.sendSms({
       message,

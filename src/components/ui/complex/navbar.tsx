@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+// import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,7 +26,7 @@ import {
 } from "~/components/ui/simple/navigation-menu";
 
 import { cn } from "~/lib/utils";
-import AuthButton from "./auth-button";
+// import AuthButton from "./auth-button";
 
 const navItems: {
   title: string;
@@ -239,7 +239,7 @@ export default function Navbar() {
                   </Link>
                 </NavigationMenuItem>
               ))}
-              <AuthButton />
+              {/* <AuthButton /> */}
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -281,12 +281,12 @@ export default function Navbar() {
                 </NavigationMenuItem>
               ),
             )}
-            <SignedOut>
+            {/* <SignedOut>
               <SignInButton />
             </SignedOut>
             <SignedIn>
               <UserButton />
-            </SignedIn>
+            </SignedIn> */}
           </NavigationMenuList>
           <NavigationMenuList className="flex flex-col items-start gap-3">
             {actionItems.map((item) => (

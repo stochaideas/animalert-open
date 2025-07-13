@@ -8,12 +8,18 @@ import "./src/env.js";
 const config = {
   reactStrictMode: true,
   output: "standalone",
-  transpilePackages: ["@clerk/nextjs"],
+  // transpilePackages: ["@clerk/nextjs"],
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "animalert-images.s3.eu-central-1.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "animalert-images-stage.s3.eu-central-1.amazonaws.com",
         port: "",
         pathname: "/**",
       },

@@ -47,6 +47,19 @@ export class SmsService {
     });
 
     try {
+      // Simulate SMS sending in development mode
+      if (env.NODE_ENV === "development") {
+        console.info("Development mode: SMS sending is simulated.");
+        console.info(`Message: ${input.message}`);
+        return Promise.resolve({
+          MessageId: "simulated-message-id",
+          ResponseMetadata: {
+            RequestId: "simulated-request-id",
+            HTTPStatusCode: 200,
+          },
+        });
+      }
+
       const response = await this.snsClient.send(command);
 
       console.log("SMS sent successfully");
