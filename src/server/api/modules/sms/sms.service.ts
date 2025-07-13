@@ -7,8 +7,6 @@ import { env } from "~/env";
 import type { smsOptionsSchema } from "./sms.schema";
 import type { z } from "zod";
 
-const environment = env.NODE_ENV;
-
 export class SmsService {
   private snsClient: SNSClient;
 
@@ -18,7 +16,7 @@ export class SmsService {
 
   private createSnsClient() {
     const config: SNSClientConfig = {
-      region: "eu-central-1",
+      region: process.env.AWS_REGION,
       credentials:
         env.NODE_ENV === "development"
           ? {
@@ -41,15 +39,27 @@ export class SmsService {
    */
   async sendSms(input: z.infer<typeof smsOptionsSchema>) {
     const messagePrefix =
-      environment === "production" ? "" : `[${environment.toUpperCase()}] `;
+      env.NODE_ENV === "production" ? "" : `[${env.NODE_ENV.toUpperCase()}] `;
 
     const command = new PublishCommand({
-      // Message: messagePrefix + input.message,
-      Message: `${environment} raport nou creat`,
+      Message: messagePrefix + input.message,
       TopicArn: env.SNS_TOPIC_ARN,
     });
 
     try {
+      // Simulate SMS sending in development mode
+      if (env.NODE_ENV === "development") {
+        console.info("Development mode: SMS sending is simulated.");
+        console.info(`Message: ${input.message}`);
+        return Promise.resolve({
+          MessageId: "simulated-message-id",
+          ResponseMetadata: {
+            RequestId: "simulated-request-id",
+            HTTPStatusCode: 200,
+          },
+        });
+      }
+
       const response = await this.snsClient.send(command);
 
       console.log("SMS sent successfully");
