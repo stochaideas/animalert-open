@@ -44,7 +44,8 @@ export class SmsService {
       environment === "production" ? "" : `[${environment.toUpperCase()}] `;
 
     const command = new PublishCommand({
-      Message: messagePrefix + input.message,
+      // Message: messagePrefix + input.message,
+      Message: `${environment} raport nou creat`,
       TopicArn: env.SNS_TOPIC_ARN,
     });
 
