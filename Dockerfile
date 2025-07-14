@@ -37,7 +37,18 @@ RUN \
 FROM --platform=linux/amd64 node:20-alpine AS runner
 WORKDIR /app
 
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
 ENV NODE_ENV = production
+
+ENV PUPPETEER_EXECUTABLE_PATH = /usr/bin/chromium-browser
+ENV PUPPETEER_SKIP_DOWNLOAD = true
 
 ENV NEXT_TELEMETRY_DISABLED = 1
 
