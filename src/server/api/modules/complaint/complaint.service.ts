@@ -127,7 +127,7 @@ ${this.sender}`;
           console.error(`Failed to fetch S3 object ${key}:`, error);
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to fetch S3 object ${key}, error: ${error}`,
+            message: `Failed to fetch S3 object ${key}`,
           });
         }
       }
