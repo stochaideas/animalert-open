@@ -15,6 +15,7 @@ import {
   complaintReportContent,
   complaintReportPersonalData,
 } from "./complaint.schema";
+import { TRPCError } from "@trpc/server";
 
 export class ComplaintService {
   private complaintTemplateService: ComplaintTemplateService;
@@ -40,10 +41,10 @@ export class ComplaintService {
 
       const filledTemplate = await this.fillPDFTemplate(input);
       if (!filledTemplate) {
-        return {
-          success: false,
-          error: "Template could not be loaded or filled.",
-        };
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Template could not be loaded or filled.",
+        });
       }
 
       const safePetitionName = this.petitionName.replace(
@@ -70,20 +71,20 @@ export class ComplaintService {
         pdfFileName,
       );
       if (!uploaded) {
-        return {
-          success: false,
-          error: "Failed to upload PDF to S3",
-        };
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to upload PDF to S3",
+        });
       }
 
       const saveResult = await this.saveComplaint(input, pdfFileName);
       return saveResult;
     } catch (err) {
       console.error("Complaint generation failed:", err);
-      return {
-        success: false,
-        error: "Internal server error while generating complaint.",
-      };
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Internal server error while generating complaint.",
+      });
     }
   }
 
@@ -124,7 +125,10 @@ ${this.sender}`;
           });
         } catch (error) {
           console.error(`Failed to fetch S3 object ${key}:`, error);
-          return { success: false, error: `Attachment fetch failed: ${key}` };
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to fetch S3 object ${key}, error: ${error}`,
+          });
         }
       }
     }
@@ -141,7 +145,10 @@ ${this.sender}`;
       return { success: true };
     } catch (err) {
       console.error("Failed to send email:", err);
-      return { success: false, error: "Failed to send email." };
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to send email",
+      });
     }
   }
 
@@ -218,10 +225,10 @@ ${this.sender}`;
       });
     } catch (err) {
       console.error("Failed to save complaint:", err);
-      return {
-        success: false,
-        error: "Error saving complaint to the database.",
-      };
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Error saving complaint to the database",
+      });
     }
   }
 
