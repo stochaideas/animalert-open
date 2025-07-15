@@ -20,16 +20,6 @@ import {
   handlePostgresError,
   type PostgresError,
 } from "~/server/db/postgres-error";
-import type { z } from "zod";
-import type { S3Service } from "../s3/s3.service";
-import type { SmsService } from "../sms/sms.service";
-import { REPORT_TYPES } from "~/constants/report-types";
-import { env } from "~/env";
-import { streamToBuffer } from "~/lib/stream-to-buffer";
-import type { Readable } from "stream";
-import { format } from "~/lib/date-formatter";
-
-const environment = env.NODE_ENV;
 
 /**
  * Service for handling report creation, updates, notifications, and file retrieval.
