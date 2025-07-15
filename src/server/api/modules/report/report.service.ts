@@ -1,10 +1,21 @@
-import { eq } from "drizzle-orm";
+// External dependencies
+import { desc, eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+import type { z } from "zod";
+
+// Application-specific modules
 import { db } from "~/server/db";
 import { reports, type upsertReportWithUserSchema } from "./report.schema";
 import { users } from "../user/user.schema";
-import { TRPCError } from "@trpc/server";
 import { normalizePhoneNumber } from "~/lib/phone";
+import { env } from "~/env";
+import { REPORT_TYPES } from "~/constants/report-types";
+import { format } from "~/lib/date-formatter";
+
+// Service and error handling types
 import { type EmailService } from "../email/email.service";
+import type { S3Service } from "../s3/s3.service";
+import type { SmsService } from "../sms/sms.service";
 import {
   handlePostgresError,
   type PostgresError,
@@ -20,6 +31,9 @@ import { format } from "~/lib/date-formatter";
 
 const environment = env.NODE_ENV;
 
+/**
+ * Service for handling report creation, updates, notifications, and file retrieval.
+ */
 export class ReportService {
   protected emailService: EmailService;
   protected s3Service: S3Service;
@@ -71,6 +85,7 @@ export class ReportService {
             });
           }
 
+          // Ensure phone number is normalized before updating
           const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
           await tx
             .update(users)
@@ -147,13 +162,18 @@ export class ReportService {
       } catch (error) {
         if (error instanceof TRPCError) throw error;
 
+        // Handle and rethrow Postgres-specific errors
         handlePostgresError(error as PostgresError);
       }
     });
 
+    // Send notification emails after transaction
+    await this.sendReportEmail(result);
+
     const reportType = result.report?.reportType as REPORT_TYPES;
     const conversation = result.report?.conversation;
 
+    // Send admin SMS notification for specific scenarios
     if (
       isUpdate &&
       (reportType === REPORT_TYPES.PRESENCE ||
@@ -163,214 +183,35 @@ export class ReportService {
           Array.isArray(JSON.parse(conversation) as unknown[]) &&
           (JSON.parse(conversation) as unknown[]).length > 0))
     ) {
-      // Send admin SMS notification for new report
-      await this.sendAdminReportSms(result);
+      await this.sendAdminReportSms(result.report?.reportNumber);
     }
-
-    await this.sendReportEmail(result);
 
     return result;
   }
 
   /**
-   * Sends an SMS notification to the admin with details about a newly created or updated report.
+   * Generates localized email template strings (subject prefix, admin title, user title, and user thank you message)
+   * based on the provided report type and action type.
    *
-   * The SMS includes user information, report details (such as coordinates, images, and chatbot conversation),
-   * and a Google Maps link if coordinates are available. The message is formatted in Romanian.
+   * @param reportType - The type of report (e.g., PRESENCE, INCIDENT, CONFLICT) from the REPORT_TYPES enum.
+   * @param actionType - A string describing the action performed (e.g., "creat", "actualizat").
+   * @returns An object containing the following template strings:
+   *   - subjectPrefix: The prefix for the email subject line.
+   *   - adminTitle: The title used in emails sent to administrators.
+   *   - userTitle: The title used in emails sent to users.
+   *   - userThanks: A thank you message for the user.
    *
-   * @param result - The result object containing user and report data.
-   * @param result.user - The user who submitted the report. If undefined, an error is thrown.
-   * @param result.report - The report details. If undefined, an error is thrown.
-   * @param result.isUpdate - Optional flag indicating if the report is an update.
-   * @throws {TRPCError} If either the user or report data is missing.
+   * @remarks
+   * This method is used to ensure consistent and context-aware email content for both admins and users,
+   * adapting the message to the specific type of report and action performed.
+   *
+   * @example
+   * const templates = this.getEmailTemplates(REPORT_TYPES.PRESENCE, "nou creat");
+   * // templates.subjectPrefix === "Raport prezență"
+   * // templates.adminTitle === "📋 Raport creat - AnimAlert"
+   * // templates.userTitle === "✅ Raportul tău de prezență a fost creat"
+   * // templates.userThanks === "Îți mulțumim că ai raportat o prezență pe AnimAlert."
    */
-  protected async sendAdminReportSms(result: {
-    user:
-      | {
-          id: string;
-          firstName: string;
-          lastName: string;
-          phone: string;
-          email: string | null;
-          receiveOtherReportUpdates: boolean | null;
-        }
-      | undefined;
-    report:
-      | {
-          id: string;
-          reportNumber: number;
-          reportType: string;
-          latitude?: number | null;
-          longitude?: number | null;
-          address?: string | null;
-          conversation?: string | null;
-          receiveUpdates: boolean | null;
-          imageKeys?: string[] | null;
-          createdAt?: Date | null;
-          updatedAt?: Date | null;
-        }
-      | undefined;
-    isUpdate?: boolean;
-  }) {
-    const { user, report } = result;
-
-    if (!user || !report) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "User or report data is missing",
-      });
-    }
-
-    const { latitude, longitude, conversation, reportType } = report;
-
-    let conversationArray: {
-      question: string;
-      answer: string | string[];
-    }[] = [];
-
-    if (conversation) {
-      try {
-        conversationArray = JSON.parse(conversation) as {
-          question: string;
-          answer: string | string[];
-        }[];
-      } catch {
-        conversationArray = [];
-      }
-    }
-
-    const mapsUrl =
-      latitude && longitude
-        ? `https://www.google.com/maps?q=${latitude},${longitude}`
-        : null;
-
-    let objectNameRomanian = "";
-
-    switch (reportType as REPORT_TYPES) {
-      case REPORT_TYPES.INCIDENT:
-        objectNameRomanian = "Raport incident";
-        break;
-      case REPORT_TYPES.PRESENCE:
-        objectNameRomanian = "Raport prezență";
-        break;
-      case REPORT_TYPES.CONFLICT:
-        objectNameRomanian = "Raport conflict/interacțiune";
-        break;
-      default:
-        objectNameRomanian = "Raport";
-        break;
-    }
-
-    // Map for each question (by index)
-    const answerShortForms: Record<number, Record<string, string>> = {
-      0: {
-        // Categorie animal
-        Pasăre: "Pasăre",
-        "Mamifer (vulpe, liliac, arici, mistreț, rozător, pisică sălbatică etc.)":
-          "Mamifer",
-        "Reptilă (șarpe, șopârlă, țestoasă)": "Reptilă",
-        "Amfibian (broască, salamandră, triton etc.)": "Amfibian",
-        "Pește (decedat, pescuit ilegal)": "Pește",
-      },
-      1: {
-        // Este viu animalul?
-        Da: "Viu",
-        Nu: "Mort",
-      },
-      2: {
-        // Care este problema identificată?
-        "Răni vizibile: plăgi deschise, hemoragie, oase la vedere":
-          "Răni vizibile",
-        "Nu se mișcă (inert)": "Inert",
-        "Problemă la mers": "Problemă la mers",
-        "Posibilă problemă (nu majoră)": "Posibilă problemă",
-      },
-      3: {
-        // Există pericole...
-        Da: "Pericol",
-        Nu: "Fără pericol",
-      },
-      // 4 and 5 are free text, no mapping needed
-    };
-
-    function mapAnswer(questionIdx: number, answer: string | string[]) {
-      // For multiple-choice questions (e.g., problem identified)
-      if (Array.isArray(answer)) {
-        return answer
-          .map((opt) => answerShortForms[questionIdx]?.[opt] ?? opt)
-          .join(", ");
-      }
-      // For single-choice or input
-      return answerShortForms[questionIdx]?.[answer] ?? answer;
-    }
-
-    const mappedAnswers = conversationArray.map((conversationItem, idx) =>
-      mapAnswer(idx, conversationItem.answer),
-    );
-
-    // Determine base URL based on environment
-    let baseUrl = "https://anim-alert.org/";
-    if (environment === "development") {
-      baseUrl = "http://localhost:3000";
-    } else if (environment === "test") {
-      baseUrl = "https://stage.anim-alert.org";
-    }
-
-    const fileUploadsUrl = `${baseUrl}/file-uploads/${report.reportNumber}`;
-
-    const message = `
-  ${objectNameRomanian} nou creat
-  Nume: ${user.lastName} ${user.firstName}
-  Telefon: ${user.phone}
-  Email: ${user.email ?? "Nespecificat"}
-  Detalii raport:
-  ${mapsUrl ? `Locație: ${mapsUrl}` : ""}
-  Fișiere: ${fileUploadsUrl}
-  Răspunsuri:
-  ${mappedAnswers.length > 0 ? mappedAnswers.join("\n") : "N/A"}`.trim();
-
-    await this.smsService.sendSms({
-      message,
-    });
-  }
-
-  /**
-   * Retrieves signed URLs for the image files associated with a specific report.
-   *
-   * @param reportNumber - The unique number identifying the report.
-   * @returns A promise that resolves to an array of signed URLs for the report's image files.
-   * @throws {TRPCError} If the report with the specified number is not found.
-   */
-  async getReportFiles({ reportNumber }: { reportNumber: number }) {
-    const report = await db.query.reports.findFirst({
-      where: eq(reports.reportNumber, reportNumber),
-      columns: {
-        imageKeys: true,
-      },
-    });
-
-    if (!report) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: `Report with number ${reportNumber} not found`,
-      });
-    }
-
-    if (!report.imageKeys?.length) {
-      return [];
-    }
-
-    const fileKeys = report.imageKeys.filter(
-      (key): key is string => key !== undefined,
-    );
-
-    const fileUrls = await Promise.all(
-      fileKeys.map((key) => this.s3Service.getObjectSignedUrl(key)),
-    );
-
-    return fileUrls;
-  }
-
   protected getEmailTemplates(reportType: REPORT_TYPES, actionType: string) {
     let subjectPrefix = "";
     let adminTitle = "";
@@ -410,6 +251,29 @@ export class ReportService {
     };
   }
 
+  /**
+   * Sends detailed report emails to both the admin and the reporting user, including all relevant report and user information,
+   * formatted for both HTML and plain text, and handles attachments and error scenarios.
+   *
+   * @param result - An object containing:
+   *   - user: The reporting user's details (id, name, phone, email, notification preferences).
+   *   - report: The report details (id, number, type, coordinates, address, conversation, update preferences, images, timestamps).
+   *   - isUpdate (optional): Boolean indicating if the report is an update or a new creation.
+   * @throws {TRPCError} Throws an error with code "INTERNAL_SERVER_ERROR" if user or report data is missing.
+   * @remarks
+   * This method generates and sends two types of emails:
+   *   1. **Admin Email**: Contains comprehensive report and user details, chatbot Q&A, and attaches images if present. If the email size exceeds limits, retries without attachments.
+   *   2. **User Email**: Sent only for new reports when the user has opted in for updates and provided an email. Includes a thank you message and confirmation.
+   *
+   * The method also parses chatbot conversation data, generates Google Maps links for coordinates, and localizes content using `getEmailTemplates`.
+   *
+   * @example
+   * await this.sendReportEmail({
+   *   user: { id: "1", firstName: "Ana", lastName: "Pop", phone: "0712345678", email: "ana@example.com", receiveOtherReportUpdates: true },
+   *   report: { id: "r1", reportNumber: 123, reportType: REPORT_TYPES.PRESENCE, latitude: 46.77, longitude: 23.59, receiveUpdates: true },
+   *   isUpdate: false
+   * });
+   */
   protected async sendReportEmail(result: {
     user:
       | {
@@ -453,6 +317,8 @@ export class ReportService {
       question: string;
       answer: string | string[];
     }[] = [];
+
+    // Parse chatbot conversation if present
     if (conversation) {
       try {
         conversationArray = JSON.parse(conversation) as {
@@ -470,27 +336,21 @@ export class ReportService {
         : null;
 
     const actionType = isUpdate ? "actualizat" : "nou creat";
+
     const imagesCount = report.imageKeys?.length;
+
+    // Determine base URL based on environment
+    let baseUrl = "https://anim-alert.org/";
+    if (process.env.NODE_ENV === "development") {
+      baseUrl = "http://localhost:3000";
+    } else if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") {
+      baseUrl = "https://stage.anim-alert.org";
+    }
+
+    const fileUploadsUrl = `${baseUrl}/file-uploads/${report.reportNumber}`;
 
     const { subjectPrefix, adminTitle, userTitle, userThanks } =
       this.getEmailTemplates(reportType as REPORT_TYPES, actionType);
-
-    const attachments = [];
-
-    if (report.imageKeys && report.imageKeys.length > 0) {
-      for (const [idx, key] of report.imageKeys.entries()) {
-        const s3ObjectResponse = await this.s3Service.getObject(key);
-        const buffer = await streamToBuffer(s3ObjectResponse.Body as Readable);
-        const contentType =
-          s3ObjectResponse.ContentType ?? "application/octet-stream";
-        const filename = `file-${idx + 1}`;
-        attachments.push({
-          filename: filename + "." + contentType.split("/")[1],
-          content: buffer,
-          contentType,
-        });
-      }
-    }
 
     /*
       EMAIL TO BE SENT TO ADMIN
@@ -525,10 +385,10 @@ export class ReportService {
           <li><strong>Primește alte actualizări:</strong> ${user.receiveOtherReportUpdates ? "Da" : "Nu"}</li>
         </ul>
       </div>
-      <!-- Presence Info -->
+      <!-- Report Info -->
       <div style="margin-bottom:24px;">
         <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-          📍 Detalii raport prezență
+          📍 Detalii raport
         </div>
         <ul style="padding-left:18px;margin:0;list-style-type:none;">
           <li><strong>Status actualizări:</strong> ${report.receiveUpdates ? "Activat" : "Dezactivat"}</li>
@@ -540,6 +400,7 @@ export class ReportService {
                 : ""
             }
           </li>
+          <li>Link imagini și videoclipuri atașate: <a href="${fileUploadsUrl}">${fileUploadsUrl}</a></li>
           <li><strong>Data creării:</strong> ${report.createdAt ? format(report.createdAt) : "N/A"}</li>
           <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? format(report.updatedAt) : "N/A"}</li>
         </ul>
@@ -609,7 +470,6 @@ Imagini: ${imagesCount} fișiere atașate
         subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber}`,
         html: adminHtml,
         text: adminEmailText,
-        attachments: attachments,
       });
     } catch (error) {
       if (
@@ -693,5 +553,140 @@ Echipa AnimAlert
         console.error("Error sending user email:", error);
       }
     }
+  }
+
+  /**
+   * Sends a simple SMS notification to the admin when a new report is created.
+   *
+   * The SMS message will contain only the report number in the following format:
+   * "Raport nou creat: {reportNumber}"
+   *
+   * @param reportNumber - The unique number identifying the newly created report.
+   * @throws {TRPCError} Throws an error with code "INTERNAL_SERVER_ERROR" if the report number is missing.
+   *
+   * @example
+   * await this.sendAdminReportSms(1234);
+   * // SMS sent: "Raport nou creat: 1234"
+   */
+  protected async sendAdminReportSms(reportNumber?: number) {
+    if (!reportNumber) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Report number is missing",
+      });
+    }
+
+    const message = `Raport nou creat: ${reportNumber}`;
+
+    await this.smsService.sendSms({
+      message,
+    });
+  }
+
+  /**
+   * Retrieves signed URLs for the image files associated with a specific report.
+   *
+   * @param reportId - The unique id identifying the report.
+   * @returns A promise that resolves to an array of signed URLs for the report's image files.
+   * @throws {TRPCError} If the report with the specified id is not found.
+   */
+  async getReportFiles({ id }: { id: string }) {
+    const report = await db.query.reports.findFirst({
+      where: eq(reports.id, id),
+      columns: {
+        imageKeys: true,
+      },
+    });
+
+    if (!report) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Report with id ${id} not found`,
+      });
+    }
+
+    if (!report.imageKeys?.length) {
+      return [];
+    }
+
+    // Filter out undefined keys before requesting signed URLs
+    const fileKeys = report.imageKeys.filter(
+      (key): key is string => key !== undefined,
+    );
+
+    const fileUrls = await Promise.all(
+      fileKeys.map((key) => this.s3Service.getObjectSignedUrl(key)),
+    );
+
+    return fileUrls;
+  }
+
+  // List all reports with user data
+  async listReportsWithUser() {
+    return await db
+      .select({ report: reports, user: users })
+      .from(reports)
+      .leftJoin(users, eq(reports.userId, users.id))
+      .orderBy(desc(reports.createdAt));
+  }
+
+  // Get a single report (with user) by report ID
+  async getReportWithUser(id: string) {
+    const result = await db
+      .select({ report: reports, user: users })
+      .from(reports)
+      .leftJoin(users, eq(reports.userId, users.id))
+      .where(eq(reports.id, id))
+      .limit(1);
+
+    if (!result.length) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Report with id ${id} not found`,
+      });
+    }
+    return result[0];
+  }
+
+  // Update report and user data
+  async updateReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
+    const { user, report } = data;
+    const normalizedPhone = normalizePhoneNumber(user.phone);
+
+    if (!user.id || !report.id) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "User ID and Report ID are required for update",
+      });
+    }
+
+    // Update user
+    await db
+      .update(users)
+      .set({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: normalizedPhone,
+        email: user.email,
+        receiveOtherReportUpdates: user.receiveOtherReportUpdates,
+      })
+      .where(eq(users.id, user.id));
+
+    // Update report
+    await db
+      .update(reports)
+      .set({
+        reportType: report.reportType,
+        receiveUpdates: report.receiveUpdates,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        imageKeys: report.imageKeys,
+        conversation: report.conversation,
+        address: report.address,
+      })
+      .where(eq(reports.id, report.id));
+
+    // Return updated report with user data
+    return this.getReportWithUser(report.id);
   }
 }

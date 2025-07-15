@@ -13,7 +13,18 @@ export class ReportController {
     return await this.reportService.upsertReportWithUser(data);
   }
 
-  async getReportFiles({ reportNumber }: { reportNumber: number }) {
-    return await this.reportService.getReportFiles({ reportNumber });
+  async getReportFiles({ id }: { id: string }) {
+    return await this.reportService.getReportFiles({ id });
   }
+
+  async listReportsWithUser() {
+    return await this.reportService.listReportsWithUser();
+  }
+
+  async getReportWithUser(id: string) {
+    return await this.reportService.getReportWithUser(id);
+  }
+
+  async updateReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
+    return await this.reportService.updateReportWithUser(data);
 }

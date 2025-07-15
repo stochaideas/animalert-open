@@ -10,6 +10,9 @@ import { Toaster } from "~/components/ui/simple/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
 import { env } from "~/env";
 
+import { ClerkProvider } from "@clerk/nextjs";
+import { roRO } from "@clerk/localizations";
+
 export const metadata: Metadata = {
   title: "Animalert",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
@@ -26,6 +29,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider
+      localization={roRO}
       appearance={{
         variables: {
           colorPrimary: "#395a03",
