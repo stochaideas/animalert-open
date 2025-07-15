@@ -6,6 +6,9 @@ import { Poppins } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 import Footer from "../components/ui/complex/footer";
 import Navbar from "../components/ui/complex/navbar";
+import { Toaster } from "~/components/ui/simple/sonner";
+import { ClerkProvider } from "@clerk/nextjs";
+import { env } from "~/env";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { roRO } from "@clerk/localizations";
@@ -42,6 +45,7 @@ export default function RootLayout({
       }}
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
+      publishableKey={env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     >
       <html lang="en" className={`${poppins.className}`}>
         <body>
@@ -50,6 +54,7 @@ export default function RootLayout({
             <TRPCReactProvider>{children}</TRPCReactProvider>
             <Footer />
           </main>
+          <Toaster position="bottom-center" />
         </body>
       </html>
     </ClerkProvider>

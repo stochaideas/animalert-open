@@ -7,6 +7,8 @@ import { env } from "~/env";
 import type { smsOptionsSchema } from "./sms.schema";
 import type { z } from "zod";
 
+const environment = env.NODE_ENV;
+
 export class SmsService {
   private snsClient: SNSClient;
 
