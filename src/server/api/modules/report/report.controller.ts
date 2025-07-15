@@ -13,8 +13,8 @@ export class ReportController {
     return await this.reportService.upsertReportWithUser(data);
   }
 
-  async getReportFiles({ reportNumber }: { reportNumber: number }) {
-    return await this.reportService.getReportFiles({ reportNumber });
+  async getReportFiles({ id }: { id: string }) {
+    return await this.reportService.getReportFiles({ id });
   }
 
   async listReportsWithUser() {

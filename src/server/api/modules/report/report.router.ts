@@ -20,7 +20,7 @@ const reportController = new ReportController(reportService);
 
 export const reportRouter = createTRPCRouter({
   getReportFiles: publicProcedure
-    .input(z.object({ reportNumber: z.number() }))
+    .input(z.object({ id: z.string() }))
     .query(({ input }) => {
       return reportController.getReportFiles(input);
     }),

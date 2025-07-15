@@ -1,5 +1,6 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import { ArrowUpDown } from "lucide-react";
 
 import { format } from "date-fns";
 
@@ -24,15 +25,31 @@ export type ReportWithUser = {
   } | null;
 };
 
+// Define fixed widths for each column (in px)
+const COLUMN_WIDTHS = {
+  reportNumber: 110,
+  reportType: 100,
+  lastName: 120,
+  firstName: 120,
+  phone: 130,
+  email: 180,
+  address: 200,
+  receiveUpdates: 110,
+  createdAt: 170,
+  updatedAt: 170,
+};
+
 export const columns: ColumnDef<ReportWithUser>[] = [
   {
+    id: "reportNumber",
     accessorKey: "report.reportNumber",
     header: "Report #",
+    size: COLUMN_WIDTHS.reportNumber,
     cell: ({ row }) => {
       return (
         <Link
           className="text-blue-700 hover:underline"
-          href={`/${row.original.report.id}`}
+          href={`/admin/reports/${row.original.report.id}`}
         >
           {row.original.report.reportNumber}
         </Link>
@@ -40,40 +57,66 @@ export const columns: ColumnDef<ReportWithUser>[] = [
     },
   },
   {
+    id: "reportType",
     accessorKey: "report.reportType",
     header: "Type",
+    size: COLUMN_WIDTHS.reportType,
   },
   {
+    id: "lastName",
     accessorKey: "user.lastName",
     header: "Last Name",
+    size: COLUMN_WIDTHS.lastName,
   },
   {
+    id: "firstName",
     accessorKey: "user.firstName",
     header: "First Name",
+    size: COLUMN_WIDTHS.firstName,
   },
   {
+    id: "phone",
     accessorKey: "user.phone",
     header: "Phone",
+    size: COLUMN_WIDTHS.phone,
   },
   {
+    id: "email",
     accessorKey: "user.email",
     header: "Email",
+    size: COLUMN_WIDTHS.email,
   },
   {
+    id: "address",
     accessorKey: "report.address",
     header: "Address",
+    size: COLUMN_WIDTHS.address,
   },
   {
+    id: "receiveUpdates",
     accessorKey: "report.receiveUpdates",
     header: "User updates",
+    size: COLUMN_WIDTHS.receiveUpdates,
     cell: ({ row }) => {
       const receiveUpdates = row.original.report.receiveUpdates;
       return <div>{receiveUpdates ? "Yes" : "No"}</div>;
     },
   },
   {
+    id: "createdAt",
     accessorKey: "report.createdAt",
-    header: "Created",
+    header: ({ column }) => {
+      return (
+        <div
+          className="flex cursor-pointer items-center select-none"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Created
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </div>
+      );
+    },
+    size: COLUMN_WIDTHS.createdAt,
     cell: ({ row }) => {
       const createdAt = row.original.report.createdAt;
       return (
@@ -82,8 +125,20 @@ export const columns: ColumnDef<ReportWithUser>[] = [
     },
   },
   {
+    id: "updatedAt",
     accessorKey: "report.updatedAt",
-    header: "Last Updated",
+    header: ({ column }) => {
+      return (
+        <div
+          className="flex cursor-pointer items-center select-none"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Last Updated
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </div>
+      );
+    },
+    size: COLUMN_WIDTHS.updatedAt,
     cell: ({ row }) => {
       const updatedAt = row.original.report.updatedAt;
       return (

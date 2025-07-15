@@ -576,13 +576,13 @@ Echipa AnimAlert
   /**
    * Retrieves signed URLs for the image files associated with a specific report.
    *
-   * @param reportNumber - The unique number identifying the report.
+   * @param reportId - The unique id identifying the report.
    * @returns A promise that resolves to an array of signed URLs for the report's image files.
-   * @throws {TRPCError} If the report with the specified number is not found.
+   * @throws {TRPCError} If the report with the specified id is not found.
    */
-  async getReportFiles({ reportNumber }: { reportNumber: number }) {
+  async getReportFiles({ id }: { id: string }) {
     const report = await db.query.reports.findFirst({
-      where: eq(reports.reportNumber, reportNumber),
+      where: eq(reports.id, id),
       columns: {
         imageKeys: true,
       },
@@ -591,7 +591,7 @@ Echipa AnimAlert
     if (!report) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: `Report with number ${reportNumber} not found`,
+        message: `Report with id ${id} not found`,
       });
     }
 
