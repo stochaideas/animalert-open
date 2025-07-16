@@ -1,10 +1,15 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@radix-ui/react-label";
-import { useEffect, useState } from "react";
+import { values } from "lodash";
+import { Trash } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 import { Button } from "~/components/ui/simple/button";
+import { Checkbox } from "~/components/ui/simple/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -31,21 +36,17 @@ import {
 } from "~/components/ui/simple/select";
 import { Textarea } from "~/components/ui/simple/textarea";
 import {
-  petitionPlaceholderMap,
-  type PetitionType,
-} from "~/constants/petition-form-constants";
-import { api } from "~/trpc/react";
-import { fillTemplate } from "~/utils/templates";
-import { COUNTIES } from "../../constants/counties";
-import { complaintSchema } from "~/shared/sesizari/complaint.schema";
-import {
   ACCEPTED_IMAGE_TYPES,
   ACCEPTED_VIDEO_TYPES,
 } from "~/constants/file-constants";
-import { Checkbox } from "~/components/ui/simple/checkbox";
-import Link from "next/link";
-import { toast } from "sonner";
-import { values } from "lodash";
+import {
+  petitionPlaceholderMap,
+  type PetitionType,
+} from "~/constants/petition-form-constants";
+import { complaintSchema } from "~/shared/sesizari/complaint.schema";
+import { api } from "~/trpc/react";
+import { fillTemplate } from "~/utils/templates";
+import { COUNTIES } from "../../constants/counties";
 
 export default function Sesizari() {
   const MAX_SIZE_MB = 10;
@@ -56,6 +57,7 @@ export default function Sesizari() {
   const [uploading, setUploading] = useState<boolean>(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [sendDisabled, setSendDisabled] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof complaintSchema>>({
     resolver: zodResolver(complaintSchema),
@@ -148,7 +150,7 @@ export default function Sesizari() {
         const keys = await handleImagesUpload(selectedFiles);
         const successfulKeys = keys.filter(Boolean);
         form.setValue("attachments", successfulKeys);
-      } catch  {
+      } catch {
         toast.error("Eroare la încărcarea fișierelor.");
         setUploading(false);
         return;
@@ -166,6 +168,9 @@ export default function Sesizari() {
         toast("Petiția a fost generată cu succes!");
         form.reset();
         setSelectedFiles([]);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       } else {
         toast.error("Eroare la generarea petiției.");
       }
@@ -270,9 +275,15 @@ export default function Sesizari() {
 
   const confidentiality = form.watch("confidentiality");
 
-  useEffect(() => {
-    setSendDisabled(!confidentiality || uploading);
-  }, [confidentiality, uploading]);
+  function handleRemoveFile(idxToRemove: number) {
+    setSelectedFiles((files) => {
+      const updated = files.filter((_, idx) => idx !== idxToRemove);
+      if (updated.length === 0 && fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return updated;
+    });
+  }
 
   return (
     <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
@@ -613,11 +624,25 @@ export default function Sesizari() {
                       accept="image/*, video/*"
                       multiple
                       onChange={handleFileChange}
+                      ref={fileInputRef}
                     />
                   </FormControl>
                 </FormItem>
               )}
             />
+            <ul>
+              {selectedFiles.map((file, idx) => (
+                <li key={file.name + idx} className="mb-1 flex items-center">
+                  <Trash
+                    onClick={() => handleRemoveFile(idx)}
+                    className="mr-4 shrink-0"
+                  />
+                  <span className="max-w-xs truncate">
+                    {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                  </span>
+                </li>
+              ))}
+            </ul>
 
             <FormField
               control={form.control}
@@ -659,7 +684,7 @@ export default function Sesizari() {
               variant="secondary"
               className="mr-4"
               onClick={sendAndSave}
-              disabled={sendDisabled}
+              disabled={!confidentiality || uploading || sendDisabled}
             >
               Trimite
             </Button>
@@ -692,7 +717,7 @@ export default function Sesizari() {
                     variant="primary"
                     size="sm"
                     className="min-w-44"
-                    disabled={sendDisabled}
+                    disabled={!confidentiality || uploading || sendDisabled}
                     onClick={sendAndSave}
                   >
                     Salveaza si trimite
