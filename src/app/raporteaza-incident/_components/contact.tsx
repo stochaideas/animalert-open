@@ -277,10 +277,9 @@ export default function Contact({
                 control={incidentForm.control}
                 name="confidentiality"
                 render={({ field }) => (
-                  <FormItem className="flex items-start gap-3">
+                  <FormItem className="flex items-center gap-3">
                     <FormControl>
                       <Checkbox
-                        className="mt-1"
                         id="confidentiality"
                         checked={field.value}
                         onCheckedChange={field.onChange}
@@ -311,10 +310,9 @@ export default function Contact({
                 control={incidentForm.control}
                 name="receiveOtherReportUpdates"
                 render={({ field }) => (
-                  <FormItem className="flex items-start gap-3">
+                  <FormItem className="flex items-center gap-3">
                     <FormControl>
                       <Checkbox
-                        className="mt-1"
                         id="receiveOtherReportUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
@@ -334,10 +332,9 @@ export default function Contact({
                 control={incidentForm.control}
                 name="receiveUpdates"
                 render={({ field }) => (
-                  <FormItem className="flex items-start gap-3">
+                  <FormItem className="flex items-center gap-3">
                     <FormControl>
                       <Checkbox
-                        className="mt-1"
                         id="receiveUpdates"
                         checked={field.value}
                         onCheckedChange={field.onChange}
