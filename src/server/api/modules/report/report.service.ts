@@ -1,5 +1,5 @@
 // External dependencies
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import type { z } from "zod";
 
@@ -576,13 +576,13 @@ Echipa AnimAlert
   /**
    * Retrieves signed URLs for the image files associated with a specific report.
    *
-   * @param reportNumber - The unique number identifying the report.
+   * @param reportId - The unique id identifying the report.
    * @returns A promise that resolves to an array of signed URLs for the report's image files.
-   * @throws {TRPCError} If the report with the specified number is not found.
+   * @throws {TRPCError} If the report with the specified id is not found.
    */
-  async getReportFiles({ reportNumber }: { reportNumber: number }) {
+  async getReportFiles({ id }: { id: string }) {
     const report = await db.query.reports.findFirst({
-      where: eq(reports.reportNumber, reportNumber),
+      where: eq(reports.id, id),
       columns: {
         imageKeys: true,
       },
@@ -591,7 +591,7 @@ Echipa AnimAlert
     if (!report) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: `Report with number ${reportNumber} not found`,
+        message: `Report with id ${id} not found`,
       });
     }
 
@@ -609,5 +609,74 @@ Echipa AnimAlert
     );
 
     return fileUrls;
+  }
+
+  // List all reports with user data
+  async listReportsWithUser() {
+    return await db
+      .select({ report: reports, user: users })
+      .from(reports)
+      .leftJoin(users, eq(reports.userId, users.id))
+      .orderBy(desc(reports.createdAt));
+  }
+
+  // Get a single report (with user) by report ID
+  async getReportWithUser(id: string) {
+    const result = await db
+      .select({ report: reports, user: users })
+      .from(reports)
+      .leftJoin(users, eq(reports.userId, users.id))
+      .where(eq(reports.id, id))
+      .limit(1);
+
+    if (!result.length) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Report with id ${id} not found`,
+      });
+    }
+    return result[0];
+  }
+
+  // Update report and user data
+  async updateReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
+    const { user, report } = data;
+    const normalizedPhone = normalizePhoneNumber(user.phone);
+
+    if (!user.id || !report.id) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "User ID and Report ID are required for update",
+      });
+    }
+
+    // Update user
+    await db
+      .update(users)
+      .set({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: normalizedPhone,
+        email: user.email,
+        receiveOtherReportUpdates: user.receiveOtherReportUpdates,
+      })
+      .where(eq(users.id, user.id));
+
+    // Update report
+    await db
+      .update(reports)
+      .set({
+        reportType: report.reportType,
+        receiveUpdates: report.receiveUpdates,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        imageKeys: report.imageKeys,
+        conversation: report.conversation,
+        address: report.address,
+      })
+      .where(eq(reports.id, report.id));
+
+    // Return updated report with user data
+    return this.getReportWithUser(report.id);
   }
 }
