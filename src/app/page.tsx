@@ -93,7 +93,7 @@ export default function Home() {
         {/*    </div>*/}
         {/*  </section>*/}
         {/*)}*/}
-        <div className="flex flex-col items-start gap-8 p-6 md:px-20 md:pt-32 xl:pt-40 xl:pl-80">
+        <div className="flex flex-col items-start gap-8 px-6 md:px-20 md:pt-32 xl:pt-40 xl:pl-80 pt-24">
           <span className="text-heading-1 text-neutral lg:max-w-2xl">
             <b>Ai întâlnit un animal sălbatic rănit sau în pericol?</b>
           </span>
