@@ -134,33 +134,33 @@ export default function Navbar() {
 
   return (
     <div className="sticky top-0 z-20 flex w-full flex-col gap-0">
-      <section className="flex flex-col items-center justify-between bg-white px-6 py-2 lg:flex-row xl:px-32 xl:py-3 2xl:px-64">
-        <div className="text-body-small text-center lg:max-w-[560px] lg:text-left">
-          Proiect finanțat din programul „În ZONA TA”, implementat prin
-          Platforma de Mediu la Cluj-Napoca de către{" "}
-          <Link
-            className="underline"
-            href="https://www.facebook.com/FundatiaComunitaraCluj"
-            target="_blank"
-          >
-            Fundația Comunitară Cluj
-          </Link>{" "}
-          și{" "}
-          <Link
-            className="underline"
-            href="https://ing.ro/persoane-fizice"
-            target="_blank"
-          >
-            ING Bank România
-          </Link>
-        </div>
-        <Image
-          alt="Sponsors"
-          src="/images/about-us-sponsors.png"
-          width="390"
-          height="65"
-        />
-      </section>
+      {/*<section className="flex flex-col items-center justify-between bg-white px-6 py-2 lg:flex-row xl:px-32 xl:py-3 2xl:px-64">*/}
+      {/*  <div className="text-body-small text-center lg:max-w-[560px] lg:text-left">*/}
+      {/*    Proiect finanțat din programul „În ZONA TA”, implementat prin*/}
+      {/*    Platforma de Mediu la Cluj-Napoca de către{" "}*/}
+      {/*    <Link*/}
+      {/*      className="underline"*/}
+      {/*      href="https://www.facebook.com/FundatiaComunitaraCluj"*/}
+      {/*      target="_blank"*/}
+      {/*    >*/}
+      {/*      Fundația Comunitară Cluj*/}
+      {/*    </Link>{" "}*/}
+      {/*    și{" "}*/}
+      {/*    <Link*/}
+      {/*      className="underline"*/}
+      {/*      href="https://ing.ro/persoane-fizice"*/}
+      {/*      target="_blank"*/}
+      {/*    >*/}
+      {/*      ING Bank România*/}
+      {/*    </Link>*/}
+      {/*  </div>*/}
+      {/*  <Image*/}
+      {/*    alt="Sponsors"*/}
+      {/*    src="/images/about-us-sponsors.png"*/}
+      {/*    width="390"*/}
+      {/*    height="65"*/}
+      {/*  />*/}
+      {/*</section>*/}
       <nav
         className={`${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-6 sm:p-4 md:p-6 xl:px-32 2xl:px-64`}
       >
