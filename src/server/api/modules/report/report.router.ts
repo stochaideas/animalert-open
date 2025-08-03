@@ -19,6 +19,18 @@ const reportService = new ReportService(emailService, s3Service, smsService);
 const reportController = new ReportController(reportService);
 
 export const reportRouter = createTRPCRouter({
+  getReport: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ input }) => {
+      return reportController.getReport(input.id);
+    }),
+
+  getReportsByUser: publicProcedure
+    .input(z.object({ email: z.string() }))
+    .query(({ input }) => {
+      return reportController.getReportsByUser(input.email);
+    }),
+
   getReportFiles: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(({ input }) => {

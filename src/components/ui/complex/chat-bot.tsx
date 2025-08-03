@@ -24,6 +24,7 @@ import {
 import { Textarea } from "~/components/ui/simple/textarea";
 import FeedbackDialog from "./feedback-dialog";
 import { redirect } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 export default function ChatBot({
   answers,
@@ -44,6 +45,8 @@ export default function ChatBot({
   isPending: boolean;
   incidentIsSuccess: boolean;
 }) {
+  const { isSignedIn, isLoaded } = useUser();
+
   const [step, setStep] = useState(answers.length); // Start at next unanswered
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [reviewMode, setReviewMode] = useState(false);
@@ -290,6 +293,16 @@ export default function ChatBot({
     return renderRow(stepItem, step);
   };
 
+  if (!isLoaded) {
+    return (
+      <section className="bg-neutral text-neutral-foreground text-single-line-body-base">
+        <div className="flex h-full items-center justify-center">
+          <p>Se încarcă...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-neutral text-neutral-foreground text-single-line-body-base">
       <div className="bg-secondary border-tertiary-border flex flex-row items-start justify-between rounded-t-md border-x-1 border-t-1 p-6 text-white">
@@ -365,13 +378,7 @@ export default function ChatBot({
         onOpenChange={(open) => {
           if (!open) {
             setShowConfirmDialog(false);
-            if (handleDialogClose)
-              handleDialogClose(
-                // Create a dummy MouseEvent to satisfy the signature
-                new MouseEvent(
-                  "click",
-                ) as unknown as React.MouseEvent<HTMLButtonElement>,
-              );
+            setShowAuthenticationDialog(true);
           }
         }}
       >
@@ -419,49 +426,55 @@ export default function ChatBot({
           }}
         />
       )}
-      <Dialog
-        open={showAuthenticationDialog}
-        onOpenChange={(open) => {
-          if (!open) {
-            setShowConfirmDialog(false);
-            if (handleDialogClose)
-              handleDialogClose(
-                // Create a dummy MouseEvent to satisfy the signature
-                new MouseEvent(
-                  "click",
-                ) as unknown as React.MouseEvent<HTMLButtonElement>,
-              );
-          }
-        }}
-      >
-        <DialogContent
-          onPointerDownOutside={(event) => event.preventDefault()}
-          className="bg-tertiary text-center"
+      {!isSignedIn && (
+        <Dialog
+          open={showAuthenticationDialog}
+          onOpenChange={(open) => {
+            if (!open) {
+              setShowConfirmDialog(false);
+              if (handleDialogClose)
+                handleDialogClose(
+                  // Create a dummy MouseEvent to satisfy the signature
+                  new MouseEvent(
+                    "click",
+                  ) as unknown as React.MouseEvent<HTMLButtonElement>,
+                );
+            }
+          }}
         >
-          <DialogHeader>
-            <DialogDescription className="sr-only">
-              Confirmare de înregistrare a raportului.
-            </DialogDescription>
-          </DialogHeader>
-          <div>
-            Pentru a avea acces la noutăți și la incidente/acțiunile tale din
-            site, te rugăm să te înregistrezi
-          </div>
-          <DialogFooter>
-            <Button
-              variant="secondary"
-              size="sm"
-              className="min-w-44"
-              onClick={() => {
-                setShowAuthenticationDialog(false);
-                redirect("/sign-in");
-              }}
-            >
-              <SVGStar /> Înregistrează-te
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <DialogContent
+            onPointerDownOutside={(event) => event.preventDefault()}
+            className="bg-tertiary text-center"
+          >
+            <DialogHeader>
+              <DialogDescription className="sr-only">
+                Autentificare necesară pentru a avea acces la noutăți și
+                incidente.
+              </DialogDescription>
+              <DialogTitle className="text-center">
+                Autentificare necesară
+              </DialogTitle>
+            </DialogHeader>
+            <div>
+              Pentru a avea acces la noutăți și la incidente/acțiunile tale din
+              site, te rugăm să te înregistrezi
+            </div>
+            <DialogFooter>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="min-w-44"
+                onClick={() => {
+                  setShowAuthenticationDialog(false);
+                  redirect("/sign-in");
+                }}
+              >
+                <SVGStar /> Înregistrează-te
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </section>
   );
 }

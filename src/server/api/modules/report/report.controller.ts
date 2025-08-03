@@ -9,6 +9,14 @@ export class ReportController {
     this.reportService = service;
   }
 
+  async getReport(id: string) {
+    return await this.reportService.getReport(id);
+  }
+
+  async getReportsByUser(email: string) {
+    return await this.reportService.getReportsByUser(email);
+  }
+
   async upsertReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
     return await this.reportService.upsertReportWithUser(data);
   }

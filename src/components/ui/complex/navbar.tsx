@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,7 +26,6 @@ import {
 } from "~/components/ui/simple/navigation-menu";
 
 import { cn } from "~/lib/utils";
-import AuthButton from "./auth-button";
 
 const navItems: {
   title: string;
@@ -37,6 +36,7 @@ const navItems: {
     description: string;
     icon: JSX.Element;
   }[];
+  protected?: boolean;
 }[] = [
   { title: "Acasă", href: "/" },
   {
@@ -75,6 +75,11 @@ const navItems: {
       // },
     ],
   },
+  {
+    title: "Incidentele mele",
+    href: "/incidentele-mele",
+    protected: true,
+  },
   { title: "Despre noi", href: "/despre-noi" },
   { title: "Contact", href: "/contact" },
 ];
@@ -101,6 +106,9 @@ const actionItems: {
 
 export default function Navbar() {
   const pathname = usePathname();
+
+  const { isSignedIn } = useUser();
+
   const [isOpen, setIsOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(true);
   const [isAlertAnimating, setIsAlertAnimating] = useState(false);
@@ -193,43 +201,47 @@ export default function Navbar() {
           {/* LARGE SCREENS */}
           <NavigationMenu className={"hidden gap-2 2xl:flex 2xl:items-center"}>
             <NavigationMenuList>
-              {navItems.map((item) => (
-                <NavigationMenuItem
-                  key={item.title}
-                  className="text-single-line-body-base w-max px-4"
-                >
-                  {item.content ? (
-                    <NavigationMenuTrigger
-                      className={cn(
-                        "hover:cursor-pointer",
-                        navigationMenuTriggerStyle(),
-                      )}
-                    >
-                      {item.title}
-                    </NavigationMenuTrigger>
-                  ) : (
-                    <Link href={item.href} className="block w-full">
-                      {item.title}
-                    </Link>
-                  )}
-                  {item.content && (
-                    <NavigationMenuContent className="bg-secondary text-secondary-foreground">
-                      <ul className="flex w-60 flex-col gap-2">
-                        {item.content.map((contentItem) => (
-                          <ListItem
-                            className="hover:cursor-pointer"
-                            key={contentItem.title}
-                            title={contentItem.title}
-                            href={contentItem.href}
-                          >
-                            {contentItem.description}
-                          </ListItem>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
-                  )}
-                </NavigationMenuItem>
-              ))}
+              {navItems
+                .filter(
+                  (item) => (item.protected && isSignedIn) ?? !item.protected,
+                )
+                .map((item) => (
+                  <NavigationMenuItem
+                    key={item.title}
+                    className="text-single-line-body-base w-max px-4"
+                  >
+                    {item.content ? (
+                      <NavigationMenuTrigger
+                        className={cn(
+                          "hover:cursor-pointer",
+                          navigationMenuTriggerStyle(),
+                        )}
+                      >
+                        {item.title}
+                      </NavigationMenuTrigger>
+                    ) : (
+                      <Link href={item.href} className="block w-full">
+                        {item.title}
+                      </Link>
+                    )}
+                    {item.content && (
+                      <NavigationMenuContent className="bg-secondary text-secondary-foreground">
+                        <ul className="flex w-60 flex-col gap-2">
+                          {item.content.map((contentItem) => (
+                            <ListItem
+                              className="hover:cursor-pointer"
+                              key={contentItem.title}
+                              title={contentItem.title}
+                              href={contentItem.href}
+                            >
+                              {contentItem.description}
+                            </ListItem>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    )}
+                  </NavigationMenuItem>
+                ))}
               {actionItems.map((item) => (
                 <NavigationMenuItem key={item.title} className="px-2">
                   <Link href={item.href}>
@@ -239,7 +251,14 @@ export default function Navbar() {
                   </Link>
                 </NavigationMenuItem>
               ))}
-              <AuthButton />
+              <SignedOut>
+                <Link href="/sign-in">
+                  <Button variant="neutral">Contul meu</Button>
+                </Link>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -249,40 +268,46 @@ export default function Navbar() {
           className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 2xl:hidden`}
         >
           <NavigationMenuList className="mt-14 flex flex-col items-start gap-2">
-            {navItems.map((item) =>
-              item.content ? (
-                <NavigationMenuItem
-                  key={item.title}
-                  className="text-single-line-body-base py-2"
-                  onClick={() => setMenuContentOpen(!menuContentOpen)}
-                >
-                  {item.title}
-                  {menuContentOpen && (
-                    <NavigationMenuTrigger className="bg-secondary text-secondary-foreground h-full w-full flex-col items-start">
-                      {item.content.map((contentItem) => (
-                        <ListItem
-                          className="align-items-start flex flex-col text-left hover:cursor-pointer"
-                          key={contentItem.title}
-                          title={contentItem.title}
-                          href={contentItem.href}
-                        >
-                          {contentItem.description}
-                        </ListItem>
-                      ))}
-                    </NavigationMenuTrigger>
-                  )}
-                </NavigationMenuItem>
-              ) : (
-                <NavigationMenuItem
-                  key={item.title}
-                  className="text-single-line-body-base py-2"
-                >
-                  <Link href={item.href}>{item.title}</Link>
-                </NavigationMenuItem>
-              ),
-            )}
+            {navItems
+              .filter(
+                (item) => (item.protected && isSignedIn) ?? !item.protected,
+              )
+              .map((item) =>
+                item.content ? (
+                  <NavigationMenuItem
+                    key={item.title}
+                    className="text-single-line-body-base py-2"
+                    onClick={() => setMenuContentOpen(!menuContentOpen)}
+                  >
+                    {item.title}
+                    {menuContentOpen && (
+                      <NavigationMenuTrigger className="bg-secondary text-secondary-foreground h-full w-full flex-col items-start">
+                        {item.content.map((contentItem) => (
+                          <ListItem
+                            className="align-items-start flex flex-col text-left hover:cursor-pointer"
+                            key={contentItem.title}
+                            title={contentItem.title}
+                            href={contentItem.href}
+                          >
+                            {contentItem.description}
+                          </ListItem>
+                        ))}
+                      </NavigationMenuTrigger>
+                    )}
+                  </NavigationMenuItem>
+                ) : (
+                  <NavigationMenuItem
+                    key={item.title}
+                    className="text-single-line-body-base py-2"
+                  >
+                    <Link href={item.href}>{item.title}</Link>
+                  </NavigationMenuItem>
+                ),
+              )}
             <SignedOut>
-              <SignInButton />
+              <Link href="/sign-in">
+                <Button variant="tertiary">Contul meu</Button>
+              </Link>
             </SignedOut>
             <SignedIn>
               <UserButton />

@@ -47,6 +47,33 @@ export class ReportService {
   }
 
   /**
+   * Retrieves a single report from the database by its unique identifier.
+   *
+   * @param id - The unique identifier of the report to retrieve.
+   * @returns A promise that resolves to the report object if found, or `null` if no report matches the given ID.
+   */
+  async getReport(id: string) {
+    return await db.query.reports.findFirst({
+      where: eq(reports.id, id),
+    });
+  }
+
+  /**
+   * Retrieves all reports associated with a specific user by their email address.
+   *
+   * @param email - The email address of the user whose reports are to be fetched.
+   * @returns A promise that resolves to an array of report objects, each including the associated user information, ordered by creation date in descending order.
+   */
+  async getReportsByUser(email: string) {
+    return await db
+      .select({ report: reports })
+      .from(reports)
+      .leftJoin(users, eq(reports.userId, users.id))
+      .where(eq(users.email, email))
+      .orderBy(desc(reports.createdAt));
+  }
+
+  /**
    * Creates or updates a report and its associated user in a single transaction.
    *
    * - If `data.report.id` is provided, updates the existing report and user.

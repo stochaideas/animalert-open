@@ -8,39 +8,36 @@ import { GoogleMap } from "~/components/ui/complex/google-map";
 import { api } from "~/trpc/react";
 import type { Coordinates } from "~/types/coordinates";
 
-export default function AdminReportDetailPage({
+export default function ReportDetailPage({
   params,
 }: {
   params: Promise<{ reportId: string }>;
 }) {
   const { reportId } = React.use(params);
 
-  // Inside your page component (after fetching reportData)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [markerCoordinates, setMarkerCoordinates] =
     useState<Coordinates | null>(null);
 
-  // Fetch report (including user data)
   const {
     data: reportData,
     isLoading: reportLoading,
     error: reportError,
-  } = api.report.getReportWithUser.useQuery({ id: reportId });
+  } = api.report.getReport.useQuery({ id: reportId });
 
-  // Fetch attached files from S3
   const {
     data: files,
     isLoading: filesLoading,
     error: filesError,
   } = api.report.getReportFiles.useQuery({ id: reportId });
 
-  if (reportLoading || filesLoading) return <div>Loading...</div>;
+  if (reportLoading || filesLoading) return <div>Se încarcă...</div>;
   if (reportError)
-    return <div>Error loading report: {reportError.message}</div>;
+    return <div>Eroare la încărcarea raportului: {reportError.message}</div>;
 
-  if (!reportData) return <div>Report not found.</div>;
+  if (!reportData) return <div>Raportul nu a fost găsit.</div>;
 
-  const { report, user } = reportData;
+  const report = reportData;
 
   const coordinates =
     report.latitude && report.longitude
@@ -57,54 +54,58 @@ export default function AdminReportDetailPage({
         }[])
       : [];
   } catch {
-    // Optionally log or debug here
     conversation = [];
   }
 
   return (
     <main className="bg-tertiary flex flex-col items-center justify-center gap-6 pt-12 pb-24">
-      <h1 className="text-heading-1 mb-4">Report #{report.reportNumber}</h1>
+      <h1 className="text-heading-1 mb-4">Raport #{report.reportNumber}</h1>
       <section className="w-full max-w-xl rounded-md bg-white p-8 shadow-md">
-        <h2 className="text-heading-2 mb-2">Report Details</h2>
+        <h2 className="text-heading-2 mb-2">Detalii raport</h2>
         <ul className="text-body mb-4">
           <li>
-            <strong>Type:</strong> {report.reportType}
+            <strong>Tip:</strong>{" "}
+            {{
+              INCIDENT: "Incident",
+              PRESENCE: "Prezență",
+              CONFLICT: "Conflict/interacțiune",
+            }[report.reportType] ?? "Necunoscut"}
           </li>
           <li>
-            <strong>Created:</strong>{" "}
+            <strong>Creat:</strong>{" "}
             {report.createdAt
               ? format(report.createdAt, "dd.MM.yyyy HH:mm:ss")
               : "—"}
           </li>
           <li>
-            <strong>Updated:</strong>{" "}
+            <strong>Actualizat:</strong>{" "}
             {report.updatedAt
               ? format(report.updatedAt, "dd.MM.yyyy HH:mm:ss")
               : "—"}
           </li>
           <li>
-            <strong>Location:</strong> {report.address ?? "—"}
+            <strong>Locație:</strong> {report.address ?? "—"}
           </li>
           <li>
-            <strong>Receive Updates:</strong>{" "}
-            {report.receiveUpdates ? "Yes" : "No"}
+            <strong>Primește actualizări:</strong>{" "}
+            {report.receiveUpdates ? "Da" : "Nu"}
           </li>
         </ul>
         {report.reportType === "INCIDENT" && (
           <section className="mt-8 w-full max-w-2xl">
-            <h2 className="text-heading-2 mb-2">Report Conversation</h2>
+            <h2 className="text-heading-2 mb-2">Conversație raport</h2>
             {conversation.length === 0 ? (
               <div className="text-gray-500">
-                No conversation data available.
+                Nu există date de conversație disponibile.
               </div>
             ) : (
               <div className="space-y-4">
                 {conversation.map((item, idx) => (
                   <div key={idx} className="rounded bg-neutral-100 p-4">
                     <div className="text-primary-foreground mb-2 font-semibold">
-                      Q: {item.question}
+                      Î: {item.question}
                     </div>
-                    <div className="text-body">A: {item.answer}</div>
+                    <div className="text-body">R: {item.answer}</div>
                   </div>
                 ))}
               </div>
@@ -112,7 +113,7 @@ export default function AdminReportDetailPage({
           </section>
         )}
         <section className="mb-8 w-full max-w-2xl">
-          <h2 className="text-heading-2 mb-4">Report Location</h2>
+          <h2 className="text-heading-2 mt-8 mb-4">Locația raportului</h2>
           {coordinates ? (
             <div style={{ width: "100%", height: 300 }}>
               <GoogleMap
@@ -122,49 +123,21 @@ export default function AdminReportDetailPage({
             </div>
           ) : (
             <div className="text-gray-500">
-              Location not specified for this report.
+              Locația nu este specificată pentru acest raport.
             </div>
           )}
         </section>
-        <h2 className="text-heading-2 mb-2">Reported By</h2>
-        {user ? (
-          <ul className="text-body mb-4">
-            <li>
-              <strong>Name:</strong> {user.firstName} {user.lastName}
-            </li>
-            <li>
-              <strong>Phone:</strong> {user.phone}
-            </li>
-            {user.email && (
-              <li>
-                <strong>Email:</strong>{" "}
-                <Link
-                  className="text-blue-500 underline"
-                  href={`mailto:${user.email}`}
-                >
-                  {user.email}
-                </Link>
-              </li>
-            )}
-            <li>
-              <strong>User wants to receive other updates: </strong>
-              {user.receiveOtherReportUpdates ? "Yes" : "No"}
-            </li>
-          </ul>
-        ) : (
-          <div className="text-body mb-4">User data not available.</div>
-        )}
       </section>
 
       <section className="mt-8 w-full max-w-2xl px-6">
-        <h2 className="text-heading-2 mb-4">Attached Files</h2>
+        <h2 className="text-heading-2 mb-4">Fișiere atașate</h2>
         {filesError && (
           <div className="text-error">
-            Failed to load files: {filesError.message}
+            Eroare la încărcarea fișierelor: {filesError.message}
           </div>
         )}
         {!files || files.length === 0 ? (
-          <div>No files found for this report.</div>
+          <div>Nu au fost găsite fișiere pentru acest raport.</div>
         ) : (
           <div className="flex flex-wrap gap-6">
             {files.map((file: { url: string; type: string }) => (
@@ -173,14 +146,14 @@ export default function AdminReportDetailPage({
                   <>
                     {file.type === "image/svg+xml" ? (
                       <span>
-                        SVG files cannot be previewed directly.
+                        Fișierele SVG nu pot fi previzualizate direct.
                         <Link
                           className="text-blue-500 underline"
                           href={file.url}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Download SVG
+                          Descarcă SVG
                         </Link>
                       </span>
                     ) : (
@@ -191,7 +164,7 @@ export default function AdminReportDetailPage({
                       >
                         <Image
                           src={file.url}
-                          alt="Uploaded file"
+                          alt="Fișier încărcat"
                           className="rounded-md"
                           width={240}
                           height={180}
@@ -208,11 +181,11 @@ export default function AdminReportDetailPage({
                     controls
                     className="rounded-md"
                   >
-                    Your browser does not support the video tag.
+                    Browserul tău nu suportă tag-ul video.
                   </video>
                 ) : (
                   <div>
-                    <span>Preview not available</span>
+                    <span>Previzualizare indisponibilă</span>
                     <br />
                     <a
                       href={file.url}
@@ -220,7 +193,7 @@ export default function AdminReportDetailPage({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Download
+                      Descarcă
                     </a>
                   </div>
                 )}
