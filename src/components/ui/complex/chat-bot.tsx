@@ -51,6 +51,8 @@ export default function ChatBot({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+  const [showAuthenticationDialog, setShowAuthenticationDialog] =
+    useState(false);
 
   const [multiSelect, setMultiSelect] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -412,10 +414,54 @@ export default function ChatBot({
           open={showFeedbackDialog}
           setOpen={setShowFeedbackDialog}
           postFeedbackCallback={() => {
-            redirect("/");
+            setShowFeedbackDialog(false);
+            setShowAuthenticationDialog(true);
           }}
         />
       )}
+      <Dialog
+        open={showAuthenticationDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowConfirmDialog(false);
+            if (handleDialogClose)
+              handleDialogClose(
+                // Create a dummy MouseEvent to satisfy the signature
+                new MouseEvent(
+                  "click",
+                ) as unknown as React.MouseEvent<HTMLButtonElement>,
+              );
+          }
+        }}
+      >
+        <DialogContent
+          onPointerDownOutside={(event) => event.preventDefault()}
+          className="bg-tertiary text-center"
+        >
+          <DialogHeader>
+            <DialogDescription className="sr-only">
+              Confirmare de înregistrare a raportului.
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            Pentru a avea acces la noutăți și la incidente/acțiunile tale din
+            site, te rugăm să te înregistrezi
+          </div>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="min-w-44"
+              onClick={() => {
+                setShowAuthenticationDialog(false);
+                redirect("/sign-in");
+              }}
+            >
+              <SVGStar /> Înregistrează-te
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
