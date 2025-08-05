@@ -14,6 +14,9 @@ import { roRO } from "@clerk/localizations";
 export const metadata: Metadata = {
   title: "Animalert",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  other: {
+    "facebook-domain-verification": "8n0hycuwhvh7iurrmp2cno1xzvzkow",
+  },
 };
 
 const poppins = Poppins({
