@@ -26,7 +26,6 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       localization={roRO}
       appearance={{
         variables: {
