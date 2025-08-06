@@ -8,7 +8,7 @@ import "./src/env.js";
 const config = {
   reactStrictMode: true,
   output: "standalone",
-  // transpilePackages: ["@clerk/nextjs"],
+  transpilePackages: ["@clerk/nextjs"],
   images: {
     remotePatterns: [
       {

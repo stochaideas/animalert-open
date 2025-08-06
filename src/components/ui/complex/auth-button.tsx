@@ -6,9 +6,7 @@ export default function AuthButton() {
     <>
       <SignedOut>
         <SignInButton mode="modal">
-          <Button variant="neutral">
-            Sign in
-          </Button>
+          <Button variant="neutral">Autentificare</Button>
         </SignInButton>
       </SignedOut>
       <SignedIn>
