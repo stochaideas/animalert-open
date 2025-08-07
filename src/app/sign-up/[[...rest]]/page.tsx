@@ -284,7 +284,7 @@ export default function SignUpPage() {
             >
               Google
             </Button>
-            <Button
+            {/* <Button
               type="button"
               variant="secondary"
               size="md"
@@ -292,7 +292,7 @@ export default function SignUpPage() {
               onClick={() => handleSocialSignUp("oauth_facebook")}
             >
               Facebook
-            </Button>
+            </Button> */}
           </div>
         </div>
 
