@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useSignIn, useUser } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
+import { useSignIn } from "@clerk/nextjs";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -19,16 +18,11 @@ import {
 import { Input } from "~/components/ui/simple/input";
 import { Button } from "~/components/ui/simple/button";
 import { SVGPaperPlane } from "~/components/icons";
-import { Checkbox } from "~/components/ui/simple/checkbox";
-import { Label } from "~/components/ui/simple/label";
 import Link from "next/link";
 
 const signInSchema = z.object({
   email: z.string().email({ message: "Adresa de email nu este validă" }),
   password: z.string().min(1, { message: "Parola este necesară" }),
-  acceptTerms: z.boolean({
-    errorMap: () => ({ message: "Trebuie să accepți Termenii și Politica" }),
-  }),
 });
 
 type SignInFormData = z.infer<typeof signInSchema>;
@@ -37,22 +31,14 @@ export default function SignInPage() {
   const { isLoaded, signIn, setActive } = useSignIn();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { isSignedIn } = useUser();
-
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     mode: "onSubmit",
     defaultValues: {
       email: "",
       password: "",
-      acceptTerms: false,
     },
   });
-
-  if (isSignedIn) {
-    redirect("/profil");
-    return null;
-  }
 
   async function onSubmit(values: SignInFormData) {
     setErrorMessage(null);
@@ -65,8 +51,7 @@ export default function SignInPage() {
       });
 
       if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        redirect("/");
+        await setActive({ session: result.createdSessionId, redirectUrl: "/" });
       }
     } catch (err) {
       if (
@@ -136,44 +121,6 @@ export default function SignInPage() {
                       className="p-6"
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="acceptTerms"
-              render={({ field }) => (
-                <FormItem className="flex items-center">
-                  <FormControl>
-                    <Checkbox
-                      id="acceptTerms"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <Label
-                    htmlFor="acceptTerms"
-                    className="text-body-small inline"
-                  >
-                    Accept{" "}
-                    <Link
-                      className="text-blue-500 underline"
-                      href="/termeni-si-conditii"
-                      target="_blank"
-                    >
-                      Termenii
-                    </Link>{" "}
-                    și{" "}
-                    <Link
-                      className="text-blue-500 underline"
-                      href="/politica-confidentialitate"
-                      target="_blank"
-                    >
-                      Politica de Confidențialitate
-                    </Link>
-                  </Label>
                   <FormMessage />
                 </FormItem>
               )}
