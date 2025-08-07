@@ -2,6 +2,7 @@ import {
   createTRPCRouter,
   publicProcedure,
   adminProcedure,
+  authProcedure,
 } from "~/server/api/trpc";
 import { z } from "zod";
 import { ReportController } from "./report.controller";
@@ -19,22 +20,20 @@ const reportService = new ReportService(emailService, s3Service, smsService);
 const reportController = new ReportController(reportService);
 
 export const reportRouter = createTRPCRouter({
-  getReport: publicProcedure
+  getReport: authProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ input }) => {
-      return reportController.getReport(input.id);
+    .query(({ ctx, input }) => {
+      return reportController.getReport(ctx.user, input.id);
     }),
 
-  getReportsByUser: publicProcedure
-    .input(z.object({ email: z.string() }))
-    .query(({ input }) => {
-      return reportController.getReportsByUser(input.email);
-    }),
+  getReportsByUser: authProcedure.query(({ ctx }) => {
+    return reportController.getReportsByUser(ctx.user);
+  }),
 
   getReportFiles: publicProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ input }) => {
-      return reportController.getReportFiles(input);
+    .query(({ ctx, input }) => {
+      return reportController.getReportFiles(ctx.user, input.id);
     }),
 
   // Admin: list all reports with user data

@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import React, { useState } from "react";
 import { GoogleMap } from "~/components/ui/complex/google-map";
 import { api } from "~/trpc/react";
@@ -32,8 +33,22 @@ export default function ReportDetailPage({
   } = api.report.getReportFiles.useQuery({ id: reportId });
 
   if (reportLoading || filesLoading) return <div>Se încarcă...</div>;
-  if (reportError)
-    return <div>Eroare la încărcarea raportului: {reportError.message}</div>;
+  if (reportError) {
+    switch (reportError.data?.code) {
+      case "UNAUTHORIZED":
+        redirect("/sign-in");
+      case "NOT_FOUND":
+        redirect("/not-found");
+      case "FORBIDDEN":
+        redirect("/forbidden");
+      default:
+        return (
+          <div className="flex min-h-screen items-center justify-center">
+            Eroare necunoscută: {reportError.message}
+          </div>
+        );
+    }
+  }
 
   if (!reportData) return <div>Raportul nu a fost găsit.</div>;
 

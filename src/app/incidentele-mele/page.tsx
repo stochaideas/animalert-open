@@ -6,20 +6,9 @@ import { api } from "~/trpc/react";
 import { redirect } from "next/navigation";
 
 export default function ReportsPage() {
-  const { isSignedIn, isLoaded: userDataIsLoaded, user } = useUser();
+  const { isSignedIn, isLoaded: userDataIsLoaded } = useUser();
 
-  // user.emailAddresses is an array of email objects, find the primary email
-  const primaryEmailObj = user?.emailAddresses.find(
-    (email) => email.id === user.primaryEmailAddressId,
-  );
-  const primaryEmail = primaryEmailObj?.emailAddress ?? "";
-
-  const { data, isLoading, error } = api.report.getReportsByUser.useQuery(
-    { email: primaryEmail },
-    {
-      enabled: userDataIsLoaded && Boolean(primaryEmail),
-    },
-  );
+  const { data, isLoading, error } = api.report.getReportsByUser.useQuery();
 
   if (!userDataIsLoaded) {
     return (
@@ -40,12 +29,22 @@ export default function ReportsPage() {
       </div>
     );
 
-  if (error)
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        Error: {error.message}
-      </div>
-    );
+  if (error) {
+    switch (error.data?.code) {
+      case "UNAUTHORIZED":
+        redirect("/sign-in");
+      case "NOT_FOUND":
+        redirect("/not-found");
+      case "FORBIDDEN":
+        redirect("/forbidden");
+      default:
+        return (
+          <div className="flex min-h-screen items-center justify-center">
+            Eroare necunoscută: {error.message}
+          </div>
+        );
+    }
+  }
 
   return (
     <div className="p-4">
