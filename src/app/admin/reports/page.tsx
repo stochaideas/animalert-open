@@ -3,7 +3,7 @@
 import { DataTable } from "./data-table";
 import { api } from "~/trpc/react";
 
-export default function ReportsPage() {
+export default function AdminReportsPage() {
   const { data, isLoading, error } = api.report.listReportsWithUser.useQuery();
 
   if (isLoading) return <div>Loading...</div>;

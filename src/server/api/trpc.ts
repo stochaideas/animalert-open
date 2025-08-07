@@ -133,6 +133,10 @@ const adminMiddleware = t.middleware(({ ctx, next }) => {
   return next();
 });
 
+export const authProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(authMiddleware);
+
 // Admin (authenticated) procedure
 export const adminProcedure = t.procedure
   .use(timingMiddleware)

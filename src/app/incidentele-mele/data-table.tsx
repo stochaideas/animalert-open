@@ -12,7 +12,7 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 
-import { columns, type ReportWithUser } from "./columns";
+import { columns, type Report } from "./columns";
 
 import {
   Table,
@@ -24,15 +24,9 @@ import {
 } from "~/components/ui/simple/table";
 import { Button } from "~/components/ui/simple/button";
 import { Input } from "~/components/ui/simple/input";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "~/components/ui/simple/dropdown-menu";
 
 type Props = {
-  data: ReportWithUser[];
+  data: Report[];
 };
 
 import type { Row } from "@tanstack/react-table";
@@ -45,7 +39,7 @@ import {
 } from "~/components/ui/simple/select";
 
 function fuzzyGlobalFilter(
-  row: Row<ReportWithUser>,
+  row: Row<Report>,
   columnId: string,
   filterValue: string,
 ) {
@@ -88,38 +82,40 @@ export function DataTable({ data }: Props) {
 
   return (
     <>
-      <div className="mt-4 flex flex-row items-center justify-between">
-        <Input
-          placeholder="Search all columns..."
-          value={globalFilter}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-sm"
-        />
+      <div className="mt-4 mb-4 flex flex-col items-center justify-between md:flex-row">
+        <div className="flex flex-row gap-4">
+          <Input
+            placeholder="Caută..."
+            value={globalFilter}
+            onChange={(event) => setGlobalFilter(event.target.value)}
+            className="max-w-sm"
+          />
 
-        <Select
-          value={String(table.getState().pagination.pageSize)}
-          onValueChange={(value) => {
-            table.setPageSize(Number(value));
-          }}
-          defaultValue={String(table.getState().pagination.pageSize)}
-        >
-          <SelectTrigger className="text-body hover:cursor-pointer">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-neutral">
-            {[10, 25, 50, 100].map((size) => (
-              <SelectItem
-                className="hover:bg-neutral-hover text-body hover:cursor-pointer"
-                value={String(size)}
-                key={size}
-              >
-                {size} / page
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select
+            value={String(table.getState().pagination.pageSize)}
+            onValueChange={(value) => {
+              table.setPageSize(Number(value));
+            }}
+            defaultValue={String(table.getState().pagination.pageSize)}
+          >
+            <SelectTrigger className="text-body hover:cursor-pointer">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-neutral">
+              {[10, 25, 50, 100].map((size) => (
+                <SelectItem
+                  className="hover:bg-neutral-hover text-body hover:cursor-pointer"
+                  value={String(size)}
+                  key={size}
+                >
+                  {size} / pagină
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-        <div>
+        <div className="ml-auto flex flex-1 items-center justify-end sm:flex-none">
           <Button
             className="mt-4"
             variant="tertiary"
@@ -127,48 +123,19 @@ export function DataTable({ data }: Props) {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            &lt; Înapoi
           </Button>
           <Button
-            className="ml-4"
+            className="mt-4 ml-4"
             variant="tertiary"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            &gt; Înainte
           </Button>
         </div>
       </div>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className="mt-4" variant="tertiary">
-            Columns
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {table
-            .getAllColumns()
-            .filter((column) => column.getCanHide())
-            .map((column) => {
-              return (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="hover:bg-neutral-hover text-body bg-white hover:cursor-pointer"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  <span className="ml-4">
-                    {typeof column.columnDef.header === "string"
-                      ? column.columnDef.header
-                      : column.id}
-                  </span>
-                </DropdownMenuCheckboxItem>
-              );
-            })}
-        </DropdownMenuContent>
-      </DropdownMenu>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -196,6 +163,7 @@ export function DataTable({ data }: Props) {
           ))}
         </TableBody>
       </Table>
+      <p className="mt-4">Total: {table.getRowModel().rows.length}</p>
     </>
   );
 }
