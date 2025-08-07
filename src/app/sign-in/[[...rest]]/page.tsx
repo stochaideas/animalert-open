@@ -72,7 +72,8 @@ export default function SignInPage() {
   }
 
   async function handleSocialSignIn(
-    provider: "oauth_google" | "oauth_facebook",
+    provider: "oauth_google",
+    //  | "oauth_facebook",
   ) {
     if (!isLoaded) return;
     await signIn.authenticateWithRedirect({
@@ -162,7 +163,7 @@ export default function SignInPage() {
             >
               Google
             </Button>
-            <Button
+            {/* <Button
               type="button"
               variant="secondary"
               size="md"
@@ -170,7 +171,7 @@ export default function SignInPage() {
               onClick={() => handleSocialSignIn("oauth_facebook")}
             >
               Facebook
-            </Button>
+            </Button> */}
           </div>
         </div>
 

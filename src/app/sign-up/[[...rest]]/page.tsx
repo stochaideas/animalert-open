@@ -117,7 +117,8 @@ export default function SignUpPage() {
 
   // Social sign-up handlers (Google/Facebook)
   async function handleSocialSignUp(
-    provider: "oauth_google" | "oauth_facebook",
+    provider: "oauth_google",
+    // | "oauth_facebook",
   ) {
     if (!isLoaded) return;
 
@@ -284,7 +285,7 @@ export default function SignUpPage() {
             >
               Google
             </Button>
-            <Button
+            {/* <Button
               type="button"
               variant="secondary"
               size="md"
@@ -292,7 +293,7 @@ export default function SignUpPage() {
               onClick={() => handleSocialSignUp("oauth_facebook")}
             >
               Facebook
-            </Button>
+            </Button> */}
           </div>
         </div>
 
