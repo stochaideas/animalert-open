@@ -162,7 +162,14 @@ export default function Footer() {
             </span>
           </section>
         </div>
-        <span className="text-body-small w-full items-start lg:flex-row lg:justify-center lg:gap-2 lg:text-center">
+
+        <div className="font-poppins container mx-auto mt-8 pt-6 text-center text-[1.25rem]">
+          <span>
+            Organizația pentru Protecția Mediului și Combaterea Braconajului
+          </span>
+        </div>
+
+        <span className="text-body-small w-full items-start text-center lg:flex-row lg:justify-center lg:gap-2">
           <span>© 2025 AnimAlert. Toate drepturile rezervate.</span>
         </span>
       </div>

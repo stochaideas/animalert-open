@@ -6,9 +6,11 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 import { db } from "~/server/db";
 
@@ -25,8 +27,12 @@ import { db } from "~/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const { userId } = await auth(); // Returns userId if authenticated, else null
+  const user = userId ? await currentUser() : null;
+
   return {
     db,
+    user, // Attach user object to context
     ...opts,
   };
 };
@@ -104,3 +110,35 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+
+// Authentication middleware for protected procedures
+const authMiddleware = t.middleware(({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User is not authenticated",
+    });
+  }
+  return next();
+});
+
+// Admin middleware for admin procedures
+const adminMiddleware = t.middleware(({ ctx, next }) => {
+  if (!ctx.user || ctx.user.publicMetadata.role !== "admin") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "User is not an admin",
+    });
+  }
+  return next();
+});
+
+export const authProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(authMiddleware);
+
+// Admin (authenticated) procedure
+export const adminProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(authMiddleware)
+  .use(adminMiddleware);

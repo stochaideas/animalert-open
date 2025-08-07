@@ -1,5 +1,5 @@
 // External dependencies
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import type { z } from "zod";
 
@@ -20,6 +20,7 @@ import {
   handlePostgresError,
   type PostgresError,
 } from "~/server/db/postgres-error";
+import type { User } from "@clerk/nextjs/server";
 
 /**
  * Service for handling report creation, updates, notifications, and file retrieval.
@@ -44,6 +45,94 @@ export class ReportService {
     this.emailService = emailService;
     this.s3Service = s3Service;
     this.smsService = smsService;
+  }
+
+  /**
+   * Retrieves a single report from the database by its unique identifier.
+   *
+   * @param id - The unique identifier of the report to retrieve.
+   * @returns A promise that resolves to the report object if found, or `null` if no report matches the given ID.
+   */
+  async getReport(user: User | null, id: string) {
+    if (!user) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User must be authenticated to access reports.",
+      });
+    }
+
+    const currentUserEmail = user?.emailAddresses.find(
+      (email) => email.id === user.primaryEmailAddressId,
+    )?.emailAddress;
+
+    if (!currentUserEmail) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User email not found or not verified.",
+      });
+    }
+
+    // Query report joined with user email by report ID
+    const result = await db
+      .select({
+        report: reports,
+        user: users,
+      })
+      .from(reports)
+      .leftJoin(users, eq(reports.userId, users.id))
+      .where(eq(reports.id, id))
+      .limit(1);
+
+    if (!result.length) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Report with id ${id} not found`,
+      });
+    }
+
+    // Validate if emails match
+    if (result[0]?.user?.email !== currentUserEmail) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "You do not have permission to access this report.",
+      });
+    }
+
+    // Return the matched report (you may want to include user info too if needed)
+    return result[0]?.report;
+  }
+
+  /**
+   * Retrieves all reports associated with a specific user by their email address.
+   *
+   * @param email - The email address of the user whose reports are to be fetched.
+   * @returns A promise that resolves to an array of report objects, each including the associated user information, ordered by creation date in descending order.
+   */
+  async getReportsByUser(user: User | null) {
+    if (!user) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User must be authenticated to access reports.",
+      });
+    }
+
+    const currentUserEmail = user?.emailAddresses.find(
+      (email) => email.id === user.primaryEmailAddressId,
+    )?.emailAddress;
+
+    if (!currentUserEmail) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User email not found or not verified.",
+      });
+    }
+
+    return await db
+      .select({ report: reports })
+      .from(reports)
+      .leftJoin(users, eq(reports.userId, users.id))
+      .where(eq(users.email, currentUserEmail))
+      .orderBy(desc(reports.createdAt));
   }
 
   /**
@@ -576,22 +665,35 @@ Echipa AnimAlert
   /**
    * Retrieves signed URLs for the image files associated with a specific report.
    *
-   * @param reportNumber - The unique number identifying the report.
+   * @param reportId - The unique id identifying the report.
    * @returns A promise that resolves to an array of signed URLs for the report's image files.
-   * @throws {TRPCError} If the report with the specified number is not found.
+   * @throws {TRPCError} If the report with the specified id is not found.
    */
-  async getReportFiles({ reportNumber }: { reportNumber: number }) {
-    const report = await db.query.reports.findFirst({
-      where: eq(reports.reportNumber, reportNumber),
-      columns: {
-        imageKeys: true,
-      },
-    });
+  async getReportFiles(user: User | null, id: string) {
+    if (!user) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User must be authenticated to access report files.",
+      });
+    }
+
+    const currentUserEmail = user?.emailAddresses.find(
+      (email) => email.id === user.primaryEmailAddressId,
+    )?.emailAddress;
+
+    if (!currentUserEmail) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User email not found or not verified.",
+      });
+    }
+
+    const report = await this.getReport(user, id);
 
     if (!report) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: `Report with number ${reportNumber} not found`,
+        message: `Report with id ${id} not found`,
       });
     }
 
@@ -609,5 +711,74 @@ Echipa AnimAlert
     );
 
     return fileUrls;
+  }
+
+  // List all reports with user data
+  async listReportsWithUser() {
+    return await db
+      .select({ report: reports, user: users })
+      .from(reports)
+      .leftJoin(users, eq(reports.userId, users.id))
+      .orderBy(desc(reports.createdAt));
+  }
+
+  // Get a single report (with user) by report ID
+  async getReportWithUser(id: string) {
+    const result = await db
+      .select({ report: reports, user: users })
+      .from(reports)
+      .leftJoin(users, eq(reports.userId, users.id))
+      .where(eq(reports.id, id))
+      .limit(1);
+
+    if (!result.length) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Report with id ${id} not found`,
+      });
+    }
+    return result[0];
+  }
+
+  // Update report and user data
+  async updateReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
+    const { user, report } = data;
+    const normalizedPhone = normalizePhoneNumber(user.phone);
+
+    if (!user.id || !report.id) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "User ID and Report ID are required for update",
+      });
+    }
+
+    // Update user
+    await db
+      .update(users)
+      .set({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: normalizedPhone,
+        email: user.email,
+        receiveOtherReportUpdates: user.receiveOtherReportUpdates,
+      })
+      .where(eq(users.id, user.id));
+
+    // Update report
+    await db
+      .update(reports)
+      .set({
+        reportType: report.reportType,
+        receiveUpdates: report.receiveUpdates,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        imageKeys: report.imageKeys,
+        conversation: report.conversation,
+        address: report.address,
+      })
+      .where(eq(reports.id, report.id));
+
+    // Return updated report with user data
+    return this.getReportWithUser(report.id);
   }
 }
