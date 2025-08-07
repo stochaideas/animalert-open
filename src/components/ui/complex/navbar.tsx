@@ -311,7 +311,9 @@ export default function Navbar() {
               )}
             <SignedOut>
               <Link href="/sign-in">
-                <Button variant="tertiary">Contul meu</Button>
+                <Button size="xs" variant="neutral">
+                  <span className="text-single-line-body-base">Contul meu</span>
+                </Button>
               </Link>
             </SignedOut>
             <SignedIn>
