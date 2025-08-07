@@ -27,7 +27,7 @@ const cards = [
     body: "Raportează ilegalități aici.",
     href: "/sesizari",
     button: "Trimite sesizare",
-    disabled: true, // TODO: temporary, remove when ready
+    disabled: false, 
   },
   {
     img: "/images/homepage-card-3.png",
@@ -73,27 +73,27 @@ export default function Home() {
   return (
     <main className="bg-tertiary flex flex-col items-center justify-center gap-24 pb-24">
       <section className="h-[50rem] w-full bg-[url(/images/homepage-hero-sm.png)] bg-cover bg-[65%] bg-no-repeat md:bg-[url(/images/homepage-hero-lg.png)] md:bg-center">
-        {isVisible && (
-          <section
-            className={`text-neutral-foreground text-body bg-primary m-auto mt-6 w-[85%] self-center overflow-hidden rounded-md px-3 py-1.5 transition-all duration-1000 md:px-6 md:py-3.5 ${
-              isShrinking
-                ? "mt-0 max-h-0 py-0 opacity-0"
-                : "max-h-[500px] opacity-50"
-            }`}
-          >
-            <div className="m-auto text-center select-none">
-              <strong>
-                Platforma se află în continuă dezvoltare, iar dacă observați
-                erori sau probleme, vă rugăm să le raportați în
-                <br />
-                <Link className="text-blue-700 underline" href="/contact">
-                  <Button variant="secondary">Formularul de Contact</Button>
-                </Link>
-              </strong>
-            </div>
-          </section>
-        )}
-        <div className="flex flex-col items-start gap-8 p-6 md:px-20 md:pt-32 xl:pt-40 xl:pl-80">
+        {/*{isVisible && (*/}
+        {/*  <section*/}
+        {/*    className={`text-neutral-foreground text-body bg-primary m-auto mt-6 w-[85%] self-center overflow-hidden rounded-md px-3 py-1.5 transition-all duration-1000 md:px-6 md:py-3.5 ${*/}
+        {/*      isShrinking*/}
+        {/*        ? "mt-0 max-h-0 py-0 opacity-0"*/}
+        {/*        : "max-h-[500px] opacity-50"*/}
+        {/*    }`}*/}
+        {/*  >*/}
+        {/*    <div className="m-auto text-center select-none">*/}
+        {/*      <strong>*/}
+        {/*        Platforma se află în continuă dezvoltare, iar dacă observați*/}
+        {/*        erori sau probleme, vă rugăm să le raportați în*/}
+        {/*        <br />*/}
+        {/*        <Link className="text-blue-700 underline" href="/contact">*/}
+        {/*          <Button variant="secondary">Formularul de Contact</Button>*/}
+        {/*        </Link>*/}
+        {/*      </strong>*/}
+        {/*    </div>*/}
+        {/*  </section>*/}
+        {/*)}*/}
+        <div className="flex flex-col items-start gap-8 px-6 md:px-20 md:pt-32 xl:pt-40 xl:pl-80 pt-24">
           <span className="text-heading-1 text-neutral lg:max-w-2xl">
             <b>Ai întâlnit un animal sălbatic rănit sau în pericol?</b>
           </span>

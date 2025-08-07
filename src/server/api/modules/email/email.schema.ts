@@ -3,6 +3,7 @@ import { z } from "zod";
 export const emailOptionsSchema = z
   .object({
     to: z.union([z.string().email(), z.array(z.string().email())]),
+    cc: z.union([z.string().email(), z.array(z.string().email())]).optional(),
     subject: z.string().min(1, "Email subject is required"),
     text: z.string().optional(),
     html: z.string().optional(),
