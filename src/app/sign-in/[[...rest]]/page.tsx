@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useSignIn } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useSignIn, useUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -35,8 +35,9 @@ type SignInFormData = z.infer<typeof signInSchema>;
 
 export default function SignInPage() {
   const { isLoaded, signIn, setActive } = useSignIn();
-  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { isSignedIn } = useUser();
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -47,6 +48,11 @@ export default function SignInPage() {
       acceptTerms: false,
     },
   });
+
+  if (isSignedIn) {
+    redirect("/profil");
+    return null;
+  }
 
   async function onSubmit(values: SignInFormData) {
     setErrorMessage(null);
@@ -60,7 +66,7 @@ export default function SignInPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.push("/");
+        redirect("/");
       }
     } catch (err) {
       if (

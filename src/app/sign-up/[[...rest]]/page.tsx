@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useSignUp } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useSignUp, useUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -36,10 +36,11 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
   const { isLoaded, signUp, setActive } = useSignUp();
-  const router = useRouter();
   const [step, setStep] = useState<"register" | "verify">("register");
   const [code, setCode] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { isSignedIn } = useUser();
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -50,6 +51,11 @@ export default function SignUpPage() {
       acceptTerms: false,
     },
   });
+
+  if (isSignedIn) {
+    redirect("/profil");
+    return null;
+  }
 
   // Submit registration form: create user, send verification code
   async function onSubmit(values: SignUpFormData) {
@@ -94,7 +100,7 @@ export default function SignUpPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.push("/");
+        redirect("/");
       } else {
         console.error("Verification failed", result);
 
