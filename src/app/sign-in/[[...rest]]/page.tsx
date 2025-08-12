@@ -72,8 +72,7 @@ export default function SignInPage() {
   }
 
   async function handleSocialSignIn(
-    provider: "oauth_google",
-    //  | "oauth_facebook",
+    provider: "oauth_google" | "oauth_facebook",
   ) {
     if (!isLoaded) return;
     await signIn.authenticateWithRedirect({

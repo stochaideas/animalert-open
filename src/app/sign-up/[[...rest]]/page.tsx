@@ -117,8 +117,7 @@ export default function SignUpPage() {
 
   // Social sign-up handlers (Google/Facebook)
   async function handleSocialSignUp(
-    provider: "oauth_google",
-    // | "oauth_facebook",
+    provider: "oauth_google" | "oauth_facebook",
   ) {
     if (!isLoaded) return;
 

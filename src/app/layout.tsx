@@ -6,6 +6,7 @@ import { Poppins } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 import Footer from "../components/ui/complex/footer";
 import Navbar from "../components/ui/complex/navbar";
+
 import { Toaster } from "~/components/ui/simple/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
 import { env } from "~/env";
