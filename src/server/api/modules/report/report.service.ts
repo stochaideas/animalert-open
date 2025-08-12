@@ -91,7 +91,10 @@ export class ReportService {
     }
 
     // Validate if emails match
-    if (result[0]?.user?.email !== currentUserEmail) {
+    if (
+      result[0]?.user?.email !== currentUserEmail &&
+      user.publicMetadata.role !== "admin"
+    ) {
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "You do not have permission to access this report.",
@@ -681,7 +684,7 @@ Echipa AnimAlert
       (email) => email.id === user.primaryEmailAddressId,
     )?.emailAddress;
 
-    if (!currentUserEmail) {
+    if (!currentUserEmail && user.publicMetadata.role !== "admin") {
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "User email not found or not verified.",
