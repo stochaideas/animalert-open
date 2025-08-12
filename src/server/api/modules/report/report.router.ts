@@ -1,6 +1,5 @@
 import {
   createTRPCRouter,
-  publicProcedure,
   adminProcedure,
   authProcedure,
 } from "~/server/api/trpc";
@@ -30,7 +29,7 @@ export const reportRouter = createTRPCRouter({
     return reportController.getReportsByUser(ctx.user);
   }),
 
-  getReportFiles: publicProcedure
+  getReportFiles: authProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       return reportController.getReportFiles(ctx.user, input.id);
