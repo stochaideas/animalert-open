@@ -1,0 +1,1 @@
+ALTER TABLE "complaint_report_content" ALTER COLUMN "attachments_s3" SET DATA TYPE text[];

@@ -1,0 +1,1 @@
+ALTER TABLE "complaint_report_content" ADD COLUMN "attachments_s3" varchar;

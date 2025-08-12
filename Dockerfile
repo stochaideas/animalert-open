@@ -1,4 +1,4 @@
- ##### DEPENDENCIES
+##### DEPENDENCIES
 
 FROM --platform=linux/amd64 node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV NEXT_TELEMETRY_DISABLED = 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN \
     if [ -f yarn.lock ]; then SKIP_ENV_VALIDATION=1 yarn build; \
@@ -34,12 +34,25 @@ RUN \
 
 ##### RUNNER
 
-FROM --platform=linux/amd64 gcr.io/distroless/nodejs20-debian12 AS runner
+FROM --platform=linux/amd64 node:20-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV = production
+# install Chromium and necessary dependencies
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
 
-ENV NEXT_TELEMETRY_DISABLED = 1
+# set environment variables for Puppeteer
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/lib/chromium/chromium
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+
+ENV NODE_ENV=production
+
+ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
@@ -49,6 +62,6 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 3000
-ENV PORT = 3000
+ENV PORT=3000
 
-CMD ["server.js"]
+CMD ["node", "server.js"]

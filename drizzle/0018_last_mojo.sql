@@ -1,0 +1,2 @@
+ALTER TABLE "complaint_report_content" RENAME COLUMN "s3_key" TO "document_s3_key";--> statement-breakpoint
+ALTER TABLE "complaint_report_content" ALTER COLUMN "attachments_s3" SET DATA TYPE varchar(255);
