@@ -306,51 +306,9 @@ export default function Contact({
                   </FormItem>
                 )}
               />
-              <FormField
-                control={conflictForm.control}
-                name="receiveOtherReportUpdates"
-                render={({ field }) => (
-                  <FormItem className="flex items-start gap-3">
-                    <FormControl>
-                      <Checkbox
-                        className="mt-1"
-                        id="receiveOtherReportUpdates"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <Label
-                      htmlFor="receiveOtherReportUpdates"
-                      className="text-body-small"
-                    >
-                      Vreau să fiu contactat pe WhatsApp despre alte cazuri și
-                      activitățile organizației
-                    </Label>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={conflictForm.control}
-                name="receiveUpdates"
-                render={({ field }) => (
-                  <FormItem className="flex items-start gap-3">
-                    <FormControl>
-                      <Checkbox
-                        className="mt-1"
-                        id="receiveUpdates"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <Label htmlFor="receiveUpdates" className="text-body-small">
-                      Vreau să primesc update pe email despre caz
-                    </Label>
-                  </FormItem>
-                )}
-              />
             </div>
           </section>
-          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-12 rounded-md border-1 px-4 py-8 md:p-12">
+          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 px-4 py-8 md:p-12">
             <h3 className="text-heading-3 pb-4">Fișiere foto și video</h3>
             <p className="text-body pb-3">
               Adăugați fotografii relevante raportului.
@@ -363,6 +321,58 @@ export default function Contact({
                 />
               ))}
             </div>
+          </section>
+          <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-12 rounded-md border-1 px-4 py-8 md:p-12">
+            <h3 className="text-heading-3 pb-4">Setări notificări</h3>
+            <section className="mb-4 grid grid-cols-1 gap-8 md:grid-cols-2">
+              <div className="flex-1">
+                <FormField
+                  control={conflictForm.control}
+                  name="receiveOtherReportUpdates"
+                  render={({ field }) => (
+                    <FormItem className="flex items-start gap-3">
+                      <FormControl>
+                        <Checkbox
+                          className="mt-1"
+                          id="receiveOtherReportUpdates"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <Label
+                        htmlFor="receiveOtherReportUpdates"
+                        className="text-body-small"
+                      >
+                        Vreau să fiu contactat pe WhatsApp despre alte cazuri și
+                        activitățile organizației
+                      </Label>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={conflictForm.control}
+                  name="receiveUpdates"
+                  render={({ field }) => (
+                    <FormItem className="flex items-start gap-3">
+                      <FormControl>
+                        <Checkbox
+                          className="mt-1"
+                          id="receiveUpdates"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <Label
+                        htmlFor="receiveUpdates"
+                        className="text-body-small"
+                      >
+                        Vreau să primesc update pe email despre caz
+                      </Label>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </section>
           </section>
           <section className="flex flex-col items-center justify-end gap-6 md:flex-row-reverse md:justify-start">
             <Button
