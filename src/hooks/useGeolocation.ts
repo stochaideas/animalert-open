@@ -12,7 +12,7 @@ export const useGeolocation = (initialCoordinates?: Coordinates) => {
     // Only fetch geolocation if no initial coordinates provided
     if (!initialCoordinates) {
       if (!navigator.geolocation) {
-        setError("Geolocation is not supported by your browser");
+        setError("Geolocation is not supported by your browser.");
         return;
       }
 
@@ -24,7 +24,7 @@ export const useGeolocation = (initialCoordinates?: Coordinates) => {
       };
 
       const error = (err: GeolocationPositionError) => {
-        setError(`Geolocation error (${err.code}): ${err.message}`);
+        setError(`Geolocation error: (${err.code}): ${err.message}`);
       };
 
       navigator.geolocation.getCurrentPosition(success, error, {

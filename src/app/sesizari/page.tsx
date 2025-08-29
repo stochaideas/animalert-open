@@ -137,7 +137,7 @@ export default function Sesizari() {
       setPetitionTemplate(filledTemplate);
     } else {
       toast.error(
-        "A fost o eroare la crearea petiției dvs. Vă rugăm să încercați din nou mai târziu. Dacă problema persistă, vă rugăm să o raportați!",
+        "A apărut o eroare la crearea petiției dvs. Vă rugăm să încercați din nou, mai târziu. Dacă problema persistă, vă rugăm să o raportați in formularul de contact!",
       );
     }
   }
@@ -151,7 +151,7 @@ export default function Sesizari() {
         const successfulKeys = keys.filter(Boolean);
         form.setValue("attachments", successfulKeys);
       } catch {
-        toast.error("Eroare la încărcarea fișierelor.");
+        toast.error("Eroare la încărcarea fișierelor. Vă rugăm să încercați din nou, respectand limitarile fisierelor.");
         setUploading(false);
         return;
       }
@@ -288,7 +288,7 @@ export default function Sesizari() {
   return (
     <main className="bg-tertiary px-6 pt-20 pb-40 2xl:px-96 2xl:pt-24 2xl:pb-52">
       <h1 className="mb-10 text-center text-4xl font-bold text-black">
-        Sesizare Poliție
+        Sesizare/Petiție
       </h1>
       <Form {...form}>
         <section className="bg-neutral text-neutral-foreground border-tertiary-border mb-4 rounded-md border-1 px-4 py-8 md:p-12">
@@ -445,7 +445,7 @@ export default function Sesizari() {
               name="phoneNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Telefon</FormLabel>
+                  <FormLabel>Nr. de telefon</FormLabel>
                   <FormControl>
                     <Input placeholder="07xxxxxxxx" {...field} />
                   </FormControl>
@@ -489,7 +489,8 @@ export default function Sesizari() {
               name="destinationInstitute"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Destinatar (unitate poliție)</FormLabel>
+                  <FormLabel>Destinatar (instituție)</FormLabel> 
+                   {/* Judet (unitate poliție) */}
                   <FormControl>
                     <Input placeholder="Denumirea instituției..." {...field} />
                   </FormControl>
@@ -506,7 +507,7 @@ export default function Sesizari() {
                   <FormLabel>Adresă email destinatar</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Email-ul unității de poliție"
+                      placeholder="Adr. de e-mail a institutiei (unității de poliție)"
                       {...field}
                     />
                   </FormControl>
@@ -568,7 +569,7 @@ export default function Sesizari() {
                   <FormLabel>Strada</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Detalii adresa, strada, numar, puncte de reper, etc"
+                      placeholder="Detalii adresa, strada, numar, puncte de reper etc."
                       {...field}
                     />
                   </FormControl>
@@ -585,7 +586,7 @@ export default function Sesizari() {
                   <FormLabel>Conținut</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Descrie incidentul în detaliu..."
+                      placeholder="Descrie situatia/incidentul în detaliu:"
                       {...field}
                     />
                   </FormControl>
@@ -671,9 +672,9 @@ export default function Sesizari() {
                     >
                       Politica de confidențialitate
                     </Link>{" "}
-                    și sunt de acord ca AnimAlert să stocheze datele mele
-                    personale pentru a putea procesa raportarea
-                    conflictului/interacțiunii.
+                    și sunt de acord ca EcoAlert (AnimAlert) să stocheze datele mele
+                    personale pentru a putea procesa raportarea problemei descrise.
+                    (conflictului/interacțiunii).
                   </Label>
                 </FormItem>
               )}
