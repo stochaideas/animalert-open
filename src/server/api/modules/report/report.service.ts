@@ -16,6 +16,15 @@ import { env } from "~/env";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { format } from "~/lib/date-formatter";
 
+const REPORT_TYPE_VALUES = new Set<REPORT_TYPES>(
+  Object.values(REPORT_TYPES),
+);
+
+const toReportType = (value: unknown): REPORT_TYPES | null =>
+  REPORT_TYPE_VALUES.has(value as REPORT_TYPES)
+    ? (value as REPORT_TYPES)
+    : null;
+
 // Service and error handling types
 import { type EmailService } from "../email/email.service";
 import type { S3Service } from "../s3/s3.service";
@@ -821,6 +830,8 @@ Echipa AnimAlert
 
           const providerName = report.dataProvider ?? "AnimAlert";
 
+          const normalizedReportType = toReportType(report.reportType);
+
           return {
             id: report.id,
             latitude: report.latitude as number,
@@ -830,13 +841,15 @@ Echipa AnimAlert
               ? `Validat de ${providerName}`
               : "În curs de validare",
             type:
-              report.reportType === REPORT_TYPES.INCIDENT ? "INCIDENT" : "REPORT",
+              normalizedReportType === REPORT_TYPES.INCIDENT
+                ? "INCIDENT"
+                : "REPORT",
             description: report.address ?? null,
             images: imageUrls,
             species: null,
             isExternal: Boolean(report.isExternal),
             provider: providerName,
-            reportType: report.reportType ?? null,
+            reportType: normalizedReportType,
             createdAt: report.createdAt?.toISOString() ?? null,
           } satisfies ReportMapPoint;
         }),
