@@ -37,4 +37,8 @@ export class ReportController {
   async updateReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
     return await this.reportService.updateReportWithUser(data);
   }
+
+  async getReportsForMap() {
+    return await this.reportService.getReportsForMap();
+  }
 }

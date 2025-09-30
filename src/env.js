@@ -24,6 +24,8 @@ export const env = createEnv({
     EMAIL_FROM: z.string(),
 
     SNS_TOPIC_ARN: z.string(),
+    EXTERNAL_REPORTS_API_URL: z.string().url().optional(),
+    EXTERNAL_REPORTS_PROVIDER_NAME: z.string().default("External API"),
   },
 
   /**
@@ -57,6 +59,8 @@ export const env = createEnv({
     EMAIL_FROM: process.env.EMAIL_FROM,
 
     SNS_TOPIC_ARN: process.env.SNS_TOPIC_ARN,
+    EXTERNAL_REPORTS_API_URL: process.env.EXTERNAL_REPORTS_API_URL,
+    EXTERNAL_REPORTS_PROVIDER_NAME: process.env.EXTERNAL_REPORTS_PROVIDER_NAME,
 
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,

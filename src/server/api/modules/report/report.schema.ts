@@ -34,6 +34,8 @@ export const reports = pgTable(
     imageKeys: d.text("image_keys").array(),
     conversation: d.text("conversation"),
     address: d.text("address"),
+    isExternal: d.boolean("is_external").notNull().default(false),
+    dataProvider: d.text("data_provider").notNull().default("AnimAlert"),
     createdAt: d.timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: d
       .timestamp("updated_at", { withTimezone: true })
@@ -69,6 +71,23 @@ export const upsertReportWithUserSchema = z.object({
   }),
 });
 
+export const reportMapPointSchema = z.object({
+  id: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  gpsLocation: z.string(),
+  validationStatus: z.string(),
+  type: z.enum(["REPORT", "INCIDENT"]),
+  description: z.string().nullable(),
+  images: z.array(z.string()),
+  species: z.string().nullable(),
+  isExternal: z.boolean(),
+  provider: z.string().nullable(),
+  reportType: z.nativeEnum(REPORT_TYPES).nullable(),
+  createdAt: z.string().nullable(),
+});
+
 // Types for TypeScript
 export type Report = typeof reports.$inferSelect;
 export type InsertReport = typeof reports.$inferInsert;
+export type ReportMapPoint = z.infer<typeof reportMapPointSchema>;

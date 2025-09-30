@@ -2,6 +2,7 @@ import {
   createTRPCRouter,
   adminProcedure,
   authProcedure,
+  publicProcedure,
 } from "~/server/api/trpc";
 import { z } from "zod";
 import { ReportController } from "./report.controller";
@@ -53,4 +54,8 @@ export const reportRouter = createTRPCRouter({
     .mutation(({ input }) => {
       return reportController.updateReportWithUser(input);
     }),
+
+  getMapData: publicProcedure.query(() => {
+    return reportController.getReportsForMap();
+  }),
 });

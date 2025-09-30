@@ -5,7 +5,11 @@ import type { z } from "zod";
 
 // Application-specific modules
 import { db } from "~/server/db";
-import { reports, type upsertReportWithUserSchema } from "./report.schema";
+import {
+  reports,
+  type ReportMapPoint,
+  type upsertReportWithUserSchema,
+} from "./report.schema";
 import { users } from "../user/user.schema";
 import { normalizePhoneNumber } from "~/lib/phone";
 import { env } from "~/env";
@@ -21,6 +25,21 @@ import {
   type PostgresError,
 } from "~/server/db/postgres-error";
 import type { User } from "@clerk/nextjs/server";
+
+type ExternalReport = {
+  id: string;
+  longitude: number;
+  latitude: number;
+  posted?: string;
+  date?: string;
+  description?: string | null;
+  type?: string | null;
+};
+
+type ExternalReportResponse = {
+  statusCode: number;
+  mappedData?: ExternalReport[];
+};
 
 /**
  * Service for handling report creation, updates, notifications, and file retrieval.
@@ -232,6 +251,8 @@ export class ReportService {
               receiveUpdates: data.report.receiveUpdates,
               imageKeys: data.report.imageKeys,
               conversation: data.report.conversation,
+              isExternal: false,
+              dataProvider: "AnimAlert",
             })
             .returning();
         }
@@ -714,6 +735,149 @@ Echipa AnimAlert
     );
 
     return fileUrls;
+  }
+
+  protected async fetchExternalReports() {
+    const url = env.EXTERNAL_REPORTS_API_URL;
+
+    if (!url) {
+      return [] as ExternalReport[];
+    }
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error(
+          `Failed to fetch external reports. Received status ${response.status}`,
+        );
+        return [] as ExternalReport[];
+      }
+
+      const payload = (await response.json()) as ExternalReportResponse;
+
+      if (!payload || !Array.isArray(payload.mappedData)) {
+        return [] as ExternalReport[];
+      }
+
+      return payload.mappedData.filter(
+        (item): item is ExternalReport =>
+          typeof item.id === "string" &&
+          typeof item.latitude === "number" &&
+          typeof item.longitude === "number",
+      );
+    } catch (error) {
+      console.error("Error while fetching external reports", error);
+      return [] as ExternalReport[];
+    }
+  }
+
+  protected async buildInternalMapPoints(): Promise<ReportMapPoint[]> {
+    const internalReports = await db
+      .select({
+        id: reports.id,
+        latitude: reports.latitude,
+        longitude: reports.longitude,
+        createdAt: reports.createdAt,
+        reportType: reports.reportType,
+        address: reports.address,
+        imageKeys: reports.imageKeys,
+        isExternal: reports.isExternal,
+        dataProvider: reports.dataProvider,
+      })
+      .from(reports)
+      .orderBy(desc(reports.createdAt));
+
+    const mapPoints = await Promise.all(
+      internalReports
+        .filter(
+          (report) =>
+            typeof report.latitude === "number" &&
+            typeof report.longitude === "number",
+        )
+        .map(async (report) => {
+          let imageUrls: string[] = [];
+
+          if (report.imageKeys?.length) {
+            const fileKeys = report.imageKeys.filter(
+              (key): key is string => Boolean(key),
+            );
+
+            try {
+              imageUrls = await Promise.all(
+                fileKeys.map((key) => this.s3Service.getObjectSignedUrl(key)),
+              );
+            } catch (error) {
+              console.error("Failed to retrieve signed URLs for report", {
+                reportId: report.id,
+                error,
+              });
+              imageUrls = [];
+            }
+          }
+
+          const providerName = report.dataProvider ?? "AnimAlert";
+
+          return {
+            id: report.id,
+            latitude: report.latitude as number,
+            longitude: report.longitude as number,
+            gpsLocation: `${(report.latitude as number).toFixed(5)}, ${(report.longitude as number).toFixed(5)}`,
+            validationStatus: report.isExternal
+              ? `Validat de ${providerName}`
+              : "În curs de validare",
+            type:
+              report.reportType === REPORT_TYPES.INCIDENT ? "INCIDENT" : "REPORT",
+            description: report.address ?? null,
+            images: imageUrls,
+            species: null,
+            isExternal: Boolean(report.isExternal),
+            provider: providerName,
+            reportType: report.reportType ?? null,
+            createdAt: report.createdAt?.toISOString() ?? null,
+          } satisfies ReportMapPoint;
+        }),
+    );
+
+    return mapPoints;
+  }
+
+  protected buildExternalMapPoints(
+    externalReports: ExternalReport[],
+  ): ReportMapPoint[] {
+    const providerName = env.EXTERNAL_REPORTS_PROVIDER_NAME;
+
+    return externalReports.map((report) => ({
+      id: `external-${report.id}`,
+      latitude: report.latitude,
+      longitude: report.longitude,
+      gpsLocation: `${report.latitude.toFixed(5)}, ${report.longitude.toFixed(5)}`,
+      validationStatus: `Validat de ${providerName}`,
+      type: "INCIDENT" as const,
+      description: report.description ?? null,
+      images: [],
+      species: report.type ?? null,
+      isExternal: true,
+      provider: providerName,
+      reportType: REPORT_TYPES.INCIDENT,
+      createdAt: report.posted ?? report.date ?? null,
+    } satisfies ReportMapPoint));
+  }
+
+  async getReportsForMap(): Promise<ReportMapPoint[]> {
+    const [internalPoints, externalReports] = await Promise.all([
+      this.buildInternalMapPoints(),
+      this.fetchExternalReports(),
+    ]);
+
+    const externalPoints = this.buildExternalMapPoints(externalReports);
+
+    const combined = [...internalPoints, ...externalPoints];
+
+    return combined.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
   }
 
   // List all reports with user data
