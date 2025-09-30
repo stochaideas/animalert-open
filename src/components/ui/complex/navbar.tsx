@@ -39,6 +39,7 @@ const navItems: {
   protected?: boolean;
 }[] = [
   { title: "Acasă", href: "/" },
+  { title: "Hartă incidente", href: "/harta" },
   {
     title: "Acțiuni & Info",
     href: "/actiuni-info",
