@@ -803,9 +803,13 @@ Echipa AnimAlert
             );
 
             try {
-              imageUrls = await Promise.all(
+              const signedFiles = await Promise.all(
                 fileKeys.map((key) => this.s3Service.getObjectSignedUrl(key)),
               );
+
+              imageUrls = signedFiles
+                .map((file) => file.url)
+                .filter((url): url is string => Boolean(url));
             } catch (error) {
               console.error("Failed to retrieve signed URLs for report", {
                 reportId: report.id,
@@ -864,12 +868,18 @@ Echipa AnimAlert
   }
 
   async getReportsForMap(): Promise<ReportMapPoint[]> {
+    const shouldFetchExternal = Boolean(env.EXTERNAL_REPORTS_API_URL);
+
     const [internalPoints, externalReports] = await Promise.all([
       this.buildInternalMapPoints(),
-      this.fetchExternalReports(),
+      shouldFetchExternal
+        ? this.fetchExternalReports()
+        : Promise.resolve([] as ExternalReport[]),
     ]);
 
-    const externalPoints = this.buildExternalMapPoints(externalReports);
+    const externalPoints = shouldFetchExternal
+      ? this.buildExternalMapPoints(externalReports)
+      : [];
 
     const combined = [...internalPoints, ...externalPoints];
 
