@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 import { auth, currentUser } from "@clerk/nextjs/server";
 
 import { db } from "~/server/db";
+import { USER_ROLES } from "~/constants/roles";
 
 /**
  * 1. CONTEXT
@@ -124,7 +125,7 @@ const authMiddleware = t.middleware(({ ctx, next }) => {
 
 // Admin middleware for admin procedures
 const adminMiddleware = t.middleware(({ ctx, next }) => {
-  if (!ctx.user || ctx.user.publicMetadata.role !== "admin") {
+  if (!ctx.user || ctx.user.publicMetadata.role !== USER_ROLES.ADMIN) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "User is not an admin",

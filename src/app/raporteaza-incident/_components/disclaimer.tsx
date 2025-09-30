@@ -28,10 +28,10 @@ export default function Disclaimer({
           <li>Raportează cazul în aplicație și urmează instrucțiunile.</li>
           <li>
             Dacă animalul este mic și poate fi transportat, du-l la cea mai
-            apropiată clinică veterinară parteneră.
+            apropiată clinică veterinară parteneră - clinica Veterinarius.
           </li>
           <li>
-            USAMV Cluj-Napoca oferă tratament gratuit pentru animale sălbatice
+            In cazul in care <span className="italic">Transylvania Wildlife Rescue</span> nu te contacteaza in cateva ore: USAMV Cluj-Napoca oferă tratament gratuit pentru animale sălbatice
           </li>
         </ul>
         <br />

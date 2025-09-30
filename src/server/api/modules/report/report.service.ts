@@ -21,6 +21,7 @@ import {
   type PostgresError,
 } from "~/server/db/postgres-error";
 import type { User } from "@clerk/nextjs/server";
+import { USER_ROLES } from "~/constants/roles";
 
 /**
  * Service for handling report creation, updates, notifications, and file retrieval.
@@ -93,7 +94,7 @@ export class ReportService {
     // Validate if emails match
     if (
       result[0]?.user?.email !== currentUserEmail &&
-      user.publicMetadata.role !== "admin"
+      user.publicMetadata.role !== USER_ROLES.ADMIN
     ) {
       throw new TRPCError({
         code: "FORBIDDEN",
@@ -684,7 +685,7 @@ Echipa AnimAlert
       (email) => email.id === user.primaryEmailAddressId,
     )?.emailAddress;
 
-    if (!currentUserEmail && user.publicMetadata.role !== "admin") {
+    if (!currentUserEmail && user.publicMetadata.role !== USER_ROLES.ADMIN) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "User email not found or not verified.",
