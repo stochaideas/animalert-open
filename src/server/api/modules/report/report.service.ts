@@ -831,12 +831,14 @@ Echipa AnimAlert
           const providerName = report.dataProvider ?? "AnimAlert";
 
           const normalizedReportType = toReportType(report.reportType);
+          const latitude = report.latitude!;
+          const longitude = report.longitude!;
 
           return {
             id: report.id,
-            latitude: report.latitude as number,
-            longitude: report.longitude as number,
-            gpsLocation: `${(report.latitude as number).toFixed(5)}, ${(report.longitude as number).toFixed(5)}`,
+            latitude,
+            longitude,
+            gpsLocation: `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
             validationStatus: report.isExternal
               ? `Validat de ${providerName}`
               : "În curs de validare",
