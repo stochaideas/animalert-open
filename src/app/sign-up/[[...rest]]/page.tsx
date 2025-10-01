@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useSignUp } from "@clerk/nextjs";
+import { useSignUp } from "~/lib/clerk";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "~/lib/clerk";
 import { DataTable } from "./data-table";
 import { api } from "~/trpc/react";
 import { redirect } from "next/navigation";

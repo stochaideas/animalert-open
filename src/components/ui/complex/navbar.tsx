@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, useUser } from "~/lib/clerk";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -107,7 +107,14 @@ const actionItems: {
 export default function Navbar() {
   const pathname = usePathname();
 
-  const { isSignedIn } = useUser();
+  let userState: ReturnType<typeof useUser>;
+  try {
+    userState = useUser();
+  } catch {
+    userState = { isSignedIn: false } as ReturnType<typeof useUser>;
+  }
+
+  const { isSignedIn } = userState;
 
   const [isOpen, setIsOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(true);

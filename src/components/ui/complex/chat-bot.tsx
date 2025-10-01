@@ -24,7 +24,7 @@ import {
 import { Textarea } from "~/components/ui/simple/textarea";
 import FeedbackDialog from "./feedback-dialog";
 import { redirect } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "~/lib/clerk";
 
 export default function ChatBot({
   answers,
