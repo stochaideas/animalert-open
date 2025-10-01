@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, index, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, index, pgEnum, uniqueIndex } from "drizzle-orm/pg-core";
 
 import { users } from "../user/user.schema";
 import { z } from "zod";
@@ -24,7 +24,6 @@ export const reports = pgTable(
     reportType: reportTypeEnum("report_type").notNull().default("INCIDENT"),
     userId: d
       .uuid("user_id")
-      .notNull()
       .references(() => users.id, {
         onDelete: "cascade",
       }),
@@ -36,6 +35,11 @@ export const reports = pgTable(
     address: d.text("address"),
     isExternal: d.boolean("is_external").notNull().default(false),
     dataProvider: d.text("data_provider").notNull().default("AnimAlert"),
+    externalId: d.text("external_id"),
+    externalUpdatedAt: d.timestamp("external_updated_at", {
+      withTimezone: true,
+    }),
+    species: d.text("species"),
     createdAt: d.timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: d
       .timestamp("updated_at", { withTimezone: true })
@@ -47,6 +51,7 @@ export const reports = pgTable(
     index("reports_type_idx").on(t.reportType),
     index("reports_created_at_idx").on(t.createdAt),
     index("reports_updated_at_idx").on(t.updatedAt),
+    uniqueIndex("reports_external_id_idx").on(t.externalId),
   ],
 );
 
