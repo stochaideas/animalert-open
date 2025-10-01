@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
+import { AlertTriangle, Leaf } from "lucide-react";
 import {
   APIProvider,
   AdvancedMarker,
@@ -57,11 +58,7 @@ export function ReportMap({
                 onSelect(selectedPoint?.id === point.id ? null : point)
               }
             >
-              <div
-                className={`h-4 w-4 rounded-full border-2 border-white shadow-md ${
-                  point.isExternal ? "bg-orange-500" : "bg-blue-600"
-                }`}
-              />
+              <MarkerIcon point={point} />
             </AdvancedMarker>
           ))}
         </Map>
@@ -137,5 +134,35 @@ export function ReportMap({
         )}
       </div>
     </APIProvider>
+  );
+}
+
+type MarkerIconProps = {
+  point: ReportMapPoint;
+};
+
+function MarkerIcon({ point }: MarkerIconProps) {
+  if (point.isExternal) {
+    return (
+      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-amber-500 text-xl shadow-lg">
+        <span role="img" aria-label="Urs">
+          🐻
+        </span>
+      </div>
+    );
+  }
+
+  if (point.type === "INCIDENT") {
+    return (
+      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-red-600 text-white shadow-lg">
+        <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-white shadow-lg">
+      <Leaf className="h-5 w-5" aria-hidden="true" />
+    </div>
   );
 }
