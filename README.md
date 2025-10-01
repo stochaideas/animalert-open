@@ -27,3 +27,9 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 ## How do I deploy this?
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+
+## Testing
+
+- `npm run test:unit` – run Vitest against the server and UI unit tests.
+- `npm run test:unit:watch` – run the Vitest watcher during development.
+- `npm run test:e2e` – execute the Playwright browser automation suite (requires `npx playwright install`).

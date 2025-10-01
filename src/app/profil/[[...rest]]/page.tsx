@@ -1,4 +1,4 @@
-import { UserProfile } from "@clerk/nextjs";
+import { UserProfile } from "~/lib/clerk";
 
 export default function ReportsPage() {
   return (
