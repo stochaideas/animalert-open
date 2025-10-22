@@ -1,5 +1,5 @@
 // External dependencies
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import type { z } from "zod";
 
@@ -7,6 +7,7 @@ import type { z } from "zod";
 import { db } from "~/server/db";
 import {
   reports,
+  type InsertReport,
   type ReportMapPoint,
   type upsertReportWithUserSchema,
   type Report,
@@ -918,6 +919,154 @@ Echipa AnimAlert
     }
   }
 
+  protected parseExternalTimestamp(value?: string | null): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const parsed = new Date(value);
+
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+
+    return parsed;
+  }
+
+  async syncExternalReports() {
+    if (!env.EXTERNAL_REPORTS_API_URL) {
+      return { inserted: 0, updated: 0, skipped: 0 } as const;
+    }
+
+    const externalReports = await this.fetchExternalReports();
+
+    if (externalReports.length === 0) {
+      return { inserted: 0, updated: 0, skipped: 0 } as const;
+    }
+
+    const externalIds = externalReports.map((report) => report.id);
+
+    const existingRecords = externalIds.length
+      ? await db
+          .select({
+            id: reports.id,
+            externalId: reports.externalId,
+            externalUpdatedAt: reports.externalUpdatedAt,
+          })
+          .from(reports)
+          .where(inArray(reports.externalId, externalIds))
+      : [];
+
+    const existingMap = new Map(
+      existingRecords
+        .filter((record) => Boolean(record.externalId))
+        .map((record) => [record.externalId as string, record]),
+    );
+
+    const providerName = env.EXTERNAL_REPORTS_PROVIDER_NAME;
+
+    const processedIds = new Set<string>();
+    const toInsert: InsertReport[] = [];
+    const toUpdate: { id: string; data: Partial<InsertReport> }[] = [];
+
+    for (const report of externalReports) {
+      if (processedIds.has(report.id)) {
+        continue;
+      }
+
+      processedIds.add(report.id);
+
+      const updatedAt =
+        this.parseExternalTimestamp(report.posted) ??
+        this.parseExternalTimestamp(report.date) ??
+        new Date();
+      const occurredAt =
+        this.parseExternalTimestamp(report.date) ??
+        this.parseExternalTimestamp(report.posted) ??
+        updatedAt;
+
+      const basePayload: InsertReport = {
+        userId: null,
+        reportType: REPORT_TYPES.INCIDENT,
+        receiveUpdates: false,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        imageKeys: [],
+        conversation: null,
+        address: report.description ?? null,
+        isExternal: true,
+        dataProvider: providerName,
+        externalId: report.id,
+        externalUpdatedAt: updatedAt,
+        species: report.type ?? null,
+        createdAt: occurredAt,
+      };
+
+      const existing = existingMap.get(report.id);
+
+      if (!existing) {
+        toInsert.push(basePayload);
+        continue;
+      }
+
+      const existingUpdatedAt = existing.externalUpdatedAt
+        ? new Date(existing.externalUpdatedAt)
+        : null;
+
+      if (!existingUpdatedAt || updatedAt.getTime() > existingUpdatedAt.getTime()) {
+        toUpdate.push({
+          id: existing.id,
+          data: {
+            latitude: basePayload.latitude,
+            longitude: basePayload.longitude,
+            address: basePayload.address,
+            reportType: REPORT_TYPES.INCIDENT,
+            receiveUpdates: false,
+            dataProvider: providerName,
+            isExternal: true,
+            externalUpdatedAt: basePayload.externalUpdatedAt,
+            species: basePayload.species,
+            createdAt: basePayload.createdAt,
+            imageKeys: [],
+          },
+        });
+      }
+    }
+
+    if (toInsert.length === 0 && toUpdate.length === 0) {
+      return {
+        inserted: 0,
+        updated: 0,
+        skipped: externalReports.length,
+      } as const;
+    }
+
+    await db.transaction(async (tx) => {
+      if (toInsert.length > 0) {
+        await tx.insert(reports).values(toInsert);
+      }
+
+      if (toUpdate.length > 0) {
+        await Promise.all(
+          toUpdate.map((entry) =>
+            tx
+              .update(reports)
+              .set(entry.data)
+              .where(eq(reports.id, entry.id)),
+          ),
+        );
+      }
+    });
+
+    const processedCount = toInsert.length + toUpdate.length;
+
+    return {
+      inserted: toInsert.length,
+      updated: toUpdate.length,
+      skipped: externalReports.length - processedCount,
+    } as const;
+  }
+
   protected async buildInternalMapPoints(): Promise<ReportMapPoint[]> {
     const internalReports = await db
       .select({
@@ -930,6 +1079,7 @@ Echipa AnimAlert
         imageKeys: reports.imageKeys,
         isExternal: reports.isExternal,
         dataProvider: reports.dataProvider,
+        species: reports.species,
       })
       .from(reports)
       .orderBy(desc(reports.createdAt));
@@ -986,7 +1136,7 @@ Echipa AnimAlert
                 : "REPORT",
             description: report.address ?? null,
             images: imageUrls,
-            species: null,
+            species: report.species ?? null,
             isExternal: Boolean(report.isExternal),
             provider: providerName,
             reportType: normalizedReportType,
@@ -998,45 +1148,10 @@ Echipa AnimAlert
     return mapPoints;
   }
 
-  protected buildExternalMapPoints(
-    externalReports: ExternalReport[],
-  ): ReportMapPoint[] {
-    const providerName = env.EXTERNAL_REPORTS_PROVIDER_NAME;
-
-    return externalReports.map((report) => ({
-      id: `external-${report.id}`,
-      latitude: report.latitude,
-      longitude: report.longitude,
-      gpsLocation: `${report.latitude.toFixed(5)}, ${report.longitude.toFixed(5)}`,
-      validationStatus: `Validat de ${providerName}`,
-      type: "INCIDENT" as const,
-      description: report.description ?? null,
-      images: [],
-      species: report.type ?? null,
-      isExternal: true,
-      provider: providerName,
-      reportType: REPORT_TYPES.INCIDENT,
-      createdAt: report.posted ?? report.date ?? null,
-    } satisfies ReportMapPoint));
-  }
-
   async getReportsForMap(): Promise<ReportMapPoint[]> {
-    const shouldFetchExternal = Boolean(env.EXTERNAL_REPORTS_API_URL);
+    const internalPoints = await this.buildInternalMapPoints();
 
-    const [internalPoints, externalReports] = await Promise.all([
-      this.buildInternalMapPoints(),
-      shouldFetchExternal
-        ? this.fetchExternalReports()
-        : Promise.resolve([] as ExternalReport[]),
-    ]);
-
-    const externalPoints = shouldFetchExternal
-      ? this.buildExternalMapPoints(externalReports)
-      : [];
-
-    const combined = [...internalPoints, ...externalPoints];
-
-    return combined.sort((a, b) => {
+    return internalPoints.sort((a, b) => {
       const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return bTime - aTime;
