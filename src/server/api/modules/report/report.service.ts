@@ -187,6 +187,7 @@ export class ReportService {
           return content;
         }
       }
+    } catch (error) {
       console.warn("Unable to parse conversation payload for bear alert", {
         error,
       });
