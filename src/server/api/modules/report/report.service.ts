@@ -9,6 +9,7 @@ import {
   reports,
   type ReportMapPoint,
   type upsertReportWithUserSchema,
+  type Report,
 } from "./report.schema";
 import { users } from "../user/user.schema";
 import { normalizePhoneNumber } from "~/lib/phone";
@@ -29,6 +30,7 @@ const toReportType = (value: unknown): REPORT_TYPES | null =>
 import { type EmailService } from "../email/email.service";
 import type { S3Service } from "../s3/s3.service";
 import type { SmsService } from "../sms/sms.service";
+import { BearAlertNotificationService } from "~/server/services/notifications/bear-alert-notification.service";
 import {
   handlePostgresError,
   type PostgresError,
@@ -57,7 +59,140 @@ export class ReportService {
   protected emailService: EmailService;
   protected s3Service: S3Service;
   protected smsService: SmsService;
+  protected bearAlertNotificationService: BearAlertNotificationService;
 
+  protected async notifyBearSighting(report: Report | null | undefined) {
+    if (!report) {
+      return;
+    }
+
+    if (
+      report.reportType !== REPORT_TYPES.CONFLICT &&
+      report.reportType !== REPORT_TYPES.INCIDENT
+    ) {
+      return;
+    }
+
+    if (
+      typeof report.latitude !== "number" ||
+      Number.isNaN(report.latitude) ||
+      typeof report.longitude !== "number" ||
+      Number.isNaN(report.longitude)
+    ) {
+      return;
+    }
+
+    if (!this.containsBearKeyword(report)) {
+      return;
+    }
+
+    const description = this.buildBearDescription(report);
+
+    try {
+      await this.bearAlertNotificationService.notify({
+        id: report.id,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        description,
+        occurredAt: report.createdAt?.toISOString() ?? null,
+        accuracy: report.isExternal
+          ? "Coordonate furnizate de partener"
+          : "Coordonate raportate de utilizator",
+        validationTier: report.isExternal ? "Tier 1" : "Tier 2",
+        provider: report.dataProvider ?? "AnimAlert",
+      });
+    } catch (error) {
+      console.error("Failed to dispatch bear alert notification", {
+        reportId: report.id,
+        error,
+      });
+    }
+  }
+
+  private containsBearKeyword(report: Report) {
+    const haystack = [
+      report.address ?? "",
+      this.extractConversationText(report.conversation ?? null),
+      report.dataProvider ?? "",
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes("urs") || haystack.includes("bear");
+  }
+
+  private buildBearDescription(report: Report) {
+    const conversation = this.extractConversationText(report.conversation ?? null);
+    const parts = [report.address, conversation].filter(
+      (value): value is string => Boolean(value && value.trim()),
+    );
+
+    if (parts.length === 0) {
+      return null;
+    }
+
+    return parts.join(" | ");
+  }
+
+  private extractConversationText(conversation: string | null) {
+    if (!conversation) {
+      return "";
+    }
+
+    try {
+      const parsed = JSON.parse(conversation);
+
+      if (typeof parsed === "string") {
+        return parsed;
+      }
+
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => {
+            if (typeof item === "string") {
+              return item;
+            }
+
+            if (item && typeof item === "object") {
+              const record = item as Record<string, unknown>;
+              const message = record["message"];
+              if (typeof message === "string") {
+                return message;
+              }
+              const content = record["content"];
+              if (typeof content === "string") {
+                return content;
+              }
+              const textValue = record["text"];
+              if (typeof textValue === "string") {
+                return textValue;
+              }
+            }
+            return "";
+          })
+          .filter((value) => value && value.trim())
+          .join(" ");
+      }
+
+      if (parsed && typeof parsed === "object") {
+        const record = parsed as Record<string, unknown>;
+        const message = record["message"];
+        if (typeof message === "string") {
+          return message;
+        }
+
+        const content = record["content"];
+        if (typeof content === "string") {
+          return content;
+        }
+      }
+      console.warn("Unable to parse conversation payload for bear alert", {
+        error,
+      });
+    }
+
+    return "";
+  }
   /**
    * Creates an instance of the service and injects required dependencies.
    *
@@ -73,6 +208,7 @@ export class ReportService {
     this.emailService = emailService;
     this.s3Service = s3Service;
     this.smsService = smsService;
+    this.bearAlertNotificationService = new BearAlertNotificationService(this.smsService);
   }
 
   /**
@@ -297,6 +433,8 @@ export class ReportService {
     ) {
       await this.sendAdminReportSms(result.report?.reportNumber);
     }
+
+    await this.notifyBearSighting(result.report ?? null);
 
     return result;
   }
