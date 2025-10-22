@@ -20,6 +20,10 @@ import { Button } from "~/components/ui/simple/button";
 import { SVGPaperPlane } from "~/components/icons";
 import Link from "next/link";
 
+const hasClerkIntegration = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+);
+
 const signInSchema = z.object({
   email: z.string().email({ message: "Adresa de email nu este validă" }),
   password: z.string().min(1, { message: "Parola este necesară" }),
@@ -28,6 +32,15 @@ const signInSchema = z.object({
 type SignInFormData = z.infer<typeof signInSchema>;
 
 export default function SignInPage() {
+  if (!hasClerkIntegration) {
+    return (
+      <main className="bg-neutral flex min-h-screen flex-col items-center justify-center px-6 pt-20 pb-40 text-center">
+        Autentificarea nu este configurată. Te rugăm să setezi variabila de
+        mediu NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY pentru a accesa această pagină.
+      </main>
+    );
+  }
+
   const { isLoaded, signIn, setActive } = useSignIn();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

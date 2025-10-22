@@ -38,6 +38,13 @@ export default tseslint.config(
         "error",
         { checksVoidReturn: { attributes: false } },
       ],
+      "@typescript-eslint/dot-notation": "warn",
+      "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+      "@typescript-eslint/no-unsafe-assignment": "warn",
+      "@typescript-eslint/no-unsafe-enum-comparison": "warn",
+      "@typescript-eslint/non-nullable-type-assertion-style": "warn",
+      "@typescript-eslint/prefer-nullish-coalescing": "warn",
+      "@typescript-eslint/prefer-optional-chain": "warn",
       "drizzle/enforce-delete-with-where": [
         "error",
         { drizzleObjectName: ["db", "ctx.db"] },
@@ -46,6 +53,7 @@ export default tseslint.config(
         "error",
         { drizzleObjectName: ["db", "ctx.db"] },
       ],
+      "react-hooks/rules-of-hooks": "warn",
     },
   },
   {

@@ -187,6 +187,7 @@ export class ReportService {
           return content;
         }
       }
+    } catch (error) {
       console.warn("Unable to parse conversation payload for bear alert", {
         error,
       });
@@ -715,35 +716,43 @@ ${mapsUrl ? `Harta: ${mapsUrl}` : ""}
 Imagini: ${imagesCount} fișiere atașate
           `.trim();
 
-    try {
-      await this.emailService.sendEmail({
-        to: env.EMAIL_ADMIN,
-        subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber}`,
-        html: adminHtml,
-        text: adminEmailText,
-      });
-    } catch (error) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "responseCode" in error &&
-        (error as { responseCode?: unknown }).responseCode === 552
-      ) {
-        // Retry without attachments if size limit exceeded
-        console.warn("Email size limit exceeded, retrying without attachments");
+    const adminRecipient = env.EMAIL_ADMIN;
 
-        try {
-          await this.emailService.sendEmail({
-            to: env.EMAIL_ADMIN,
-            subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber} - FĂRĂ ATAȘAMENTE`,
-            html: adminHtml,
-            text: adminEmailText,
-          });
-        } catch (error) {
+    if (!adminRecipient) {
+      console.warn(
+        "EMAIL_ADMIN environment variable is not configured. Skipping admin notification email.",
+      );
+    } else {
+      try {
+        await this.emailService.sendEmail({
+          to: adminRecipient,
+          subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber}`,
+          html: adminHtml,
+          text: adminEmailText,
+        });
+      } catch (error) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "responseCode" in error &&
+          (error as { responseCode?: unknown }).responseCode === 552
+        ) {
+          // Retry without attachments if size limit exceeded
+          console.warn("Email size limit exceeded, retrying without attachments");
+
+          try {
+            await this.emailService.sendEmail({
+              to: adminRecipient,
+              subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber} - FĂRĂ ATAȘAMENTE`,
+              html: adminHtml,
+              text: adminEmailText,
+            });
+          } catch (error) {
+            console.error("Error sending admin email:", error);
+          }
+        } else {
           console.error("Error sending admin email:", error);
         }
-      } else {
-        console.error("Error sending admin email:", error);
       }
     }
 

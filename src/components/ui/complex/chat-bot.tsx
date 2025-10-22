@@ -26,6 +26,18 @@ import FeedbackDialog from "./feedback-dialog";
 import { redirect } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 
+const hasClerkIntegration = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+);
+
+function useOptionalUser() {
+  if (!hasClerkIntegration) {
+    return { isSignedIn: false, isLoaded: true };
+  }
+
+  return useUser();
+}
+
 export default function ChatBot({
   answers,
   setAnswers,
@@ -45,7 +57,7 @@ export default function ChatBot({
   isPending: boolean;
   incidentIsSuccess: boolean;
 }) {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded } = useOptionalUser();
 
   const [step, setStep] = useState(answers.length); // Start at next unanswered
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
@@ -426,7 +438,7 @@ export default function ChatBot({
           }}
         />
       )}
-      {!isSignedIn && (
+      {hasClerkIntegration && !isSignedIn && (
         <Dialog
           open={showAuthenticationDialog}
           onOpenChange={(open) => {

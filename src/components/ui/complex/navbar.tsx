@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,6 +26,18 @@ import {
 } from "~/components/ui/simple/navigation-menu";
 
 import { cn } from "~/lib/utils";
+
+const hasClerkIntegration = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+);
+
+function useOptionalUser() {
+  if (!hasClerkIntegration) {
+    return { isSignedIn: false };
+  }
+
+  return useUser();
+}
 
 const navItems: {
   title: string;
@@ -108,7 +120,7 @@ const actionItems: {
 export default function Navbar() {
   const pathname = usePathname();
 
-  const { isSignedIn } = useUser();
+  const { isSignedIn } = useOptionalUser();
 
   const [isOpen, setIsOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(true);
@@ -225,19 +237,23 @@ export default function Navbar() {
                   </Link>
                 </NavigationMenuItem>
               ))}
-              <SignedOut>
-                <Link href="/sign-in">
-                  <Button variant="neutral">Contul meu</Button>
-                </Link>
-              </SignedOut>
-              <SignedIn>
-                <div className="flex flex-col items-center gap-2">
-                  <UserButton />
-                  <span className="text-center text-sm select-none">
-                    Contul meu
-                  </span>
-                </div>
-              </SignedIn>
+              {hasClerkIntegration && !isSignedIn && (
+                <NavigationMenuItem className="px-2">
+                  <Link href="/sign-in">
+                    <Button variant="neutral">Contul meu</Button>
+                  </Link>
+                </NavigationMenuItem>
+              )}
+              {hasClerkIntegration && isSignedIn && (
+                <NavigationMenuItem className="px-2">
+                  <div className="flex flex-col items-center gap-2">
+                    <UserButton />
+                    <span className="text-center text-sm select-none">
+                      Contul meu
+                    </span>
+                  </div>
+                </NavigationMenuItem>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -283,21 +299,27 @@ export default function Navbar() {
                   </NavigationMenuItem>
                 ),
               )}
-            <SignedOut>
-              <Link href="/sign-in">
-                <Button size="xs" variant="neutral">
-                  <span className="text-single-line-body-base">Contul meu</span>
-                </Button>
-              </Link>
-            </SignedOut>
-            <SignedIn>
-              <div className="flex items-center gap-2">
-                <UserButton />
-                <span className="text-center text-sm select-none">
-                  Contul meu
-                </span>
-              </div>
-            </SignedIn>
+            {hasClerkIntegration && !isSignedIn && (
+              <NavigationMenuItem>
+                <Link href="/sign-in">
+                  <Button size="xs" variant="neutral">
+                    <span className="text-single-line-body-base">
+                      Contul meu
+                    </span>
+                  </Button>
+                </Link>
+              </NavigationMenuItem>
+            )}
+            {hasClerkIntegration && isSignedIn && (
+              <NavigationMenuItem>
+                <div className="flex items-center gap-2">
+                  <UserButton />
+                  <span className="text-center text-sm select-none">
+                    Contul meu
+                  </span>
+                </div>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
           <NavigationMenuList className="flex flex-col items-start gap-3">
             {actionItems.map((item) => (

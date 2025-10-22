@@ -21,6 +21,17 @@ export function GoogleMap({
   const apiKey = env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapId = env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
+  if (!apiKey) {
+    return (
+      <div className="flex h-full w-full items-center justify-center rounded-md border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500">
+        <p>
+          Google Maps nu este configurat. Adaugă NEXT_PUBLIC_GOOGLE_MAPS_API_KEY în mediul de
+          execuție pentru a afișa harta.
+        </p>
+      </div>
+    );
+  }
+
   const onClickMap = (event: MapMouseEvent) => {
     const lat = event.detail.latLng?.lat;
     const lng = event.detail.latLng?.lng;
@@ -37,7 +48,7 @@ export function GoogleMap({
             onClick={onClickMap}
             defaultCenter={coordinates}
             defaultZoom={10}
-            mapId={mapId}
+            mapId={mapId ?? undefined}
             streetViewControl={false}
           >
             <AdvancedMarker position={coordinates} />

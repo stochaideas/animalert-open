@@ -90,12 +90,20 @@ Mesaj:
 ${data.message}
     `.trim();
 
-    await this.emailService.sendEmail({
-      to: env.EMAIL_ADMIN,
-      subject: `📩 Contact Nou - ${solicitationLabel}`,
-      html: adminHtml,
-      text: adminText,
-    });
+    const adminRecipient = env.EMAIL_ADMIN;
+
+    if (adminRecipient) {
+      await this.emailService.sendEmail({
+        to: adminRecipient,
+        subject: `📩 Contact Nou - ${solicitationLabel}`,
+        html: adminHtml,
+        text: adminText,
+      });
+    } else {
+      console.warn(
+        "EMAIL_ADMIN environment variable is not configured. Skipping contact notification email.",
+      );
+    }
 
     const userHtml = `
   <div style="font-family: Arial, sans-serif; background: #f9fafb; padding: 32px;">

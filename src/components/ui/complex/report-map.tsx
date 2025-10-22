@@ -10,7 +10,10 @@ import {
 } from "@vis.gl/react-google-maps";
 
 import { env } from "~/env";
-import type { ExtendedReportMapPoint } from "~/types/report-map";
+import type {
+  ExtendedReportMapPoint,
+  ReportMapPoint,
+} from "~/types/report-map";
 
 type ReportMapProps = {
   points: ExtendedReportMapPoint[];
@@ -35,6 +38,16 @@ const LEGEND_LABEL: Record<ExtendedReportMapPoint["source"], string> = {
 export function ReportMap({ points, selectedPoint, onSelect }: ReportMapProps) {
   const apiKey = env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapId = env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+
+  if (!apiKey) {
+    return (
+      <div className="flex h-[600px] w-full items-center justify-center rounded-xl border border-dashed border-neutral-300 bg-white p-6 text-center text-sm text-neutral-500 shadow-lg">
+        <p>
+          Harta nu poate fi afișată deoarece variabila NEXT_PUBLIC_GOOGLE_MAPS_API_KEY nu este configurată.
+        </p>
+      </div>
+    );
+  }
 
   const initialCenter = useMemo(() => {
     if (selectedPoint) {
@@ -79,7 +92,7 @@ export function ReportMap({ points, selectedPoint, onSelect }: ReportMapProps) {
         <Map
           defaultCenter={initialCenter}
           defaultZoom={6}
-          mapId={mapId}
+          mapId={mapId ?? undefined}
           fullscreenControl={false}
           streetViewControl={false}
         >
