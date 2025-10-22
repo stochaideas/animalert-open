@@ -7,23 +7,23 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.string().url().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
 
-    AWS_ACCESS_KEY_ID: z.string().default(""),
-    AWS_SECRET_ACCESS_KEY: z.string().default(""),
-    AWS_REGION: z.string(),
-    AWS_S3_BUCKET_NAME: z.string(),
+    AWS_ACCESS_KEY_ID: z.string().optional(),
+    AWS_SECRET_ACCESS_KEY: z.string().optional(),
+    AWS_REGION: z.string().optional(),
+    AWS_S3_BUCKET_NAME: z.string().optional(),
 
-    NODEMAILER_SERVICE: z.string(),
-    EMAIL_ADMIN: z.string().email(),
-    EMAIL_USER: z.string().email(),
-    EMAIL_PASS: z.string(),
-    EMAIL_FROM: z.string(),
+    NODEMAILER_SERVICE: z.string().optional(),
+    EMAIL_ADMIN: z.string().email().optional(),
+    EMAIL_USER: z.string().email().optional(),
+    EMAIL_PASS: z.string().optional(),
+    EMAIL_FROM: z.string().optional(),
 
-    SNS_TOPIC_ARN: z.string(),
+    SNS_TOPIC_ARN: z.string().optional(),
     EXTERNAL_REPORTS_API_URL: z.string().url().optional(),
     EXTERNAL_REPORTS_PROVIDER_NAME: z.string().default("External API"),
   },
@@ -35,8 +35,9 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
-    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string(),
-    NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: z.string(),
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().optional(),
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),
+    NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: z.string().optional(),
   },
 
   /**
@@ -62,6 +63,8 @@ export const env = createEnv({
     EXTERNAL_REPORTS_API_URL: process.env.EXTERNAL_REPORTS_API_URL,
     EXTERNAL_REPORTS_PROVIDER_NAME: process.env.EXTERNAL_REPORTS_PROVIDER_NAME,
 
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,

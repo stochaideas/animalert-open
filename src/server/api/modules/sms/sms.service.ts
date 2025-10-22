@@ -8,27 +8,40 @@ import { env } from "~/env";
 import type { smsOptionsSchema } from "./sms.schema";
 import type { z } from "zod";
 import { normalizePhoneNumber } from "~/lib/phone";
+import { requireServerEnv } from "~/server/utils/env";
 
 export class SmsService {
-  private snsClient: SNSClient;
+  private snsClient: SNSClient | null = null;
 
-  constructor() {
-    this.snsClient = this.createSnsClient();
-  }
+  private getClient() {
+    if (this.snsClient) {
+      return this.snsClient;
+    }
 
-  private createSnsClient() {
+    const region = requireServerEnv("AWS_REGION", env.AWS_REGION);
+
     const config: SNSClientConfig = {
-      region: process.env.AWS_REGION,
-      credentials:
-        env.NODE_ENV === "development"
-          ? {
-              accessKeyId: env.AWS_ACCESS_KEY_ID ?? "",
-              secretAccessKey: env.AWS_SECRET_ACCESS_KEY ?? "",
-            }
-          : undefined,
+      region,
     };
 
-    return new SNSClient(config);
+    if (env.NODE_ENV === "development") {
+      const accessKeyId = requireServerEnv(
+        "AWS_ACCESS_KEY_ID",
+        env.AWS_ACCESS_KEY_ID,
+      );
+      const secretAccessKey = requireServerEnv(
+        "AWS_SECRET_ACCESS_KEY",
+        env.AWS_SECRET_ACCESS_KEY,
+      );
+
+      config.credentials = {
+        accessKeyId,
+        secretAccessKey,
+      };
+    }
+
+    this.snsClient = new SNSClient(config);
+    return this.snsClient;
   }
 
   private resolvePhoneNumber(rawPhone?: string | null) {
@@ -96,7 +109,8 @@ export class SmsService {
         });
       }
 
-      const response = await this.snsClient.send(command);
+      const client = this.getClient();
+      const response = await client.send(command);
 
       console.log("SMS sent successfully", {
         target: normalizedPhone ?? env.SNS_TOPIC_ARN,

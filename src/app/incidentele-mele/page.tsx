@@ -5,15 +5,39 @@ import { DataTable } from "./data-table";
 import { api } from "~/trpc/react";
 import { redirect } from "next/navigation";
 
-export default function ReportsPage() {
-  const { isSignedIn, isLoaded: userDataIsLoaded } = useUser();
+const hasClerkIntegration = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+);
 
-  const { data, isLoading, error } = api.report.getReportsByUser.useQuery();
+function useOptionalUser() {
+  if (!hasClerkIntegration) {
+    return { isSignedIn: false, isLoaded: true };
+  }
+
+  return useUser();
+}
+
+export default function ReportsPage() {
+  const { isSignedIn, isLoaded: userDataIsLoaded } = useOptionalUser();
+
+  const { data, isLoading, error } = api.report.getReportsByUser.useQuery(
+    undefined,
+    { enabled: hasClerkIntegration && isSignedIn },
+  );
 
   if (!userDataIsLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         Se încarcă...
+      </div>
+    );
+  }
+
+  if (!hasClerkIntegration) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-center">
+        Autentificarea nu este configurată. Te rugăm să setezi variabila de
+        mediu NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY pentru a accesa această pagină.
       </div>
     );
   }
