@@ -129,6 +129,18 @@ export default function ReportDetailPage({
         )}
         <section className="mb-8 w-full max-w-2xl">
           <h2 className="text-heading-2 mt-8 mb-4">Locația raportului</h2>
+          {coordinates && (
+            <div className="mb-2">
+              <a
+                href={`https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline hover:text-blue-700"
+              >
+                Deschide în Google Maps
+              </a>
+            </div>
+          )}
           {coordinates ? (
             <div style={{ width: "100%", height: 300 }}>
               <GoogleMap
