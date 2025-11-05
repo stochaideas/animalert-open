@@ -97,7 +97,7 @@ export default function Home() {
           <span className="text-heading-1 text-neutral lg:max-w-2xl">
             <b>Ai întâlnit un animal sălbatic rănit sau în pericol?</b>
           </span>
-          <Link href="/raporteaza-incident">
+          <Link href="/incident">
             <Button
               size="lg"
               variant="primary"

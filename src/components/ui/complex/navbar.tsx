@@ -98,7 +98,7 @@ const actionItems: {
   },
   {
     title: "Raportează incident",
-    href: "/raporteaza-incident",
+    href: "/incident",
     variant: "primary",
     icon: <SVGAlert />,
   },
