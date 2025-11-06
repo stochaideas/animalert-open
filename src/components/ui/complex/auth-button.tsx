@@ -1,7 +1,15 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "../simple/button";
 
+const hasClerkIntegration = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+);
+
 export default function AuthButton() {
+  if (!hasClerkIntegration) {
+    return null;
+  }
+
   return (
     <>
       <SignedOut>

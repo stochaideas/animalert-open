@@ -10,27 +10,44 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
 import type { presignedUrlSchema } from "./s3.schema";
 import type { z } from "zod";
+import { requireServerEnv } from "~/server/utils/env";
 
 export class S3Service {
-  private s3: S3Client;
+  private s3: S3Client | null = null;
 
-  constructor() {
-    this.s3 = this.createS3Client();
-  }
+  private getClient() {
+    if (this.s3) {
+      return this.s3;
+    }
 
-  private createS3Client() {
+    const region = requireServerEnv("AWS_REGION", env.AWS_REGION);
+
     const config: S3ClientConfig = {
-      region: env.AWS_REGION,
-      credentials:
-        env.NODE_ENV === "development"
-          ? {
-              accessKeyId: env.AWS_ACCESS_KEY_ID,
-              secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-            }
-          : undefined,
+      region,
     };
 
-    return new S3Client(config);
+    if (env.NODE_ENV === "development") {
+      const accessKeyId = requireServerEnv(
+        "AWS_ACCESS_KEY_ID",
+        env.AWS_ACCESS_KEY_ID,
+      );
+      const secretAccessKey = requireServerEnv(
+        "AWS_SECRET_ACCESS_KEY",
+        env.AWS_SECRET_ACCESS_KEY,
+      );
+
+      config.credentials = {
+        accessKeyId,
+        secretAccessKey,
+      };
+    }
+
+    this.s3 = new S3Client(config);
+    return this.s3;
+  }
+
+  private getBucketName() {
+    return requireServerEnv("AWS_S3_BUCKET_NAME", env.AWS_S3_BUCKET_NAME);
   }
 
   /**
@@ -41,13 +58,16 @@ export class S3Service {
    * @throws Will throw an error if the object cannot be retrieved from S3.
    */
   async getObject(key: string) {
+    const bucket = this.getBucketName();
+    const client = this.getClient();
+
     const command = new GetObjectCommand({
-      Bucket: env.AWS_S3_BUCKET_NAME,
+      Bucket: bucket,
       Key: key,
     });
 
     try {
-      const response = await this.s3.send(command);
+      const response = await client.send(command);
       return response;
     } catch (error) {
       console.error("Error getting object from S3:", error);
@@ -63,22 +83,25 @@ export class S3Service {
    * @throws Will throw an error if the signed URL cannot be generated.
    */
   async getObjectSignedUrl(key: string) {
+    const bucket = this.getBucketName();
+    const client = this.getClient();
+
     const command = new GetObjectCommand({
-      Bucket: env.AWS_S3_BUCKET_NAME,
+      Bucket: bucket,
       Key: key,
     });
 
     // Get file type
     const headCommand = new HeadObjectCommand({
-      Bucket: env.AWS_S3_BUCKET_NAME,
+      Bucket: bucket,
       Key: key,
     });
 
     try {
-      const headResponse = await this.s3.send(headCommand);
+      const headResponse = await client.send(headCommand);
       const contentType = headResponse.ContentType;
 
-      const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
+      const signedUrl = await getSignedUrl(client, command, { expiresIn: 60 });
       return {
         url: signedUrl,
         type: contentType ?? "application/octet-stream", // Default to binary if no type is found
@@ -105,15 +128,18 @@ export class S3Service {
   async getUploadFileSignedUrl(input: z.infer<typeof presignedUrlSchema>) {
     const key = `uploads/${uuidv4()}-${input.fileName}`;
 
+    const bucket = this.getBucketName();
+    const client = this.getClient();
+
     const command = new PutObjectCommand({
-      Bucket: env.AWS_S3_BUCKET_NAME,
+      Bucket: bucket,
       Key: key,
       ContentType: input.fileType,
     });
 
-    await this.s3.send(command);
+    await client.send(command);
 
-    const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
+    const signedUrl = await getSignedUrl(client, command, { expiresIn: 60 });
 
     return { key, url: signedUrl };
   }

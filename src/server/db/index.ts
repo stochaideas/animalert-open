@@ -4,15 +4,45 @@ import postgres from "postgres";
 import { env } from "~/env";
 import * as schema from "./schema";
 
-/**
- * Cache the database connection in development. This avoids creating a new connection on every HMR
- * update.
- */
-const globalForDb = globalThis as unknown as {
-  conn: postgres.Sql | undefined;
+type DrizzleClient = ReturnType<typeof drizzle<typeof schema>>;
+
+const globalForDb = globalThis as typeof globalThis & {
+  __postgresConnection?: postgres.Sql;
+  __drizzleClient?: DrizzleClient;
 };
 
-const conn = globalForDb.conn ?? postgres(env.DATABASE_URL);
-if (env.NODE_ENV !== "production") globalForDb.conn = conn;
+const getConnection = () => {
+  if (!env.DATABASE_URL) {
+    throw new Error(
+      "DATABASE_URL environment variable is not configured. Set it before using the database.",
+    );
+  }
 
-export const db = drizzle(conn, { schema });
+  if (!globalForDb.__postgresConnection) {
+    globalForDb.__postgresConnection = postgres(env.DATABASE_URL);
+  }
+
+  return globalForDb.__postgresConnection;
+};
+
+const getClient = () => {
+  if (!globalForDb.__drizzleClient) {
+    const connection = getConnection();
+    globalForDb.__drizzleClient = drizzle(connection, { schema });
+  }
+
+  return globalForDb.__drizzleClient;
+};
+
+export const db = new Proxy({} as DrizzleClient, {
+  get(_target, prop) {
+    const client = getClient();
+    const value = client[prop as keyof DrizzleClient];
+
+    if (typeof value === "function") {
+      return value.bind(client);
+    }
+
+    return value;
+  },
+}) as DrizzleClient;

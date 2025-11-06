@@ -1,3 +1,5 @@
+import "~/server/jobs";
+
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 import { incidentRouter } from "./modules/report/incident/incident.router";

@@ -21,6 +21,10 @@ import { Checkbox } from "~/components/ui/simple/checkbox";
 import { Label } from "~/components/ui/simple/label";
 import Link from "next/link";
 
+const hasClerkIntegration = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+);
+
 const signUpSchema = z.object({
   email: z.string().email({ message: "Adresa de email nu este validă" }),
   password: z
@@ -34,6 +38,15 @@ const signUpSchema = z.object({
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
+  if (!hasClerkIntegration) {
+    return (
+      <main className="bg-neutral flex min-h-screen flex-col items-center justify-center px-6 pt-20 pb-40 text-center">
+        Autentificarea nu este configurată. Te rugăm să setezi variabila de
+        mediu NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY pentru a accesa această pagină.
+      </main>
+    );
+  }
+
   const { isLoaded, signUp, setActive } = useSignUp();
   const [step, setStep] = useState<"register" | "verify">("register");
   const [code, setCode] = useState("");
