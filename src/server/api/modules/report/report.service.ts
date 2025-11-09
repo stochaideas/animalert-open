@@ -11,6 +11,10 @@ import { normalizePhoneNumber } from "~/lib/phone";
 import { env } from "~/env";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { format } from "~/lib/date-formatter";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  ACCEPTED_VIDEO_TYPES,
+} from "~/constants/file-constants";
 
 // Service and error handling types
 import { type EmailService } from "../email/email.service";
@@ -265,7 +269,46 @@ export class ReportService {
           Array.isArray(JSON.parse(conversation) as unknown[]) &&
           (JSON.parse(conversation) as unknown[]).length > 0))
     ) {
-      await this.sendAdminReportSms(result.report?.reportNumber);
+      // Count images vs videos for SMS using S3 ContentType
+      let smsImagesCount = 0;
+      let smsVideosCount = 0;
+
+      if (result.report?.imageKeys && result.report.imageKeys.length > 0) {
+        // Fetch ContentType for each file from S3
+        const fileTypes = await Promise.all(
+          result.report.imageKeys.map(async (key) => {
+            try {
+              const fileInfo = await this.s3Service.getObjectSignedUrl(key);
+              return fileInfo.type;
+            } catch (error) {
+              console.error(`Error getting file type for key ${key}:`, error);
+              return null;
+            }
+          }),
+        );
+
+        // Count by type using constants
+        fileTypes.forEach((type) => {
+          if (type && ACCEPTED_IMAGE_TYPES.includes(type)) {
+            smsImagesCount++;
+          } else if (type && ACCEPTED_VIDEO_TYPES.includes(type)) {
+            smsVideosCount++;
+          }
+        });
+      }
+
+      await this.sendAdminReportSms({
+        reportType,
+        reportNumber: result.report?.reportNumber,
+        reportId: result.report?.id,
+        userName: `${result.user?.lastName} ${result.user?.firstName}`,
+        userPhone: result.user?.phone ?? "",
+        address: result.report?.address ?? undefined,
+        imagesCount: smsImagesCount,
+        videosCount: smsVideosCount,
+        latitude: result.report?.latitude ?? undefined,
+        longitude: result.report?.longitude ?? undefined,
+      });
     }
 
     return result;
@@ -421,6 +464,34 @@ export class ReportService {
 
     const imagesCount = report.imageKeys?.length;
 
+    // Count images vs videos based on S3 ContentType metadata
+    let actualImagesCount = 0;
+    let actualVideosCount = 0;
+
+    if (report.imageKeys && report.imageKeys.length > 0) {
+      // Fetch ContentType for each file from S3
+      const fileTypes = await Promise.all(
+        report.imageKeys.map(async (key) => {
+          try {
+            const fileInfo = await this.s3Service.getObjectSignedUrl(key);
+            return fileInfo.type;
+          } catch (error) {
+            console.error(`Error getting file type for key ${key}:`, error);
+            return null;
+          }
+        }),
+      );
+
+      // Count by type using constants
+      fileTypes.forEach((type) => {
+        if (type && ACCEPTED_IMAGE_TYPES.includes(type)) {
+          actualImagesCount++;
+        } else if (type && ACCEPTED_VIDEO_TYPES.includes(type)) {
+          actualVideosCount++;
+        }
+      });
+    }
+
     // Determine base URL based on environment
     let baseUrl = "https://anim-alert.org/";
     if (process.env.NODE_ENV === "development") {
@@ -429,7 +500,7 @@ export class ReportService {
       baseUrl = "https://stage.anim-alert.org";
     }
 
-    const fileUploadsUrl = `${baseUrl}/file-uploads/${report.reportNumber}`;
+    const reportDetailsUrl = `${baseUrl}/incidentele-mele/${report.id}`;
 
     const { subjectPrefix, adminTitle, userTitle, userThanks } =
       this.getEmailTemplates(reportType as REPORT_TYPES, actionType);
@@ -473,6 +544,8 @@ export class ReportService {
           📍 Detalii raport
         </div>
         <ul style="padding-left:18px;margin:0;list-style-type:none;">
+          <li><strong>Număr raport:</strong> #${report.reportNumber}</li>
+          <li><strong>Tip raport:</strong> ${reportType}</li>
           <li><strong>Status actualizări:</strong> ${report.receiveUpdates ? "Activat" : "Dezactivat"}</li>
           <li>
             <strong>Adresă:</strong> ${report.address ?? "Nespecificată"}
@@ -482,7 +555,9 @@ export class ReportService {
                 : ""
             }
           </li>
-          <li>Link imagini și videoclipuri atașate: <a href="${fileUploadsUrl}">${fileUploadsUrl}</a></li>
+          <li><strong>Fișiere atașate:</strong> ${imagesCount ?? 0} total${actualImagesCount > 0 ? ` (${actualImagesCount} imagin${actualImagesCount === 1 ? "e" : "i"})` : ""}${actualVideosCount > 0 ? ` (${actualVideosCount} videoclip${actualVideosCount === 1 ? "" : "uri"})` : ""}
+            ${imagesCount && imagesCount > 0 ? `<br><a href="${reportDetailsUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">📁 Vizualizează raportul și fișierele</a>` : ""}
+          </li>
           <li><strong>Data creării:</strong> ${report.createdAt ? format(report.createdAt) : "N/A"}</li>
           <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? format(report.updatedAt) : "N/A"}</li>
         </ul>
@@ -541,9 +616,15 @@ Actualizări: ${user.receiveOtherReportUpdates ? "Da" : "Nu"}
 
 Detalii raport
 ----------------
+Număr raport: #${report.reportNumber}
+Tip raport: ${reportType}
 Coordonate: ${latitude ?? "N/A"}, ${longitude ?? "N/A"}
 ${mapsUrl ? `Harta: ${mapsUrl}` : ""}
-Imagini: ${imagesCount} fișiere atașate
+Adresă: ${report.address ?? "Nespecificată"}
+Fișiere atașate: ${imagesCount ?? 0} total${actualImagesCount > 0 ? ` (${actualImagesCount} imagini)` : ""}${actualVideosCount > 0 ? ` (${actualVideosCount} videoclipuri)` : ""}
+${imagesCount && imagesCount > 0 ? `Link raport și fișiere: ${reportDetailsUrl}` : ""}
+Data creării: ${report.createdAt ? format(report.createdAt) : "N/A"}
+Ultima actualizare: ${report.updatedAt ? format(report.updatedAt) : "N/A"}
           `.trim();
 
     try {
@@ -583,6 +664,9 @@ Imagini: ${imagesCount} fișiere atașate
     */
 
     if (actionType === "nou creat" && report.receiveUpdates && user.email) {
+      const myReportsUrl = `${baseUrl}/incidentele-mele`;
+      const contactUrl = `${baseUrl}/contact`;
+
       const userHtml = `
 <!DOCTYPE html>
 <html lang="ro">
@@ -601,11 +685,23 @@ Imagini: ${imagesCount} fișiere atașate
     </div>
     <div style="padding:32px;">
       <div style="font-size:1.1rem;margin-bottom:24px;">
-        Bună, <strong>${user.firstName}</strong>!<br>
+        Bună, <strong>${user.firstName}</strong>!<br><br>
         ${userThanks} Am primit detaliile tale și vom reveni cu actualizări dacă este necesar.
       </div>
+      <div style="margin:24px 0;padding:16px;background:#f9f9f9;border-radius:8px;">
+        <div style="font-weight:600;margin-bottom:12px;color:oklch(42.58% 0.113 130.14);">🔗 Link-uri utile:</div>
+        <ul style="margin:0;padding-left:20px;">
+          <li style="margin-bottom:8px;">
+            <a href="${myReportsUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">Vizualizează rapoartele tale</a>
+          </li>
+          <li style="margin-bottom:8px;">
+            <a href="${contactUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">Contactează-ne</a>
+          </li>
+          ${imagesCount && imagesCount > 0 ? `<li style="margin-bottom:8px;"><a href="${reportDetailsUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">Vezi raportul și fișierele atașate</a></li>` : ""}
+        </ul>
+      </div>
       <div style="font-size:0.95rem;color:#888;text-align:center;margin-top:32px;">
-        Dacă ai întrebări sau dorești să adaugi detalii, răspunde la acest email sau contactează-ne.<br>
+        Dacă ai întrebări sau dorești să adaugi detalii, răspunde la acest email sau <a href="${contactUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">contactează-ne</a>.<br>
         Mulțumim pentru implicare!<br>
         Echipa AnimAlert
       </div>
@@ -624,7 +720,12 @@ Imagini: ${imagesCount} fișiere atașate
 Salut, ${user.firstName},
 
 ${userThanks}
-Raportul tău a fost ${actionType} și va fi analizat în cel mai scurt timp.
+Raportul tău (#${report.reportNumber}) a fost ${actionType} și va fi analizat în cel mai scurt timp.
+
+Link-uri utile:
+• Vizualizează rapoartele tale: ${myReportsUrl}
+• Contactează-ne: ${contactUrl}
+${imagesCount && imagesCount > 0 ? `• Vezi raportul și fișierele atașate: ${reportDetailsUrl}` : ""}
 
 Dacă ai nevoie de ajutor sau vrei să adaugi detalii, răspunde la acest email.
 
@@ -638,27 +739,136 @@ Echipa AnimAlert
   }
 
   /**
-   * Sends a simple SMS notification to the admin when a new report is created.
+   * Sends a detailed SMS notification to the admin when a new report is created.
    *
-   * The SMS message will contain only the report number in the following format:
-   * "Raport nou creat: {reportNumber}"
+   * The SMS message will contain important details in a concise format:
+   * - Report type and number
+   * - User name and phone
+   * - Address (first 30 chars if available)
+   * - Number of images and videos
+   * - Link to admin report page (if space permits)
+   * - Google Maps link (if space permits and coordinates available)
    *
-   * @param reportNumber - The unique number identifying the newly created report.
-   * @throws {TRPCError} Throws an error with code "INTERNAL_SERVER_ERROR" if the report number is missing.
+   * @param data - Object containing report details
+   * @param data.reportType - The type of report (INCIDENT, PRESENCE, CONFLICT)
+   * @param data.reportNumber - The unique number identifying the newly created report
+   * @param data.reportId - The UUID of the report for generating admin link
+   * @param data.userName - Full name of the user who created the report
+   * @param data.userPhone - Phone number of the user
+   * @param data.address - Location/address of the report (optional)
+   * @param data.imagesCount - Number of image files (optional)
+   * @param data.videosCount - Number of video files (optional)
+   * @param data.latitude - Latitude coordinate (optional)
+   * @param data.longitude - Longitude coordinate (optional)
+   * @throws {TRPCError} Throws an error with code "INTERNAL_SERVER_ERROR" if required data is missing.
    *
    * @example
-   * await this.sendAdminReportSms(1234);
-   * // SMS sent: "Raport nou creat: 1234"
+   * await this.sendAdminReportSms({
+   *   reportType: REPORT_TYPES.INCIDENT,
+   *   reportNumber: 1234,
+   *   reportId: "abc-123",
+   *   userName: "Ion Popescu",
+   *   userPhone: "+40712345678",
+   *   address: "Str. Exemple nr. 1, București",
+   *   imagesCount: 2,
+   *   videosCount: 1,
+   *   latitude: 44.4268,
+   *   longitude: 26.1025
+   * });
+   * // SMS sent: "INCIDENT #1234\nIon Popescu\nTel: +40712345678\nLoc: Str. Exemple nr. 1, Bucures...\n2 img, 1 vid\nAdmin: https://anim-alert.org/admin/r...\nMaps: https://goo.gl/maps/..."
    */
-  protected async sendAdminReportSms(reportNumber?: number) {
-    if (!reportNumber) {
+  protected async sendAdminReportSms(data: {
+    reportType: REPORT_TYPES;
+    reportNumber?: number;
+    reportId?: string;
+    userName: string;
+    userPhone: string;
+    address?: string;
+    imagesCount?: number;
+    videosCount?: number;
+    latitude?: number;
+    longitude?: number;
+  }) {
+    if (!data.reportNumber) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Report number is missing",
       });
     }
 
-    const message = `Raport nou creat: ${reportNumber}`;
+    // Get report type label (no emojis)
+    let typeLabel = "RAPORT";
+
+    switch (data.reportType) {
+      case REPORT_TYPES.INCIDENT:
+        typeLabel = "INCIDENT";
+        break;
+      case REPORT_TYPES.PRESENCE:
+        typeLabel = "PREZENTA";
+        break;
+      case REPORT_TYPES.CONFLICT:
+        typeLabel = "CONFLICT";
+        break;
+    }
+
+    // Determine base URL based on environment
+    let baseUrl = "https://anim-alert.org";
+    if (process.env.NODE_ENV === "development") {
+      baseUrl = "http://localhost:3000";
+    } else if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") {
+      baseUrl = "https://stage.anim-alert.org";
+    }
+
+    // Build base message
+    let message = `${typeLabel} #${data.reportNumber}\n`;
+    message += `${data.userName}\n`;
+    message += `Tel: ${data.userPhone}`;
+
+    if (data.address) {
+      // Truncate address if too long (keep first 30 chars)
+      const addr =
+        data.address.length > 30
+          ? data.address.substring(0, 27) + "..."
+          : data.address;
+      message += `\nLoc: ${addr}`;
+    }
+
+    // Add file counts if present
+    const fileParts: string[] = [];
+    if (data.imagesCount && data.imagesCount > 0) {
+      fileParts.push(`${data.imagesCount} img`);
+    }
+    if (data.videosCount && data.videosCount > 0) {
+      fileParts.push(`${data.videosCount} vid`);
+    }
+    if (fileParts.length > 0) {
+      message += `\n${fileParts.join(", ")}`;
+    }
+
+    // Generate URLs
+    const adminReportUrl = data.reportId
+      ? `${baseUrl}/admin/reports/${data.reportId}`
+      : null;
+    const mapsUrl =
+      data.latitude && data.longitude
+        ? `https://maps.google.com/?q=${data.latitude},${data.longitude}`
+        : null;
+
+    // Check if we can fit URLs (SMS limit is ~160 chars for single, ~300 for multi)
+    // We'll use a limit of 280 chars to stay within 2 SMS segments
+    const currentLength = message.length;
+    const urlSpace = 280 - currentLength;
+
+    // Add admin URL if it fits (need ~50 chars)
+    if (adminReportUrl && urlSpace > 60) {
+      message += `\nAdmin: ${adminReportUrl}`;
+    }
+
+    // Add maps URL if it fits and there's still space (need ~50 chars)
+    const remainingSpace = 280 - message.length;
+    if (mapsUrl && remainingSpace > 60) {
+      message += `\nMaps: ${mapsUrl}`;
+    }
 
     await this.smsService.sendSms({
       message,
