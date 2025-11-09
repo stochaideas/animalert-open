@@ -1,8 +1,20 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher(["/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  const hostname = req.headers.get("host") ?? "";
+
+  if (
+    hostname === "stage.eco-alert.org" &&
+    req.nextUrl.pathname === "/"
+  ) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/eco-alert";
+    return NextResponse.rewrite(url);
+  }
+
   if (isProtectedRoute(req)) {
     const { sessionClaims } = await auth();
 
