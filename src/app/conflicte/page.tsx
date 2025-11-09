@@ -203,7 +203,10 @@ export default function ConflictReport() {
           await fetch(url, {
             method: "PUT",
             body: file,
-            headers: { "Content-Type": file.type },
+            headers: {
+              "Content-Type": file.type,
+              "Content-Length": file.size.toString(),
+            },
             mode: "cors",
           });
 

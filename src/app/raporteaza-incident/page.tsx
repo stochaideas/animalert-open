@@ -175,11 +175,15 @@ export default function IncidentReport() {
         Array.from(files).map(async (file, index) => {
           if (!file) return null;
 
+          console.log("Before");
+
           const response = await uploadFileToS3Async({
             fileName: `file_${index}`,
             fileType: file.type,
             fileSize: file.size,
           });
+
+          console.log("After");
 
           if (!response || typeof response.url !== "string") {
             throw new Error("Failed to get a valid URL for the file upload");
@@ -196,10 +200,15 @@ export default function IncidentReport() {
             throw new Error("Failed to get a valid URL for the file upload");
           }
 
+          console.log(file.size);
+
           await fetch(url, {
             method: "PUT",
             body: file,
-            headers: { "Content-Type": file.type },
+            headers: {
+              "Content-Type": file.type,
+              "Content-Length": file.size.toString(),
+            },
             mode: "cors",
           });
 
