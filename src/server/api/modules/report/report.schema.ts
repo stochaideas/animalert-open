@@ -49,14 +49,24 @@ export const reports = pgTable(
 );
 
 export const upsertReportWithUserSchema = z.object({
-  user: z.object({
-    id: z.string().optional(),
-    firstName: z.string(),
-    lastName: z.string(),
-    phone: z.string().refine(phoneNumberRefine),
-    email: z.string().optional(),
-    receiveOtherReportUpdates: z.boolean().default(false),
-  }),
+  user: z
+    .object({
+      id: z.string().optional(),
+      firstName: z.string(),
+      lastName: z.string(),
+      phone: z
+        .string()
+        .refine((phone) => phone.length > 0, {
+          message: "Numărul de telefon este necesar",
+        }),
+      countryCode: z.string().default("RO"),
+      email: z.string().optional(),
+      receiveOtherReportUpdates: z.boolean().default(false),
+    })
+    .refine((data) => phoneNumberRefine(data.phone, data.countryCode), {
+      message: "Numărul de telefon este invalid",
+      path: ["phone"],
+    }),
   report: z.object({
     id: z.string().optional(),
     reportType: z.nativeEnum(REPORT_TYPES),

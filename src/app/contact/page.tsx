@@ -36,6 +36,8 @@ import {
   DialogDescription,
 } from "~/components/ui/simple/dialog";
 import { TRPCClientError } from "@trpc/client";
+import { DEFAULT_COUNTRY_CODE } from "~/constants/country-phone-codes";
+import { PhoneInput } from "~/components/ui/complex/phone-input";
 
 export default function Contact() {
   const [successDialog, setSuccessDialog] = useState<{
@@ -65,6 +67,7 @@ export default function Contact() {
       lastName: "",
       firstName: "",
       phone: "",
+      countryCode: DEFAULT_COUNTRY_CODE,
       email: "",
       county: undefined,
       solicitationType: "general",
@@ -206,6 +209,17 @@ export default function Contact() {
               <div className="flex-1">
                 <FormField
                   control={contactForm.control}
+                  name="countryCode"
+                  render={({ field }) => (
+                    <FormItem className="hidden">
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={contactForm.control}
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
@@ -214,10 +228,14 @@ export default function Contact() {
                         <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input
+                        <PhoneInput
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          countryCode={contactForm.watch("countryCode")}
+                          onCountryCodeChange={(code) =>
+                            contactForm.setValue("countryCode", code)
+                          }
                           placeholder="Ex: 0745 234 566"
-                          className="p-6"
-                          {...field}
                         />
                       </FormControl>
                       <FormMessage />

@@ -33,6 +33,7 @@ import { PRESENCE_STEPS } from "./_constants/presence-steps";
 import Link from "next/link";
 import { SVGHeart, SVGStar } from "~/components/icons";
 import FeedbackDialog from "~/components/ui/complex/feedback-dialog";
+import { DEFAULT_COUNTRY_CODE } from "~/constants/country-phone-codes";
 
 export default function PresenceReport() {
   const lastSubmittedPayload = useRef<{
@@ -92,6 +93,7 @@ export default function PresenceReport() {
       lastName: "",
       firstName: "",
       phone: "",
+      countryCode: DEFAULT_COUNTRY_CODE,
       email: "",
       confidentiality: false,
       receiveUpdates: false,
@@ -266,6 +268,7 @@ export default function PresenceReport() {
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
+          countryCode: values.countryCode,
           email: email,
           receiveOtherReportUpdates: values.receiveOtherReportUpdates,
         },

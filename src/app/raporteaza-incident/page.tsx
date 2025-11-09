@@ -31,6 +31,7 @@ import { MaterialStepper } from "~/components/ui/complex/stepper";
 import { TRPCClientError } from "@trpc/client";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { INCIDENT_STEPS } from "./_constants/incident-steps";
+import { DEFAULT_COUNTRY_CODE } from "~/constants/country-phone-codes";
 
 export default function IncidentReport() {
   const lastSubmittedPayload = useRef<{
@@ -91,6 +92,7 @@ export default function IncidentReport() {
       lastName: "",
       firstName: "",
       phone: "",
+      countryCode: DEFAULT_COUNTRY_CODE,
       email: "",
       confidentiality: false,
       receiveUpdates: false,
@@ -264,6 +266,7 @@ export default function IncidentReport() {
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
+          countryCode: values.countryCode,
           email: email,
           receiveOtherReportUpdates: values.receiveOtherReportUpdates,
         },

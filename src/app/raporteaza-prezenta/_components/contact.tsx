@@ -20,6 +20,7 @@ import Image from "next/image";
 import { type presenceFormSchema } from "../_schemas/presence-form-schema";
 import { useVideoThumbnail } from "~/hooks/useVideoThumbnail";
 import Link from "next/link";
+import { PhoneInput } from "~/components/ui/complex/phone-input";
 
 export default function Contact({
   presenceForm,
@@ -229,26 +230,43 @@ export default function Contact({
                 />
               </div>
               <div className="flex-1">
-                <FormField
-                  control={presenceForm.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-0">
-                        Număr de telefon
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Număr de telefon"
-                          className="p-6"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormLabel className="flex items-center gap-0">
+                  Număr de telefon
+                  <span className="text-red-500">*</span>
+                </FormLabel>
+                <div className="flex gap-2">
+                  <FormField
+                    control={presenceForm.control}
+                    name="countryCode"
+                    render={({ field }) => (
+                      <FormItem className="hidden">
+                        <FormControl>
+                          <input type="hidden" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={presenceForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <PhoneInput
+                            value={field.value}
+                            countryCode={presenceForm.watch("countryCode")}
+                            onValueChange={field.onChange}
+                            onCountryCodeChange={(code) =>
+                              presenceForm.setValue("countryCode", code)
+                            }
+                            placeholder="Număr de telefon"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
               <div className="flex-1">
                 <FormField

@@ -168,10 +168,17 @@ export class ReportService {
           }
 
           // Ensure phone number is normalized before updating
-          const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
+          const normalizedPhoneNumber = normalizePhoneNumber(
+            data.user.phone,
+            data.user.countryCode,
+          );
           await tx
             .update(users)
-            .set({ ...data.user, phone: normalizedPhoneNumber })
+            .set({
+              ...data.user,
+              phone: normalizedPhoneNumber,
+              countryCode: data.user.countryCode,
+            })
             .where(eq(users.id, data.user.id));
 
           [report] = await tx
@@ -189,7 +196,10 @@ export class ReportService {
           });
         } else {
           // Normalize input data phone number before checking and inserting
-          const normalizedPhoneNumber = normalizePhoneNumber(data.user.phone);
+          const normalizedPhoneNumber = normalizePhoneNumber(
+            data.user.phone,
+            data.user.countryCode,
+          );
           user = await tx.query.users.findFirst({
             where: eq(users.phone, normalizedPhoneNumber),
           });
@@ -201,6 +211,7 @@ export class ReportService {
                 firstName: data.user.firstName,
                 lastName: data.user.lastName,
                 phone: normalizedPhoneNumber,
+                countryCode: data.user.countryCode,
                 email: data.user.email,
               })
               .onConflictDoUpdate({
@@ -210,6 +221,7 @@ export class ReportService {
                   lastName: data.user.lastName,
                   email: data.user.email,
                   phone: normalizedPhoneNumber,
+                  countryCode: data.user.countryCode,
                 },
               })
               .returning();
@@ -746,7 +758,7 @@ Echipa AnimAlert
   // Update report and user data
   async updateReportWithUser(data: z.infer<typeof upsertReportWithUserSchema>) {
     const { user, report } = data;
-    const normalizedPhone = normalizePhoneNumber(user.phone);
+    const normalizedPhone = normalizePhoneNumber(user.phone, user.countryCode);
 
     if (!user.id || !report.id) {
       throw new TRPCError({
@@ -762,6 +774,7 @@ Echipa AnimAlert
         firstName: user.firstName,
         lastName: user.lastName,
         phone: normalizedPhone,
+        countryCode: user.countryCode,
         email: user.email,
         receiveOtherReportUpdates: user.receiveOtherReportUpdates,
       })
