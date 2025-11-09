@@ -26,14 +26,14 @@ test.describe("Contact Form - Phone Number Internationalization", () => {
     // Wait for the dropdown to appear
     await page.waitForSelector("[cmdk-input]");
 
-    // Search for United States
-    await page.getByPlaceholder("Caută țară...").fill("United");
+    // Search for United States (Statele Unite in Romanian)
+    await page.getByPlaceholder("Caută țară...").fill("Statele Unite");
 
     // Wait a bit for filtering
     await page.waitForTimeout(100);
 
     // Select United States from filtered results
-    await page.locator("[cmdk-item]", { hasText: "United States" }).click();
+    await page.locator("[cmdk-item]", { hasText: "Statele Unite" }).click();
 
     // Verify US flag and dial code are now showing in the button
     const countrySelector = page.getByTestId("country-code-selector");
@@ -48,25 +48,25 @@ test.describe("Contact Form - Phone Number Internationalization", () => {
     // Wait for the dropdown
     await page.waitForSelector("[cmdk-input]");
 
-    // Search for Deutschland (Germany in German)
-    await page.getByPlaceholder("Caută țară...").fill("Deutschland");
+    // Search for Germania (Germany in Romanian)
+    await page.getByPlaceholder("Caută țară...").fill("Germania");
 
     // Wait for filtering
     await page.waitForTimeout(100);
 
-    // Deutschland should be visible as a command item
+    // Germania should be visible as a command item
     await expect(
-      page.locator("[cmdk-item]", { hasText: "Deutschland" }),
+      page.locator("[cmdk-item]", { hasText: "Germania" }),
     ).toBeVisible();
 
-    // Clear search and try France (in French: France)
+    // Clear search and try Franța (France in Romanian)
     await page.getByPlaceholder("Caută țară...").clear();
-    await page.getByPlaceholder("Caută țară...").fill("France");
+    await page.getByPlaceholder("Caută țară...").fill("Franța");
     await page.waitForTimeout(100);
 
-    // France should now be visible
+    // Franța should now be visible
     await expect(
-      page.locator("[cmdk-item]", { hasText: "France" }),
+      page.locator("[cmdk-item]", { hasText: "Franța" }),
     ).toBeVisible();
   });
 
@@ -91,8 +91,8 @@ test.describe("Contact Form - Phone Number Internationalization", () => {
     page,
   }) => {
     const testCountries = [
-      { name: "Deutschland", flag: "🇩🇪", code: "+49" },
-      { name: "France", flag: "🇫🇷", code: "+33" },
+      { name: "Germania", flag: "🇩🇪", code: "+49" },
+      { name: "Franța", flag: "🇫🇷", code: "+33" },
       { name: "Italia", flag: "🇮🇹", code: "+39" },
     ];
 
@@ -141,12 +141,12 @@ test.describe("Contact Form - Phone Number Internationalization", () => {
     await page.waitForSelector("[cmdk-input]");
 
     // Type to search
-    await page.keyboard.type("Deutschland");
+    await page.keyboard.type("Germania");
     await page.waitForTimeout(100);
 
-    // Should show Deutschland option
+    // Should show Germania option
     await expect(
-      page.locator("[cmdk-item]", { hasText: "Deutschland" }),
+      page.locator("[cmdk-item]", { hasText: "Germania" }),
     ).toBeVisible();
   });
 });

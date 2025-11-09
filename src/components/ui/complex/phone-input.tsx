@@ -79,7 +79,7 @@ export function PhoneInput({
             aria-expanded={open}
             aria-label="Cod țară"
             data-testid="country-code-selector"
-            className="w-[140px] justify-between px-3"
+            className="border-input h-12 w-[140px] justify-between px-3"
             disabled={disabled}
             type="button"
           >
@@ -90,7 +90,7 @@ export function PhoneInput({
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0" align="start">
+        <PopoverContent className="bg-neutral w-[300px] p-0" align="start">
           <Command>
             <CommandInput placeholder="Caută țară..." />
             <CommandList>
@@ -99,6 +99,7 @@ export function PhoneInput({
                 {COUNTRY_PHONE_CODES.map((country) => (
                   <CommandItem
                     key={country.code}
+                    className="hover:bg-neutral-hover hover:cursor-pointer"
                     value={`${country.name} ${country.dialCode} ${country.code}`}
                     onSelect={() => handleCountrySelect(country)}
                   >

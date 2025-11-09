@@ -40,7 +40,7 @@ describe("COUNTRY_PHONE_CODES", () => {
   it("should have United States in the list", () => {
     const us = COUNTRY_PHONE_CODES.find((c) => c.code === "US");
     expect(us).toBeDefined();
-    expect(us?.name).toBe("United States");
+    expect(us?.name).toBe("Statele Unite");
     expect(us?.dialCode).toBe("+1");
     expect(us?.flag).toBe("🇺🇸");
   });
@@ -48,7 +48,7 @@ describe("COUNTRY_PHONE_CODES", () => {
   it("should have United Kingdom in the list", () => {
     const uk = COUNTRY_PHONE_CODES.find((c) => c.code === "GB");
     expect(uk).toBeDefined();
-    expect(uk?.name).toBe("United Kingdom");
+    expect(uk?.name).toBe("Regatul Unit");
     expect(uk?.dialCode).toBe("+44");
     expect(uk?.flag).toBe("🇬🇧");
   });
@@ -92,7 +92,7 @@ describe("getCountryByCode", () => {
     const country = getCountryByCode("US");
     expect(country).toBeDefined();
     expect(country?.code).toBe("US");
-    expect(country?.name).toBe("United States");
+    expect(country?.name).toBe("Statele Unite");
     expect(country?.dialCode).toBe("+1");
   });
 
@@ -100,7 +100,7 @@ describe("getCountryByCode", () => {
     const country = getCountryByCode("DE");
     expect(country).toBeDefined();
     expect(country?.code).toBe("DE");
-    expect(country?.name).toBe("Deutschland");
+    expect(country?.name).toBe("Germania");
     expect(country?.dialCode).toBe("+49");
   });
 

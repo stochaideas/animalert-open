@@ -158,16 +158,16 @@ describe("PhoneInput Component", () => {
     });
 
     const searchInput = screen.getByPlaceholderText("Caută țară...");
-    await user.type(searchInput, "United States");
+    await user.type(searchInput, "Statele Unite");
 
-    // Find and click the United States option
+    // Find and click the United States option (Statele Unite in Romanian)
     await waitFor(() => {
-      const usOption = screen.getByText(/United States/);
+      const usOption = screen.getByText(/Statele Unite/);
       expect(usOption).toBeInTheDocument();
     });
 
     // Click the United States option to trigger handleCountrySelect
-    const usOption = screen.getByText(/United States/);
+    const usOption = screen.getByText(/Statele Unite/);
     await user.click(usOption);
 
     // Verify onCountryCodeChange was called with US code
@@ -203,15 +203,15 @@ describe("PhoneInput Component", () => {
     });
 
     const searchInput = screen.getByPlaceholderText("Caută țară...");
-    await user.type(searchInput, "France");
+    await user.type(searchInput, "Franța");
 
-    // Find and click France
+    // Find and click France (Franța in Romanian)
     await waitFor(() => {
-      const frOption = screen.getByText(/France/);
+      const frOption = screen.getByText(/Franța/);
       expect(frOption).toBeInTheDocument();
     });
 
-    const frOption = screen.getByText(/France/);
+    const frOption = screen.getByText(/Franța/);
     await user.click(frOption);
 
     // Should not throw error even without callback

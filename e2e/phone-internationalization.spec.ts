@@ -23,11 +23,11 @@ test.describe("Phone Number Internationalization", () => {
       // Open country selector
       await page.getByTestId("country-code-selector").click();
 
-      // Search for United States
-      await page.getByPlaceholder("Caută țară...").fill("United");
+      // Search for United States (Statele Unite in Romanian)
+      await page.getByPlaceholder("Caută țară...").fill("Statele Unite");
 
       // Select United States
-      await page.getByText("United States").click();
+      await page.getByText("Statele Unite").click();
 
       // Verify US flag and dial code are now showing
       await expect(page.getByText("🇺🇸")).toBeVisible();
@@ -38,14 +38,14 @@ test.describe("Phone Number Internationalization", () => {
       // Open country selector
       await page.getByTestId("country-code-selector").click();
 
-      // Search for Deutschland (Germany)
-      await page.getByPlaceholder("Caută țară...").fill("Deutschland");
+      // Search for Germania (Germany in Romanian)
+      await page.getByPlaceholder("Caută țară...").fill("Germania");
 
-      // Deutschland should be visible
-      await expect(page.getByText("Deutschland")).toBeVisible();
+      // Germania should be visible
+      await expect(page.getByText("Germania")).toBeVisible();
 
       // Other countries should not be visible
-      await expect(page.getByText("France")).not.toBeVisible();
+      await expect(page.getByText("Franța")).not.toBeVisible();
       await expect(page.getByText("Italia")).not.toBeVisible();
     });
 
@@ -83,8 +83,8 @@ test.describe("Phone Number Internationalization", () => {
     }) => {
       // Change to US country code
       await page.getByTestId("country-code-selector").click();
-      await page.getByPlaceholder("Caută țară...").fill("United");
-      await page.getByText("United States").click();
+      await page.getByPlaceholder("Caută țară...").fill("Statele Unite");
+      await page.getByText("Statele Unite").click();
 
       // Try to enter Romanian phone number with US country code
       await page.getByTestId("phone-number-input").fill("0712345678");
@@ -96,10 +96,10 @@ test.describe("Phone Number Internationalization", () => {
 
     test("should display country flags correctly", async ({ page }) => {
       const testCountries = [
-        { name: "Deutschland", flag: "🇩🇪", code: "+49" },
-        { name: "France", flag: "🇫🇷", code: "+33" },
+        { name: "Germania", flag: "🇩🇪", code: "+49" },
+        { name: "Franța", flag: "🇫🇷", code: "+33" },
         { name: "Italia", flag: "🇮🇹", code: "+39" },
-        { name: "España", flag: "🇪🇸", code: "+34" },
+        { name: "Spania", flag: "🇪🇸", code: "+34" },
       ];
 
       for (const country of testCountries) {
@@ -142,10 +142,10 @@ test.describe("Phone Number Internationalization", () => {
     test("should persist country selection while filling form", async ({
       page,
     }) => {
-      // Select UK country code
+      // Select UK country code (Regatul Unit in Romanian)
       await page.getByTestId("country-code-selector").click();
-      await page.getByPlaceholder("Caută țară...").fill("United Kingdom");
-      await page.getByText("United Kingdom").click();
+      await page.getByPlaceholder("Caută țară...").fill("Regatul Unit");
+      await page.getByText("Regatul Unit").click();
 
       // Fill other fields
       await page.getByPlaceholder("Nume").fill("John");
@@ -157,10 +157,10 @@ test.describe("Phone Number Internationalization", () => {
     });
 
     test("should accept international phone format", async ({ page }) => {
-      // Select France
+      // Select France (Franța in Romanian)
       await page.getByTestId("country-code-selector").click();
-      await page.getByPlaceholder("Caută țară...").fill("France");
-      await page.getByText("France").first().click();
+      await page.getByPlaceholder("Caută țară...").fill("Franța");
+      await page.getByText("Franța").first().click();
 
       // Enter French phone number
       await page.getByTestId("phone-number-input").fill("0612345678");
@@ -188,12 +188,12 @@ test.describe("Phone Number Internationalization", () => {
 
     test("should support all major European countries", async ({ page }) => {
       const europeanCountries = [
-        "Deutschland",
-        "France",
+        "Germania",
+        "Franța",
         "Italia",
-        "España",
-        "Polska",
-        "Nederland",
+        "Spania",
+        "Polonia",
+        "Olanda",
       ];
 
       // Open country selector
@@ -274,11 +274,11 @@ test.describe("Phone Number Internationalization", () => {
       // Open country selector
       await page.getByTestId("country-code-selector").click();
 
-      // Search should work on mobile
-      await page.getByPlaceholder("Caută țară...").fill("España");
+      // Search should work on mobile (Spania = Spain in Romanian)
+      await page.getByPlaceholder("Caută țară...").fill("Spania");
 
       // Should be able to select
-      await page.getByText("España").click();
+      await page.getByText("Spania").click();
 
       // Verify selection
       await expect(page.getByText("🇪🇸")).toBeVisible();
@@ -302,11 +302,11 @@ test.describe("Phone Number Internationalization", () => {
       // Press Enter to open
       await page.keyboard.press("Enter");
 
-      // Type to search
-      await page.keyboard.type("Deutschland");
+      // Type to search (Germania = Germany in Romanian)
+      await page.keyboard.type("Germania");
 
-      // Should show Deutschland
-      await expect(page.getByText("Deutschland")).toBeVisible();
+      // Should show Germania
+      await expect(page.getByText("Germania")).toBeVisible();
     });
 
     test("should have proper ARIA labels", async ({ page, context }) => {

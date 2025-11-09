@@ -230,7 +230,7 @@ export default function Contact({
                 />
               </div>
               <div className="flex-1">
-                <FormLabel className="flex items-center gap-0">
+                <FormLabel className="mb-2 flex items-center gap-0">
                   Număr de telefon
                   <span className="text-red-500">*</span>
                 </FormLabel>
