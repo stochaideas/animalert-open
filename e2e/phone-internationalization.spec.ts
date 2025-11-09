@@ -2,8 +2,13 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Phone Number Internationalization", () => {
   test.describe("Contact Form", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, context }) => {
+      await context.clearCookies();
       await page.goto("/contact");
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
     });
 
     test("should display Romanian country code by default", async ({
@@ -115,9 +120,13 @@ test.describe("Phone Number Internationalization", () => {
   });
 
   test.describe("Incident Report Form", () => {
-    test.beforeEach(async ({ page }) => {
-      // Navigate to incident report page (adjust URL based on your routing)
+    test.beforeEach(async ({ page, context }) => {
+      await context.clearCookies();
       await page.goto("/raporteaza-incident");
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
     });
 
     test("should have phone number input with country selector", async ({
@@ -168,8 +177,13 @@ test.describe("Phone Number Internationalization", () => {
   });
 
   test.describe("Presence Report Form", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, context }) => {
+      await context.clearCookies();
       await page.goto("/raporteaza-prezenta");
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
     });
 
     test("should support all major European countries", async ({ page }) => {
@@ -195,8 +209,13 @@ test.describe("Phone Number Internationalization", () => {
   });
 
   test.describe("Conflict Report Form", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, context }) => {
+      await context.clearCookies();
       await page.goto("/conflicte");
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
     });
 
     test("should remember last selected country code", async ({ page }) => {
@@ -217,8 +236,16 @@ test.describe("Phone Number Internationalization", () => {
   test.describe("Mobile Responsiveness", () => {
     test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE size
 
-    test("should display phone input properly on mobile", async ({ page }) => {
+    test("should display phone input properly on mobile", async ({
+      page,
+      context,
+    }) => {
+      await context.clearCookies();
       await page.goto("/contact");
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
 
       // Country selector should be visible and clickable
       const countrySelector = page.getByTestId("country-code-selector");
@@ -233,8 +260,16 @@ test.describe("Phone Number Internationalization", () => {
       await expect(page.getByPlaceholder("Caută țară...")).toBeVisible();
     });
 
-    test("should allow country selection on mobile", async ({ page }) => {
+    test("should allow country selection on mobile", async ({
+      page,
+      context,
+    }) => {
+      await context.clearCookies();
       await page.goto("/contact");
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
 
       // Open country selector
       await page.getByTestId("country-code-selector").click();
@@ -251,8 +286,13 @@ test.describe("Phone Number Internationalization", () => {
   });
 
   test.describe("Accessibility", () => {
-    test("should be keyboard navigable", async ({ page }) => {
+    test("should be keyboard navigable", async ({ page, context }) => {
+      await context.clearCookies();
       await page.goto("/contact");
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
 
       // Tab to country selector
       await page.keyboard.press("Tab");
@@ -269,8 +309,13 @@ test.describe("Phone Number Internationalization", () => {
       await expect(page.getByText("Deutschland")).toBeVisible();
     });
 
-    test("should have proper ARIA labels", async ({ page }) => {
+    test("should have proper ARIA labels", async ({ page, context }) => {
+      await context.clearCookies();
       await page.goto("/contact");
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
 
       // Country selector should have combobox role
       const combobox = page.getByTestId("country-code-selector");

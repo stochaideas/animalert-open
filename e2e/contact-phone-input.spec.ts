@@ -1,10 +1,14 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Contact Form - Phone Number Internationalization", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, context }) => {
+    // Clear all storage before navigation
+    await context.clearCookies();
     await page.goto("/contact");
-    // Wait for the page to fully load
-    await page.waitForLoadState("networkidle");
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
   });
 
   test("should display Romanian country code by default", async ({ page }) => {
@@ -26,7 +30,7 @@ test.describe("Contact Form - Phone Number Internationalization", () => {
     await page.getByPlaceholder("Caută țară...").fill("United");
 
     // Wait a bit for filtering
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(100);
 
     // Select United States from filtered results
     await page.locator("[cmdk-item]", { hasText: "United States" }).click();
@@ -48,7 +52,7 @@ test.describe("Contact Form - Phone Number Internationalization", () => {
     await page.getByPlaceholder("Caută țară...").fill("Deutschland");
 
     // Wait for filtering
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(100);
 
     // Deutschland should be visible as a command item
     await expect(
@@ -58,7 +62,7 @@ test.describe("Contact Form - Phone Number Internationalization", () => {
     // Clear search and try France (in French: France)
     await page.getByPlaceholder("Caută țară...").clear();
     await page.getByPlaceholder("Caută țară...").fill("France");
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(100);
 
     // France should now be visible
     await expect(
@@ -99,7 +103,7 @@ test.describe("Contact Form - Phone Number Internationalization", () => {
 
       // Search for country
       await page.getByPlaceholder("Caută țară...").fill(country.name);
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(100);
 
       // Select country
       await page.locator("[cmdk-item]", { hasText: country.name }).click();
@@ -138,7 +142,7 @@ test.describe("Contact Form - Phone Number Internationalization", () => {
 
     // Type to search
     await page.keyboard.type("Deutschland");
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(100);
 
     // Should show Deutschland option
     await expect(
