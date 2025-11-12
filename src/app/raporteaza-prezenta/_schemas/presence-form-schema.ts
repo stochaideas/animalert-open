@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { phoneNumberSchema } from "~/lib/phone";
+import { phoneNumberRefine } from "~/lib/phone";
 import {
   IMAGE_MAX_SIZE,
   VIDEO_MAX_SIZE,
@@ -15,7 +15,8 @@ export const presenceFormSchema = z
     firstName: z.string().min(1, {
       message: "Prenumele este necesar",
     }),
-    phone: phoneNumberSchema,
+    phone: z.string().nonempty({ message: "Numărul de telefon este necesar" }),
+    countryCode: z.string(),
     email: z
       .string()
       .email({
@@ -91,6 +92,15 @@ export const presenceFormSchema = z
       .optional(),
   })
   .superRefine((data, ctx) => {
+    // Validate phone number with country code
+    if (!phoneNumberRefine(data.phone, data.countryCode)) {
+      ctx.addIssue({
+        path: ["phone"],
+        code: z.ZodIssueCode.custom,
+        message: "Numărul de telefon este invalid",
+      });
+    }
+
     if (data.receiveUpdates) {
       if (!data.email) {
         ctx.addIssue({

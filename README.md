@@ -158,6 +158,14 @@ npm run db:push          # Push schema changes directly to database
 npm run db:studio        # Open Drizzle Studio (database GUI)
 ```
 
+### Testing
+
+```bash
+npm run test             # Run all unit tests (vitest run)
+npm run test:unit        # Run Vitest tests
+npm run test:e2e         # Run Playwright e2e tests
+```
+
 ## 🗃️ Database Management
 
 ### Drizzle Studio
@@ -279,7 +287,49 @@ The application uses Clerk for authentication with role-based access control:
 2. Set up SNS topic for SMS alerts
 3. Configure phone number verification
 
-## 🗺️ Maps Integration
+## � Phone Number Internationalization
+
+The application supports international phone numbers with country code selection:
+
+### Features
+
+- **Country Code Selector**: Searchable dropdown with country flags and dial codes
+- **Romanian Localization**: All country names displayed in Romanian
+- **Phone Validation**: International format validation using libphonenumber
+- **Default Country**: Defaults to Romania (RO) with +40 dial code
+- **Supported Countries**: All major countries with proper flag emojis
+- **Database Storage**: Country code stored separately in `users.country_code` field
+
+### Country Code Selection
+
+The phone input component includes:
+
+- Flag emoji display
+- Dial code prefix (+40, +1, +44, etc.)
+- Searchable country list in Romanian
+- Keyboard navigation support
+- Mobile-responsive design
+
+### Phone Format Examples
+
+- Romania: `0712 345 678` → stored with country code `RO`
+- United States: `202 555 0123` → stored with country code `US`
+- Germany: `030 12345678` → stored with country code `DE`
+- France: `01 23 45 67 89` → stored with country code `FR`
+
+### Implementation
+
+Phone numbers are validated based on the selected country code:
+
+```typescript
+// Schema validation with country code
+countryCode: z.string().length(2).default("RO"),
+phone: z.string().min(1, "Numărul de telefon este obligatoriu")
+```
+
+The `normalizePhoneNumber` utility handles international format conversion.
+
+## �🗺️ Maps Integration
 
 ### Google Maps Setup
 
@@ -313,6 +363,41 @@ The application uses Clerk for authentication with role-based access control:
 | `AWS_REGION` | AWS region       | `eu-central-1` |
 
 ## 🧪 Testing
+
+The project includes comprehensive testing infrastructure:
+
+### Unit & Integration Tests (Vitest)
+
+Run unit and integration tests:
+
+```bash
+npm run test:unit     # Run all tests (vitest run)
+vitest                # Run tests in watch mode
+```
+
+Coverage thresholds are set to 90% for:
+
+- Lines, functions, branches, and statements
+- Includes lib/, constants/, server modules, and complex UI components
+- Reports available in HTML, JSON, and text formats
+
+### End-to-End Tests (Playwright)
+
+Run e2e tests:
+
+```bash
+npm run test:e2e      # Run all e2e tests
+npx playwright test --ui       # Run with Playwright UI
+npx playwright test --debug    # Debug mode
+```
+
+E2E test coverage:
+
+- Phone internationalization workflows
+- Contact form submissions
+- Report creation flows (incident, presence, conflict)
+- Mobile responsiveness
+- Keyboard navigation and accessibility
 
 ### Type Checking
 
