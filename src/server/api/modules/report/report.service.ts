@@ -1,26 +1,57 @@
 // External dependencies
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import type { z } from "zod";
 
 // Application-specific modules
 import { db } from "~/server/db";
-import { reports, type upsertReportWithUserSchema } from "./report.schema";
+import {
+  reports,
+  type InsertReport,
+  type ReportMapPoint,
+  type upsertReportWithUserSchema,
+  type Report,
+} from "./report.schema";
 import { users } from "../user/user.schema";
 import { normalizePhoneNumber } from "~/lib/phone";
 import { env } from "~/env";
 import { REPORT_TYPES } from "~/constants/report-types";
 import { format } from "~/lib/date-formatter";
 
+const REPORT_TYPE_VALUES = new Set<REPORT_TYPES>(
+  Object.values(REPORT_TYPES),
+);
+
+const toReportType = (value: unknown): REPORT_TYPES | null =>
+  REPORT_TYPE_VALUES.has(value as REPORT_TYPES)
+    ? (value as REPORT_TYPES)
+    : null;
+
 // Service and error handling types
 import { type EmailService } from "../email/email.service";
 import type { S3Service } from "../s3/s3.service";
 import type { SmsService } from "../sms/sms.service";
+import { BearAlertNotificationService } from "~/server/services/notifications/bear-alert-notification.service";
 import {
   handlePostgresError,
   type PostgresError,
 } from "~/server/db/postgres-error";
 import type { User } from "@clerk/nextjs/server";
+
+type ExternalReport = {
+  id: string;
+  longitude: number;
+  latitude: number;
+  posted?: string;
+  date?: string;
+  description?: string | null;
+  type?: string | null;
+};
+
+type ExternalReportResponse = {
+  statusCode: number;
+  mappedData?: ExternalReport[];
+};
 
 /**
  * Service for handling report creation, updates, notifications, and file retrieval.
@@ -29,7 +60,141 @@ export class ReportService {
   protected emailService: EmailService;
   protected s3Service: S3Service;
   protected smsService: SmsService;
+  protected bearAlertNotificationService: BearAlertNotificationService;
 
+  protected async notifyBearSighting(report: Report | null | undefined) {
+    if (!report) {
+      return;
+    }
+
+    if (
+      report.reportType !== REPORT_TYPES.CONFLICT &&
+      report.reportType !== REPORT_TYPES.INCIDENT
+    ) {
+      return;
+    }
+
+    if (
+      typeof report.latitude !== "number" ||
+      Number.isNaN(report.latitude) ||
+      typeof report.longitude !== "number" ||
+      Number.isNaN(report.longitude)
+    ) {
+      return;
+    }
+
+    if (!this.containsBearKeyword(report)) {
+      return;
+    }
+
+    const description = this.buildBearDescription(report);
+
+    try {
+      await this.bearAlertNotificationService.notify({
+        id: report.id,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        description,
+        occurredAt: report.createdAt?.toISOString() ?? null,
+        accuracy: report.isExternal
+          ? "Coordonate furnizate de partener"
+          : "Coordonate raportate de utilizator",
+        validationTier: report.isExternal ? "Tier 1" : "Tier 2",
+        provider: report.dataProvider ?? "AnimAlert",
+      });
+    } catch (error) {
+      console.error("Failed to dispatch bear alert notification", {
+        reportId: report.id,
+        error,
+      });
+    }
+  }
+
+  private containsBearKeyword(report: Report) {
+    const haystack = [
+      report.address ?? "",
+      this.extractConversationText(report.conversation ?? null),
+      report.dataProvider ?? "",
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes("urs") || haystack.includes("bear");
+  }
+
+  private buildBearDescription(report: Report) {
+    const conversation = this.extractConversationText(report.conversation ?? null);
+    const parts = [report.address, conversation].filter(
+      (value): value is string => Boolean(value && value.trim()),
+    );
+
+    if (parts.length === 0) {
+      return null;
+    }
+
+    return parts.join(" | ");
+  }
+
+  private extractConversationText(conversation: string | null) {
+    if (!conversation) {
+      return "";
+    }
+
+    try {
+      const parsed = JSON.parse(conversation);
+
+      if (typeof parsed === "string") {
+        return parsed;
+      }
+
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => {
+            if (typeof item === "string") {
+              return item;
+            }
+
+            if (item && typeof item === "object") {
+              const record = item as Record<string, unknown>;
+              const message = record["message"];
+              if (typeof message === "string") {
+                return message;
+              }
+              const content = record["content"];
+              if (typeof content === "string") {
+                return content;
+              }
+              const textValue = record["text"];
+              if (typeof textValue === "string") {
+                return textValue;
+              }
+            }
+            return "";
+          })
+          .filter((value) => value && value.trim())
+          .join(" ");
+      }
+
+      if (parsed && typeof parsed === "object") {
+        const record = parsed as Record<string, unknown>;
+        const message = record["message"];
+        if (typeof message === "string") {
+          return message;
+        }
+
+        const content = record["content"];
+        if (typeof content === "string") {
+          return content;
+        }
+      }
+    } catch (error) {
+      console.warn("Unable to parse conversation payload for bear alert", {
+        error,
+      });
+    }
+
+    return "";
+  }
   /**
    * Creates an instance of the service and injects required dependencies.
    *
@@ -45,6 +210,7 @@ export class ReportService {
     this.emailService = emailService;
     this.s3Service = s3Service;
     this.smsService = smsService;
+    this.bearAlertNotificationService = new BearAlertNotificationService(this.smsService);
   }
 
   /**
@@ -232,6 +398,8 @@ export class ReportService {
               receiveUpdates: data.report.receiveUpdates,
               imageKeys: data.report.imageKeys,
               conversation: data.report.conversation,
+              isExternal: false,
+              dataProvider: "AnimAlert",
             })
             .returning();
         }
@@ -267,6 +435,8 @@ export class ReportService {
     ) {
       await this.sendAdminReportSms(result.report?.reportNumber);
     }
+
+    await this.notifyBearSighting(result.report ?? null);
 
     return result;
   }
@@ -546,35 +716,43 @@ ${mapsUrl ? `Harta: ${mapsUrl}` : ""}
 Imagini: ${imagesCount} fișiere atașate
           `.trim();
 
-    try {
-      await this.emailService.sendEmail({
-        to: env.EMAIL_ADMIN,
-        subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber}`,
-        html: adminHtml,
-        text: adminEmailText,
-      });
-    } catch (error) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "responseCode" in error &&
-        (error as { responseCode?: unknown }).responseCode === 552
-      ) {
-        // Retry without attachments if size limit exceeded
-        console.warn("Email size limit exceeded, retrying without attachments");
+    const adminRecipient = env.EMAIL_ADMIN;
 
-        try {
-          await this.emailService.sendEmail({
-            to: env.EMAIL_ADMIN,
-            subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber} - FĂRĂ ATAȘAMENTE`,
-            html: adminHtml,
-            text: adminEmailText,
-          });
-        } catch (error) {
+    if (!adminRecipient) {
+      console.warn(
+        "EMAIL_ADMIN environment variable is not configured. Skipping admin notification email.",
+      );
+    } else {
+      try {
+        await this.emailService.sendEmail({
+          to: adminRecipient,
+          subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber}`,
+          html: adminHtml,
+          text: adminEmailText,
+        });
+      } catch (error) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "responseCode" in error &&
+          (error as { responseCode?: unknown }).responseCode === 552
+        ) {
+          // Retry without attachments if size limit exceeded
+          console.warn("Email size limit exceeded, retrying without attachments");
+
+          try {
+            await this.emailService.sendEmail({
+              to: adminRecipient,
+              subject: `🚨 ${subjectPrefix} ${actionType.toUpperCase()} - ${report.reportNumber} - FĂRĂ ATAȘAMENTE`,
+              html: adminHtml,
+              text: adminEmailText,
+            });
+          } catch (error) {
+            console.error("Error sending admin email:", error);
+          }
+        } else {
           console.error("Error sending admin email:", error);
         }
-      } else {
-        console.error("Error sending admin email:", error);
       }
     }
 
@@ -714,6 +892,279 @@ Echipa AnimAlert
     );
 
     return fileUrls;
+  }
+
+  protected async fetchExternalReports() {
+    const url = env.EXTERNAL_REPORTS_API_URL;
+
+    if (!url) {
+      return [] as ExternalReport[];
+    }
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error(
+          `Failed to fetch external reports. Received status ${response.status}`,
+        );
+        return [] as ExternalReport[];
+      }
+
+      const payload = (await response.json()) as ExternalReportResponse;
+
+      if (!payload || !Array.isArray(payload.mappedData)) {
+        return [] as ExternalReport[];
+      }
+
+      return payload.mappedData.filter(
+        (item): item is ExternalReport =>
+          typeof item.id === "string" &&
+          typeof item.latitude === "number" &&
+          typeof item.longitude === "number",
+      );
+    } catch (error) {
+      console.error("Error while fetching external reports", error);
+      return [] as ExternalReport[];
+    }
+  }
+
+  protected parseExternalTimestamp(value?: string | null): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const parsed = new Date(value);
+
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+
+    return parsed;
+  }
+
+  async syncExternalReports() {
+    if (!env.EXTERNAL_REPORTS_API_URL) {
+      return { inserted: 0, updated: 0, skipped: 0 } as const;
+    }
+
+    const externalReports = await this.fetchExternalReports();
+
+    if (externalReports.length === 0) {
+      return { inserted: 0, updated: 0, skipped: 0 } as const;
+    }
+
+    const externalIds = externalReports.map((report) => report.id);
+
+    const existingRecords = externalIds.length
+      ? await db
+          .select({
+            id: reports.id,
+            externalId: reports.externalId,
+            externalUpdatedAt: reports.externalUpdatedAt,
+          })
+          .from(reports)
+          .where(inArray(reports.externalId, externalIds))
+      : [];
+
+    const existingMap = new Map(
+      existingRecords
+        .filter((record) => Boolean(record.externalId))
+        .map((record) => [record.externalId as string, record]),
+    );
+
+    const providerName = env.EXTERNAL_REPORTS_PROVIDER_NAME;
+
+    const processedIds = new Set<string>();
+    const toInsert: InsertReport[] = [];
+    const toUpdate: { id: string; data: Partial<InsertReport> }[] = [];
+
+    for (const report of externalReports) {
+      if (processedIds.has(report.id)) {
+        continue;
+      }
+
+      processedIds.add(report.id);
+
+      const updatedAt =
+        this.parseExternalTimestamp(report.posted) ??
+        this.parseExternalTimestamp(report.date) ??
+        new Date();
+      const occurredAt =
+        this.parseExternalTimestamp(report.date) ??
+        this.parseExternalTimestamp(report.posted) ??
+        updatedAt;
+
+      const basePayload: InsertReport = {
+        userId: null,
+        reportType: REPORT_TYPES.INCIDENT,
+        receiveUpdates: false,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        imageKeys: [],
+        conversation: null,
+        address: report.description ?? null,
+        isExternal: true,
+        dataProvider: providerName,
+        externalId: report.id,
+        externalUpdatedAt: updatedAt,
+        species: report.type ?? null,
+        createdAt: occurredAt,
+      };
+
+      const existing = existingMap.get(report.id);
+
+      if (!existing) {
+        toInsert.push(basePayload);
+        continue;
+      }
+
+      const existingUpdatedAt = existing.externalUpdatedAt
+        ? new Date(existing.externalUpdatedAt)
+        : null;
+
+      if (!existingUpdatedAt || updatedAt.getTime() > existingUpdatedAt.getTime()) {
+        toUpdate.push({
+          id: existing.id,
+          data: {
+            latitude: basePayload.latitude,
+            longitude: basePayload.longitude,
+            address: basePayload.address,
+            reportType: REPORT_TYPES.INCIDENT,
+            receiveUpdates: false,
+            dataProvider: providerName,
+            isExternal: true,
+            externalUpdatedAt: basePayload.externalUpdatedAt,
+            species: basePayload.species,
+            createdAt: basePayload.createdAt,
+            imageKeys: [],
+          },
+        });
+      }
+    }
+
+    if (toInsert.length === 0 && toUpdate.length === 0) {
+      return {
+        inserted: 0,
+        updated: 0,
+        skipped: externalReports.length,
+      } as const;
+    }
+
+    await db.transaction(async (tx) => {
+      if (toInsert.length > 0) {
+        await tx.insert(reports).values(toInsert);
+      }
+
+      if (toUpdate.length > 0) {
+        await Promise.all(
+          toUpdate.map((entry) =>
+            tx
+              .update(reports)
+              .set(entry.data)
+              .where(eq(reports.id, entry.id)),
+          ),
+        );
+      }
+    });
+
+    const processedCount = toInsert.length + toUpdate.length;
+
+    return {
+      inserted: toInsert.length,
+      updated: toUpdate.length,
+      skipped: externalReports.length - processedCount,
+    } as const;
+  }
+
+  protected async buildInternalMapPoints(): Promise<ReportMapPoint[]> {
+    const internalReports = await db
+      .select({
+        id: reports.id,
+        latitude: reports.latitude,
+        longitude: reports.longitude,
+        createdAt: reports.createdAt,
+        reportType: reports.reportType,
+        address: reports.address,
+        imageKeys: reports.imageKeys,
+        isExternal: reports.isExternal,
+        dataProvider: reports.dataProvider,
+        species: reports.species,
+      })
+      .from(reports)
+      .orderBy(desc(reports.createdAt));
+
+    const mapPoints = await Promise.all(
+      internalReports
+        .filter(
+          (report) =>
+            typeof report.latitude === "number" &&
+            typeof report.longitude === "number",
+        )
+        .map(async (report) => {
+          let imageUrls: string[] = [];
+
+          if (report.imageKeys?.length) {
+            const fileKeys = report.imageKeys.filter(
+              (key): key is string => Boolean(key),
+            );
+
+            try {
+              const signedFiles = await Promise.all(
+                fileKeys.map((key) => this.s3Service.getObjectSignedUrl(key)),
+              );
+
+              imageUrls = signedFiles
+                .map((file) => file.url)
+                .filter((url): url is string => Boolean(url));
+            } catch (error) {
+              console.error("Failed to retrieve signed URLs for report", {
+                reportId: report.id,
+                error,
+              });
+              imageUrls = [];
+            }
+          }
+
+          const providerName = report.dataProvider ?? "AnimAlert";
+
+          const normalizedReportType = toReportType(report.reportType);
+          const latitude = report.latitude!;
+          const longitude = report.longitude!;
+
+          return {
+            id: report.id,
+            latitude,
+            longitude,
+            gpsLocation: `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
+            validationStatus: report.isExternal
+              ? `Validat de ${providerName}`
+              : "În curs de validare",
+            type:
+              normalizedReportType === REPORT_TYPES.INCIDENT
+                ? "INCIDENT"
+                : "REPORT",
+            description: report.address ?? null,
+            images: imageUrls,
+            species: report.species ?? null,
+            isExternal: Boolean(report.isExternal),
+            provider: providerName,
+            reportType: normalizedReportType,
+            createdAt: report.createdAt?.toISOString() ?? null,
+          } satisfies ReportMapPoint;
+        }),
+    );
+
+    return mapPoints;
+  }
+
+  async getReportsForMap(): Promise<ReportMapPoint[]> {
+    const internalPoints = await this.buildInternalMapPoints();
+
+    return internalPoints.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
   }
 
   // List all reports with user data
