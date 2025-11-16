@@ -25,7 +25,36 @@ Before you begin, ensure you have installed:
 - **Docker** and **Docker Compose**
 - **Git**
 
-## 🛠️ Development Setup
+## Development Setup (using Docker)
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/stochaideas/animalert-open.git
+cd animalert
+```
+
+### 2. Environment Configuration
+
+Copy the example environment file and configure your variables:
+
+```bash
+cp .env.example .env
+```
+
+### 3. Start project
+
+Start the project locally using the following command:
+
+```bash
+docker compose up -d
+```
+
+After it builds and starts the containers, you can use the following urls (if you didn't change the ports):
+* http://localhost:3000 for the web app
+* http://localhost:8025 for mailhog ui
+
+## 🛠️ Development Setup (the old way)
 
 ### 1. Clone the Repository
 
