@@ -6,11 +6,9 @@ import { api } from "~/trpc/react";
 import { redirect } from "next/navigation";
 
 export default function ReportsPage() {
-  const { isSignedIn, user, isLoaded: userDataIsLoaded } = useUser();
+  const { isSignedIn, isLoaded: userDataIsLoaded } = useUser();
 
   const { data, isLoading, error } = api.report.getReportsByUser.useQuery();
-
-  console.log(user);
 
   if (!userDataIsLoaded) {
     return (
