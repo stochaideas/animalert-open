@@ -20,8 +20,8 @@ export class SmsService {
       credentials:
         env.NODE_ENV === "development"
           ? {
-              accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
-              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
+              accessKeyId: env.AWS_ACCESS_KEY_ID ?? "",
+              secretAccessKey: env.AWS_SECRET_ACCESS_KEY ?? "",
             }
           : undefined,
     };
@@ -38,13 +38,32 @@ export class SmsService {
    * @throws Will throw an error if the SMS fails to send.
    */
   async sendSms(input: z.infer<typeof smsOptionsSchema>) {
+    const messagePrefix =
+      env.NODE_ENV === "production" ? "" : `[${env.NODE_ENV.toUpperCase()}] `;
+
     const command = new PublishCommand({
-      Message: input.message,
+      Message: messagePrefix + input.message,
       TopicArn: env.SNS_TOPIC_ARN,
     });
 
     try {
+      // Simulate SMS sending in development mode
+      if (env.NODE_ENV === "development") {
+        console.info("Development mode: SMS sending is simulated.");
+        console.info(`Message: ${input.message}`);
+        return Promise.resolve({
+          MessageId: "simulated-message-id",
+          ResponseMetadata: {
+            RequestId: "simulated-request-id",
+            HTTPStatusCode: 200,
+          },
+        });
+      }
+
       const response = await this.snsClient.send(command);
+
+      console.log("SMS sent successfully");
+
       return response;
     } catch (error) {
       console.error("Error sending SMS:", error);

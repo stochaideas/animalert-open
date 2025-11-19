@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,7 +26,6 @@ import {
 } from "~/components/ui/simple/navigation-menu";
 
 import { cn } from "~/lib/utils";
-import AuthButton from "./auth-button";
 
 const navItems: {
   title: string;
@@ -37,6 +36,8 @@ const navItems: {
     description: string;
     icon: JSX.Element;
   }[];
+  protected?: boolean;
+  admin?: boolean;
 }[] = [
   { title: "Acasă", href: "/" },
   {
@@ -75,8 +76,14 @@ const navItems: {
       // },
     ],
   },
+  {
+    title: "Incidentele mele",
+    href: "/incidentele-mele",
+    protected: true,
+  },
   { title: "Despre noi", href: "/despre-noi" },
   { title: "Contact", href: "/contact" },
+  { title: "Admin", href: "/admin/reports", admin: true },
 ];
 
 const actionItems: {
@@ -101,6 +108,11 @@ const actionItems: {
 
 export default function Navbar() {
   const pathname = usePathname();
+
+  const userData = useUser();
+  const { isSignedIn } = userData;
+  const userRole = userData?.user?.publicMetadata?.role;
+
   const [isOpen, setIsOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(true);
   const [isAlertAnimating, setIsAlertAnimating] = useState(false);
@@ -134,37 +146,10 @@ export default function Navbar() {
 
   return (
     <div className="sticky top-0 z-20 flex w-full flex-col gap-0">
-      <section className="flex flex-col items-center justify-between bg-white px-6 py-2 lg:flex-row xl:px-32 xl:py-3 2xl:px-64">
-        <div className="text-body-small text-center lg:max-w-[560px] lg:text-left">
-          Proiect finanțat din programul „În ZONA TA”, implementat prin
-          Platforma de Mediu la Cluj-Napoca de către{" "}
-          <Link
-            className="underline"
-            href="https://www.facebook.com/FundatiaComunitaraCluj"
-            target="_blank"
-          >
-            Fundația Comunitară Cluj
-          </Link>{" "}
-          și{" "}
-          <Link
-            className="underline"
-            href="https://ing.ro/persoane-fizice"
-            target="_blank"
-          >
-            ING Bank România
-          </Link>
-        </div>
-        <Image
-          alt="Sponsors"
-          src="/images/about-us-sponsors.png"
-          width="390"
-          height="65"
-        />
-      </section>
       <nav
         className={`${isOpen ? "h-screen" : "h-auto"} bg-secondary text-secondary-foreground sticky top-0 w-full p-6 sm:p-4 md:p-6 xl:px-32 2xl:px-64`}
       >
-        <div className="container mx-auto flex flex-row items-center justify-between gap-6">
+        <div className="container mx-auto flex flex-row items-center justify-between gap-4">
           <div className="flex flex-row items-center gap-3">
             <Link href="/">
               <Image
@@ -193,43 +178,59 @@ export default function Navbar() {
           {/* LARGE SCREENS */}
           <NavigationMenu className={"hidden gap-2 2xl:flex 2xl:items-center"}>
             <NavigationMenuList>
-              {navItems.map((item) => (
-                <NavigationMenuItem
-                  key={item.title}
-                  className="text-single-line-body-base w-max px-4"
-                >
-                  {item.content ? (
-                    <NavigationMenuTrigger
-                      className={cn(
-                        "hover:cursor-pointer",
-                        navigationMenuTriggerStyle(),
-                      )}
-                    >
-                      {item.title}
-                    </NavigationMenuTrigger>
-                  ) : (
-                    <Link href={item.href} className="block w-full">
-                      {item.title}
-                    </Link>
-                  )}
-                  {item.content && (
-                    <NavigationMenuContent className="bg-secondary text-secondary-foreground">
-                      <ul className="flex w-60 flex-col gap-2">
-                        {item.content.map((contentItem) => (
-                          <ListItem
-                            className="hover:cursor-pointer"
-                            key={contentItem.title}
-                            title={contentItem.title}
-                            href={contentItem.href}
-                          >
-                            {contentItem.description}
-                          </ListItem>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
-                  )}
-                </NavigationMenuItem>
-              ))}
+              {navItems
+                .filter((item) => {
+                  // Show admin items only to admins
+                  if (item.admin) {
+                    return (
+                      isSignedIn &&
+                      (userRole === "admin" || userRole === "moderator")
+                    );
+                  }
+                  // Show protected items only to signed-in users
+                  if (item.protected) {
+                    return isSignedIn;
+                  }
+                  // Show public items to everyone
+                  return true;
+                })
+                .map((item) => (
+                  <NavigationMenuItem
+                    key={item.title}
+                    className="text-single-line-body-base w-max px-2 text-center"
+                  >
+                    {item.content ? (
+                      <NavigationMenuTrigger
+                        className={cn(
+                          "hover:cursor-pointer",
+                          navigationMenuTriggerStyle(),
+                        )}
+                      >
+                        {item.title}
+                      </NavigationMenuTrigger>
+                    ) : (
+                      <Link href={item.href} className="block w-full">
+                        {item.title}
+                      </Link>
+                    )}
+                    {item.content && (
+                      <NavigationMenuContent className="bg-secondary text-secondary-foreground">
+                        <ul className="flex w-60 flex-col gap-2">
+                          {item.content.map((contentItem) => (
+                            <ListItem
+                              className="hover:cursor-pointer"
+                              key={contentItem.title}
+                              title={contentItem.title}
+                              href={contentItem.href}
+                            >
+                              {contentItem.description}
+                            </ListItem>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    )}
+                  </NavigationMenuItem>
+                ))}
               {actionItems.map((item) => (
                 <NavigationMenuItem key={item.title} className="px-2">
                   <Link href={item.href}>
@@ -239,53 +240,90 @@ export default function Navbar() {
                   </Link>
                 </NavigationMenuItem>
               ))}
-              <AuthButton />
+              <SignedOut>
+                <Link href="/sign-in">
+                  <Button variant="neutral">Contul meu</Button>
+                </Link>
+              </SignedOut>
+              <SignedIn>
+                <div className="flex flex-col items-center gap-2">
+                  <UserButton />
+                  <span className="text-center text-sm select-none">
+                    Contul meu
+                  </span>
+                </div>
+              </SignedIn>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
 
         {/* SMALL AND MEDIUM SCREENS */}
         <NavigationMenu
-          className={`${isOpen ? "flex" : "hidden"} h-11/12 flex-col items-start justify-between gap-2 2xl:hidden`}
+          className={`${isOpen ? "flex" : "hidden"} flex-col items-start justify-between gap-2 2xl:hidden`}
         >
           <NavigationMenuList className="mt-14 flex flex-col items-start gap-2">
-            {navItems.map((item) =>
-              item.content ? (
-                <NavigationMenuItem
-                  key={item.title}
-                  className="text-single-line-body-base py-2"
-                  onClick={() => setMenuContentOpen(!menuContentOpen)}
-                >
-                  {item.title}
-                  {menuContentOpen && (
-                    <NavigationMenuTrigger className="bg-secondary text-secondary-foreground h-full w-full flex-col items-start">
-                      {item.content.map((contentItem) => (
-                        <ListItem
-                          className="align-items-start flex flex-col text-left hover:cursor-pointer"
-                          key={contentItem.title}
-                          title={contentItem.title}
-                          href={contentItem.href}
-                        >
-                          {contentItem.description}
-                        </ListItem>
-                      ))}
-                    </NavigationMenuTrigger>
-                  )}
-                </NavigationMenuItem>
-              ) : (
-                <NavigationMenuItem
-                  key={item.title}
-                  className="text-single-line-body-base py-2"
-                >
-                  <Link href={item.href}>{item.title}</Link>
-                </NavigationMenuItem>
-              ),
-            )}
+            {navItems
+              .filter((item) => {
+                // Show admin items only to admins
+                if (item.admin) {
+                  return (
+                    isSignedIn &&
+                    (userRole === "admin" || userRole === "moderator")
+                  );
+                }
+                // Show protected items only to signed-in users
+                if (item.protected) {
+                  return isSignedIn;
+                }
+                // Show public items to everyone
+                return true;
+              })
+              .map((item) =>
+                item.content ? (
+                  <NavigationMenuItem
+                    key={item.title}
+                    className="text-single-line-body-base py-2"
+                    onClick={() => setMenuContentOpen(!menuContentOpen)}
+                  >
+                    {item.title}
+                    {menuContentOpen && (
+                      <NavigationMenuTrigger className="bg-secondary text-secondary-foreground h-full w-full flex-col items-start">
+                        {item.content.map((contentItem) => (
+                          <ListItem
+                            className="align-items-start flex flex-col text-left hover:cursor-pointer"
+                            key={contentItem.title}
+                            title={contentItem.title}
+                            href={contentItem.href}
+                          >
+                            {contentItem.description}
+                          </ListItem>
+                        ))}
+                      </NavigationMenuTrigger>
+                    )}
+                  </NavigationMenuItem>
+                ) : (
+                  <NavigationMenuItem
+                    key={item.title}
+                    className="text-single-line-body-base py-2"
+                  >
+                    <Link href={item.href}>{item.title}</Link>
+                  </NavigationMenuItem>
+                ),
+              )}
             <SignedOut>
-              <SignInButton />
+              <Link href="/sign-in">
+                <Button size="xs" variant="neutral">
+                  <span className="text-single-line-body-base">Contul meu</span>
+                </Button>
+              </Link>
             </SignedOut>
             <SignedIn>
-              <UserButton />
+              <div className="flex items-center gap-2">
+                <UserButton />
+                <span className="text-center text-sm select-none">
+                  Contul meu
+                </span>
+              </div>
             </SignedIn>
           </NavigationMenuList>
           <NavigationMenuList className="flex flex-col items-start gap-3">
@@ -313,9 +351,10 @@ export default function Navbar() {
           }`}
         >
           <div className="m-auto text-center">
-            <SVGPhone className="mr-3 inline" width="20" height="20" /> Sună
-            imediat la <b>112</b>, dacă te afli în pericol sau dacă observi un
-            animal rănit de talie mai mare (căprior, cerb, vulpe, lup, urs).
+            <SVGPhone className="mr-3 inline" width="20" height="20" /> Apelează
+            în paralel și <b>112</b>, dacă te afli în pericol sau dacă observi
+            un animal rănit de talie mai mare (căprior, cerb, vulpe, lup, urs),
+            din considerente legale.
           </div>
         </section>
       )}

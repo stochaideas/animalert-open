@@ -9,6 +9,22 @@ const config = {
   reactStrictMode: true,
   output: "standalone",
   transpilePackages: ["@clerk/nextjs"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "animalert-images.s3.eu-central-1.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "animalert-images-stage.s3.eu-central-1.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.

@@ -8,12 +8,16 @@ import Footer from "../components/ui/complex/footer";
 import Navbar from "../components/ui/complex/navbar";
 
 import { ClerkProvider } from "@clerk/nextjs";
+import { roRO } from "@clerk/localizations";
+
 import { Toaster } from "~/components/ui/simple/sonner";
-import { env } from "~/env";
 
 export const metadata: Metadata = {
   title: "Animalert",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  other: {
+    "facebook-domain-verification": "8n0hycuwhvh7iurrmp2cno1xzvzkow",
+  },
 };
 
 const poppins = Poppins({
@@ -27,6 +31,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider
+      localization={roRO}
       appearance={{
         variables: {
           colorPrimary: "#395a03",
@@ -41,7 +46,7 @@ export default function RootLayout({
         },
       }}
       signInUrl="/sign-in"
-      signUpUrl="/sign-up" publishableKey={env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      signUpUrl="/sign-up"
     >
       <html lang="en" className={`${poppins.className}`}>
         <body>

@@ -9,6 +9,7 @@ import { s3Router } from "./modules/s3/s3.router";
 import { complaintRouter } from "./modules/complaint/complaint.router";
 import { feedbackRouter } from "./modules/feedback/feedback.router";
 import { complaintTemplateRouter } from "./modules/complaint-template/complaintTemplate.router";
+import { reportRouter } from "./modules/report/report.router";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ import { complaintTemplateRouter } from "./modules/complaint-template/complaintT
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  report: reportRouter,
   complaint: complaintRouter,
   incident: incidentRouter,
   presence: presenceRouter,
