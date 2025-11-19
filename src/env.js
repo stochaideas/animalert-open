@@ -16,8 +16,8 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: z.string().default(""),
     AWS_REGION: z.string(),
     AWS_S3_BUCKET_NAME: z.string(),
-    AWS_ENDPOINT_URL_S3: z.string().url().optional(),
-    AWS_S3_PUBLIC_ENDPOINT: z.string().url().optional(),
+    AWS_ENDPOINT_URL_S3: z.string().url().default(""),
+    AWS_S3_PUBLIC_ENDPOINT: z.string().url().default(""),
 
     NODEMAILER_SERVICE: z.string(),
     SMTP_HOST: z.string().optional(),
