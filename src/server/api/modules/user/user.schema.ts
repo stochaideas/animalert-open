@@ -14,6 +14,10 @@ export const users = pgTable(
       .varchar("phone", { length: 16 }) // E.164 max length is 15 digits + '+' = 16 chars
       .notNull()
       .unique(),
+    countryCode: d
+      .varchar("country_code", { length: 2 }) // ISO 3166-1 alpha-2
+      .notNull()
+      .default("RO"),
     email: d.varchar("email", { length: 255 }).unique(),
     receiveOtherReportUpdates: d
       .boolean("receive_other_report_updates")
