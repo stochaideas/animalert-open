@@ -28,6 +28,8 @@ export const env = createEnv({
     EMAIL_FROM: z.string(),
 
     SNS_TOPIC_ARN: z.string(),
+
+    GOOGLE_GEOCODE_API_KEY: z.string(),
   },
 
   /**
@@ -65,6 +67,8 @@ export const env = createEnv({
     EMAIL_FROM: process.env.EMAIL_FROM,
 
     SNS_TOPIC_ARN: process.env.SNS_TOPIC_ARN,
+
+    GOOGLE_GEOCODE_API_KEY: process.env.GOOGLE_GEOCODE_API_KEY,
 
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
