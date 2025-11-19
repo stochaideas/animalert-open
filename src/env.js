@@ -16,19 +16,21 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: z.string().default(""),
     AWS_REGION: z.string(),
     AWS_S3_BUCKET_NAME: z.string(),
+    AWS_ENDPOINT_URL_S3: z.string().url().optional(),
+    AWS_S3_PUBLIC_ENDPOINT: z.string().url().optional(),
     AWS_S3_PDF_BUCKET_NAME: z.string(),
 
     PETITION_CC: z.string().optional(),
 
     NODEMAILER_SERVICE: z.string(),
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.coerce.number().optional(),
     EMAIL_ADMIN: z.string().email(),
     EMAIL_USER: z.string().email(),
     EMAIL_PASS: z.string(),
     EMAIL_FROM: z.string(),
 
     SNS_TOPIC_ARN: z.string(),
-
-    CLERK_SECRET_KEY: z.string(),
   },
 
   /**
@@ -40,7 +42,6 @@ export const env = createEnv({
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string(),
     NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: z.string(),
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
   },
 
   /**
@@ -55,11 +56,15 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_REGION: process.env.AWS_REGION,
     AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME,
+    AWS_ENDPOINT_URL_S3: process.env.AWS_ENDPOINT_URL_S3,
+    AWS_S3_PUBLIC_ENDPOINT: process.env.AWS_S3_PUBLIC_ENDPOINT,
     AWS_S3_PDF_BUCKET_NAME: process.env.AWS_S3_PDF_BUCKET_NAME,
 
     PETITION_CC: process.env.PETITION_CC,
 
     NODEMAILER_SERVICE: process.env.NODEMAILER_SERVICE,
+    SMTP_HOST: process.env.SMTP_HOST,
+    SMTP_PORT: process.env.SMTP_PORT,
     EMAIL_ADMIN: process.env.EMAIL_ADMIN,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
@@ -67,13 +72,10 @@ export const env = createEnv({
 
     SNS_TOPIC_ARN: process.env.SNS_TOPIC_ARN,
 
-    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
-
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
-      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

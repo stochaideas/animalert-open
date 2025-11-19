@@ -1,21 +1,75 @@
 services:
-  nextjs:
-    build: .
-    container_name: nextjs
-    expose:
-      - "3000"
-    restart: always
-
-  nginx:
-    image: nginx:1.23.3-alpine
-    container_name: nginx
+  db:
+    image: postgres:16-alpine
+    container_name: animalert-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "80:80"
-      - "443:443"
+      - "${POSTGRES_DB_PORT:-5432}:5432"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/anim-alert.org.pem:/etc/nginx/ssl/anim-alert.org.pem:ro
-      - ./nginx/anim-alert.org-key.pem:/etc/nginx/ssl/anim-alert.org-key.pem:ro
+      - ./.docker/.db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - default
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: animalert-localstack
+    environment:
+      - SERVICES=s3
+      - AWS_DEFAULT_REGION=${AWS_REGION}
+      - DEBUG=1
+      - PERSISTENCE=1
+      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+    ports:
+      - "${LOCALSTACK_PORT:-4566}:4566"
+    volumes:
+      - ./.docker/.localstack:/var/lib/localstack
+      - ./.docker/localstack-init:/etc/localstack/init/ready.d
+    restart: unless-stopped
+    networks:
+      - default
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: animalert-mailhog
+    restart: unless-stopped
+    environment:
+      - VIRTUAL_HOST=local-mail.anim-alert.org
+      - VIRTUAL_PORT="${MAILHOG_WEB_PORT:-8025}"
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"   # SMTP
+      - "${MAILHOG_WEB_PORT:-8025}:8025"   # Web UI
+    networks:
+      - default
+
+  nextjs:
+    container_name: animalert-nextjs-dev
+    image: node:20-alpine
+    working_dir: /app
+    environment:
+      - VIRTUAL_HOST=local.anim-alert.org
+      - VIRTUAL_PORT=3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "${NEXTJS_PORT:-3000}:3000"
+    command: sh -c "npm install && npm run db:migrate && npm run dev"
     depends_on:
-      - nextjs
-    restart: always
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
+
+volumes:
+  db-data:
+
