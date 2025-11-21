@@ -9,6 +9,7 @@ RUN \
   elif [ -f package-lock.json ]; then npm ci; \
   elif [ -f pnpm-lock.yaml ];    then npm install -g pnpm && pnpm i; \
   else echo "Lockfile not found." && exit 1; fi
+
 FROM --platform=linux/amd64 node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -18,19 +19,21 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # build Next + emit Drizzle SQL
 #RUN \
-  #if [ -f yarn.lock ];        then SKIP_ENV_VALIDATION=1 yarn build      && yarn dlx drizzle-kit generate; \
- # elif [ -f package-lock.json ]; then SKIP_ENV_VALIDATION=1 npm run build && npx drizzle-kit generate; \
- # elif [ -f pnpm-lock.yaml ];    then npm install -g pnpm                && SKIP_ENV_VALIDATION=1 pnpm run build && pnpm dlx drizzle-kit generate; \
- # else echo "Lockfile not found." && exit 1; fi
+#  if [ -f yarn.lock ];        then SKIP_ENV_VALIDATION=1 yarn build      && yarn dlx drizzle-kit generate; \
+#  elif [ -f package-lock.json ]; then SKIP_ENV_VALIDATION=1 npm run build && npx drizzle-kit generate; \
+#  elif [ -f pnpm-lock.yaml ];    then npm install -g pnpm                && SKIP_ENV_VALIDATION=1 pnpm run build && pnpm dlx drizzle-kit generate; \
+#  else echo "Lockfile not found." && exit 1; fi
 
 FROM --platform=linux/amd64 node:20-alpine
 WORKDIR /app
+RUN apk add --no-cache libc6-compat openssl
 
 # copy only what the CLI needs
-COPY --from=deps    /app/node_modules      ./node_modules
-#COPY --from=builder /app/migrations        ./migrations
-#COPY                 drizzle.config.*      ./          # ts or js
-#COPY package.json                           ./
+COPY --from=deps /app/node_modules ./node_modules
+# If you pre-generate and commit migrations, copy them from the context:
+COPY migrations ./migrations
+COPY drizzle.config.* ./
+COPY package.json ./
 
-#ENTRYPOINT ["npx","drizzle-kit","migrate","--yes"]
-ENTRYPOINT ["sh", "-c", "echo 'hello and goodbye test'"]
+# Run migrations
+ENTRYPOINT ["sh","-lc","npx drizzle-kit migrate --yes"]

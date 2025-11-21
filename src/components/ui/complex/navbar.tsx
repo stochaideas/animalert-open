@@ -37,6 +37,7 @@ const navItems: {
     icon: JSX.Element;
   }[];
   protected?: boolean;
+  admin?: boolean;
 }[] = [
   { title: "Acasă", href: "/" },
   {
@@ -82,6 +83,7 @@ const navItems: {
   },
   { title: "Despre noi", href: "/despre-noi" },
   { title: "Contact", href: "/contact" },
+  { title: "Admin", href: "/admin/reports", admin: true },
 ];
 
 const actionItems: {
@@ -107,7 +109,9 @@ const actionItems: {
 export default function Navbar() {
   const pathname = usePathname();
 
-  const { isSignedIn } = useUser();
+  const userData = useUser();
+  const { isSignedIn } = userData;
+  const userRole = userData?.user?.publicMetadata?.role;
 
   const [isOpen, setIsOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(true);
@@ -175,9 +179,21 @@ export default function Navbar() {
           <NavigationMenu className={"hidden gap-2 2xl:flex 2xl:items-center"}>
             <NavigationMenuList>
               {navItems
-                .filter(
-                  (item) => (item.protected && isSignedIn) ?? !item.protected,
-                )
+                .filter((item) => {
+                  // Show admin items only to admins
+                  if (item.admin) {
+                    return (
+                      isSignedIn &&
+                      (userRole === "admin" || userRole === "moderator")
+                    );
+                  }
+                  // Show protected items only to signed-in users
+                  if (item.protected) {
+                    return isSignedIn;
+                  }
+                  // Show public items to everyone
+                  return true;
+                })
                 .map((item) => (
                   <NavigationMenuItem
                     key={item.title}
@@ -247,9 +263,21 @@ export default function Navbar() {
         >
           <NavigationMenuList className="mt-14 flex flex-col items-start gap-2">
             {navItems
-              .filter(
-                (item) => (item.protected && isSignedIn) ?? !item.protected,
-              )
+              .filter((item) => {
+                // Show admin items only to admins
+                if (item.admin) {
+                  return (
+                    isSignedIn &&
+                    (userRole === "admin" || userRole === "moderator")
+                  );
+                }
+                // Show protected items only to signed-in users
+                if (item.protected) {
+                  return isSignedIn;
+                }
+                // Show public items to everyone
+                return true;
+              })
               .map((item) =>
                 item.content ? (
                   <NavigationMenuItem
@@ -323,8 +351,8 @@ export default function Navbar() {
           }`}
         >
           <div className="m-auto text-center">
-            <SVGPhone className="mr-3 inline" width="20" height="20" /> Apelează 
-            în paralel și <b>112</b>, dacă te afli în pericol sau dacă observi 
+            <SVGPhone className="mr-3 inline" width="20" height="20" /> Apelează
+            în paralel și <b>112</b>, dacă te afli în pericol sau dacă observi
             un animal rănit de talie mai mare (căprior, cerb, vulpe, lup, urs),
             din considerente legale.
           </div>
