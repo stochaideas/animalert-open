@@ -20,24 +20,24 @@ export class S3Service {
       return this.s3;
     }
 
-  private createS3Client() {
-    const isDev = env.NODE_ENV === "development";
+  // private createS3Client() {
+  //   const isDev = env.NODE_ENV === "development";
     const region = requireServerEnv("AWS_REGION", env.AWS_REGION);
 
     const config: S3ClientConfig = {
-      region: env.AWS_REGION,
-      forcePathStyle: isDev, // critical for LocalStack
-      endpoint: isDev ? env.AWS_ENDPOINT_URL_S3 : undefined,
-      credentials:
-        env.NODE_ENV === "development"
-          ? {
-              accessKeyId: env.AWS_ACCESS_KEY_ID,
-              secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-            }
-          : undefined,
-    };
+    //   region: env.AWS_REGION,
+    //   forcePathStyle: isDev, // critical for LocalStack
+    //   // endpoint: isDev ? env.AWS_ENDPOINT_URL_S3 : undefined,
+    //   credentials:
+    //     env.NODE_ENV === "development"
+    //       ? {
+    //           accessKeyId: env.AWS_ACCESS_KEY_ID,
+    //           secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+    //         }
+    //       : undefined,
+    // };
 
-    return new S3Client(config);
+    // return new S3Client(config);
       region,
     };
 
@@ -152,20 +152,22 @@ export class S3Service {
       ContentType: input.fileType,
     });
 
-    await client.send(command);
+    // await client.send(command);
 
-    const signedUrl = await getSignedUrl(client, command, { expiresIn: 60 });
+    // Generate the signed URL - valid for 3 minutes; adjust as needed; max is 7 days (604800 seconds)
+    // beware of security implications of long-lived URLs; shorter is generally better
+    const signedUrl = await getSignedUrl(client, command, { expiresIn: 180 });
 
       // In dev, getSignedUrl uses the internal Docker host "localstack",
       // which the browser cannot resolve. Replace it with localhost.
-      const url =
-          env.NODE_ENV === "development"
-              ? signedUrl.replace(
-                  env.AWS_ENDPOINT_URL_S3,
-                  env.AWS_S3_PUBLIC_ENDPOINT ?? "http://localhost:4566",
-              )
-              : signedUrl;
+      // const url =
+      //     env.NODE_ENV === "development"
+      //         ? signedUrl.replace(
+      //             env.AWS_ENDPOINT_URL_S3,
+      //             env.AWS_S3_PUBLIC_ENDPOINT ?? "http://localhost:4566",
+      //         )
+      //         : signedUrl;
 
-      return { key, url };
+      return { key, url: signedUrl };
   }
 }

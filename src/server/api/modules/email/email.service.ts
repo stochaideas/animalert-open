@@ -21,13 +21,9 @@ export class EmailService {
       });
       return;
     }
-  // private getTransporter() {
-  //   if (this.transporter) {
-  //     return this.transporter;
-  //   }
 
-  //   const user = requireServerEnv("EMAIL_USER", env.EMAIL_USER);
-  //   const pass = requireServerEnv("EMAIL_PASS", env.EMAIL_PASS);
+    const user = requireServerEnv("EMAIL_USER", env.EMAIL_USER);
+    const pass = requireServerEnv("EMAIL_PASS", env.EMAIL_PASS);
 
     this.transporter = nodemailer.createTransport({
       service: env.NODEMAILER_SERVICE ?? "gmail",
@@ -36,10 +32,14 @@ export class EmailService {
         pass,
       },
     });
-
-    return this.transporter;
   }
 
+  private getTransporter() {
+    if (this.transporter) {
+      return this.transporter;
+    }
+  }
+  
   /**
    * Sends an email using configured transporter
    */
@@ -56,6 +56,11 @@ export class EmailService {
       );
     }
 
+    if (!transporter) {
+      const errorMessage = "Email transporter is not configured.";
+      throw new Error(errorMessage);
+    }
+
     await transporter.sendMail({
       from: sender,
       to: data.to,
@@ -64,6 +69,6 @@ export class EmailService {
       html: data.html,
       attachments: data.attachments,
     });
-    console.log("Email sent successfully");
+    console.log("Email sent successfully. To:", data.to, "Subject:", data.subject);
   }
 }
