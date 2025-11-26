@@ -42,5 +42,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
+.docker/.*
+
 # idea files
 .idea
+# clerk configuration (can include secrets)
+/.clerk/
