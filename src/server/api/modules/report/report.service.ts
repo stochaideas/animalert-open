@@ -233,6 +233,8 @@ export class ReportService {
               receiveUpdates: data.report.receiveUpdates,
               imageKeys: data.report.imageKeys,
               conversation: data.report.conversation,
+              victimStatusInternal: data.report.victimStatusInternal,
+              victimStatusPublic: data.report.victimStatusPublic,
             })
             .returning();
         }
