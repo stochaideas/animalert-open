@@ -50,9 +50,8 @@ import { COUNTIES } from "../../constants/counties";
 
 export default function Sesizari() {
   const MAX_SIZE_MB = 10;
-  const [petitionTemplate, setPetitionTemplate] = useState<string | undefined>(
-    undefined,
-  );
+  const [templateHtml, setTemplateHtml] = useState<string | undefined>();
+  const [previewHtml, setPreviewHtml] = useState<string | undefined>();
   const [templateTypes, setTemplateTypes] = useState<PetitionType[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -113,8 +112,12 @@ export default function Sesizari() {
   );
 
   useEffect(() => {
-    if (templateData) {
-      setPetitionTemplate(templateData.html);
+    if (templateData?.html) {
+      setTemplateHtml(templateData.html);
+      setPreviewHtml(undefined);
+    } else {
+      setTemplateHtml(undefined);
+      setPreviewHtml(undefined);
     }
   }, [templateData]);
 
@@ -127,14 +130,14 @@ export default function Sesizari() {
   }, [templateType]);
 
   function onPreviewClick() {
-    if (petitionTemplate) {
+    if (templateHtml) {
       const formData = form.getValues();
       const filledTemplate = fillTemplate(
-        petitionTemplate,
+        templateHtml,
         formData,
         petitionPlaceholderMap,
       );
-      setPetitionTemplate(filledTemplate);
+      setPreviewHtml(filledTemplate);
     } else {
       toast.error(
         "A apărut o eroare la crearea petiției dvs. Vă rugăm să încercați din nou, mai târziu. Dacă problema persistă, vă rugăm să o raportați in formularul de contact!",
@@ -165,14 +168,15 @@ export default function Sesizari() {
       });
 
       if (result?.success) {
-        toast("Petiția a fost generată cu succes!");
+        const publicId = result.publicId ? ` (ID public: ${result.publicId})` : "";
+        toast(`Petitia a fost trimisa spre validare${publicId}.`);
         form.reset();
         setSelectedFiles([]);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
       } else {
-        toast.error("Eroare la generarea petiției.");
+        toast.error("Eroare la generarea petitiei.");
       }
     } catch (error) {
       toast.error(
@@ -687,7 +691,7 @@ export default function Sesizari() {
               onClick={sendAndSave}
               disabled={!confidentiality || uploading || sendDisabled}
             >
-              Trimite
+              Trimite spre validare
             </Button>
 
             <Dialog>
@@ -695,7 +699,7 @@ export default function Sesizari() {
                 <Button
                   variant="neutral"
                   onClick={onPreviewClick}
-                  disabled={!petitionTemplate}
+                  disabled={!templateHtml}
                 >
                   Previzualizare document
                 </Button>
@@ -710,7 +714,7 @@ export default function Sesizari() {
 
                 <iframe
                   className="h-[75vh] w-full rounded-s border shadow-md"
-                  srcDoc={petitionTemplate}
+                  srcDoc={previewHtml ?? templateHtml ?? ""}
                 />
 
                 <DialogFooter>
@@ -721,7 +725,7 @@ export default function Sesizari() {
                     disabled={!confidentiality || uploading || sendDisabled}
                     onClick={sendAndSave}
                   >
-                    Salveaza si trimite
+                    Trimite spre validare
                   </Button>
                 </DialogFooter>
               </DialogContent>
