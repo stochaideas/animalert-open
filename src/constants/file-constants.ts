@@ -12,14 +12,14 @@ export const BASIC_IMAGE_TYPES = [
   "image/tiff",
   "image/bmp",
   "image/heic",
-]
+];
 
 export const ALL_IMAGE_TYPES_ORD1 = [
   ...BASIC_IMAGE_TYPES,
   "image/heif",
   "image/avif",
   "image/x-icon",
-  "image/vnd.microsoft.icon", 
+  "image/vnd.microsoft.icon",
   "image/tga",
   "image/jp2",
   "image/ktx",
@@ -38,19 +38,16 @@ export const ALL_IMAGE_TYPES_ORD1 = [
   "image/xwd",
 ];
 
-export const ACCEPTED_IMAGE_TYPES = [
-  ...BASIC_IMAGE_TYPES,
-]
+export const ACCEPTED_IMAGE_TYPES = [...BASIC_IMAGE_TYPES];
 
 /* VIDEO TYPES */
-export const BASIC_VIDEO_TYPES=
-[
+export const BASIC_VIDEO_TYPES = [
   "video/mp4",
-  "video/mpeg", 
+  "video/mpeg",
   "video/quicktime",
   "video/webm",
   "video/x-matroska",
-]
+];
 export const ALL_VIDEO_TYPES_ORD2 = [
   ...BASIC_VIDEO_TYPES,
   "video/avi",
@@ -61,11 +58,9 @@ export const ALL_VIDEO_TYPES_ORD2 = [
   "video/x-ms-wmv",
   "video/x-ms-asf",
   "video/ogg",
-]
-
-export const ACCEPTED_VIDEO_TYPES = [
-  ...BASIC_VIDEO_TYPES,
 ];
+
+export const ACCEPTED_VIDEO_TYPES = [...BASIC_VIDEO_TYPES];
 
 /* TEXT TYPES */
 export const ALL_TEXT_TYPES_ORD3 = [
@@ -79,21 +74,19 @@ export const ALL_TEXT_TYPES_ORD3 = [
   "text/plain",
 ];
 
-export const ACCEPTED_TEXT_TYPES = [
-  ...ALL_TEXT_TYPES_ORD3,
-]
+export const ACCEPTED_TEXT_TYPES = [...ALL_TEXT_TYPES_ORD3];
 
 /* PROGRAMMING TYPES */
 export const USUALPROGRAMMING_TYPES = [
   "text/csv",
   "application/json",
   "application/xml",
-]
+];
 
 export const ALLPROGRAMMING_TYPES_ORD5 = [
   ...USUALPROGRAMMING_TYPES,
   "text/html",
-  "text/css", 
+  "text/css",
   "text/markdown",
   "application/javascript",
   "application/x-python-code",
@@ -140,7 +133,7 @@ export const ALLPROGRAMMING_TYPES_ORD5 = [
   "application/x-assembly",
   "application/x-vhdl",
   "application/x-verilog",
-  "application/x-awk",  
+  "application/x-awk",
   "application/x-sed",
   "application/x-m4",
   "application/x-autoconf",
@@ -166,41 +159,37 @@ export const ALLPROGRAMMING_TYPES_ORD5 = [
   "application/x-forth",
   "application/x-pascal",
   "application/x-delphi",
-  "application/x-modula-2", 
-]
+  "application/x-modula-2",
+];
 
-export const ACCEPTED_PROGRAMMING_TYPES = [
-  ...USUALPROGRAMMING_TYPES,
-]
+export const ACCEPTED_PROGRAMMING_TYPES = [...USUALPROGRAMMING_TYPES];
 
 /* ARCHIVE TYPES */
 export const ALL_ARCHIVE_TYPES_ORD4 = [
   "application/zip",
-  "application/x-rar-compressed",  
+  "application/x-rar-compressed",
   "application/x-7z-compressed",
   "application/x-tar",
   "application/gzip",
   "application/x-bzip2",
-]
+];
 
-export const ACCEPTED_ARCHIVE_TYPES = [
-  ...ALL_ARCHIVE_TYPES_ORD4,
-]
+export const ACCEPTED_ARCHIVE_TYPES = [...ALL_ARCHIVE_TYPES_ORD4];
 
 /* ALL FILE TYPES */
-export const ALL_ALLFILE_TYPES_ORD0 = [ 
+export const ALL_ALLFILE_TYPES_ORD0 = [
   ...ALL_IMAGE_TYPES_ORD1,
   ...ALL_VIDEO_TYPES_ORD2,
   ...ALL_TEXT_TYPES_ORD3,
   ...ALL_ARCHIVE_TYPES_ORD4,
-  ...ALLPROGRAMMING_TYPES_ORD5
+  ...ALLPROGRAMMING_TYPES_ORD5,
 ];
 
 /* Combine all accepted types into one array */
-export const ACCEPTED_ALLFILE_TYPES = [ 
+export const ACCEPTED_ALLFILE_TYPES = [
   ...ACCEPTED_IMAGE_TYPES,
   ...ACCEPTED_VIDEO_TYPES,
   ...ACCEPTED_TEXT_TYPES,
   ...ACCEPTED_ARCHIVE_TYPES,
-  ...ACCEPTED_PROGRAMMING_TYPES
+  ...ACCEPTED_PROGRAMMING_TYPES,
 ];

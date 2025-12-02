@@ -4,7 +4,11 @@ import { pgTable, index, pgEnum } from "drizzle-orm/pg-core";
 import { users } from "../user/user.schema";
 import { z } from "zod";
 import { phoneNumberRefine } from "~/lib/phone";
-import { REPORT_TYPES, VICTIM_STATUS_INTERNAL, VICTIM_STATUS_PUBLIC } from "~/constants/report-types";
+import {
+  REPORT_TYPES,
+  VICTIM_STATUS_INTERNAL,
+  VICTIM_STATUS_PUBLIC,
+} from "~/constants/report-types";
 
 const reportTypesArray = Object.values(REPORT_TYPES);
 
@@ -36,8 +40,12 @@ export const reports = pgTable(
       .default(sql`gen_random_uuid()`),
     reportNumber: d.serial("report_number").unique(),
     reportType: reportTypeEnum("report_type").notNull().default("INCIDENT"),
-    victimStatusInternal: victimStatusInternalEnum("victim_status_internal").notNull().default("UNKNOWN"),
-    victimStatusPublic: victimStatusPublicEnum("victim_status_public").notNull().default("NECUNOSCUT"),
+    victimStatusInternal: victimStatusInternalEnum("victim_status_internal")
+      .notNull()
+      .default("UNKNOWN"),
+    victimStatusPublic: victimStatusPublicEnum("victim_status_public")
+      .notNull()
+      .default("NECUNOSCUT"),
     userId: d
       .uuid("user_id")
       .notNull()
@@ -76,8 +84,6 @@ export const upsertReportWithUserSchema = z.object({
   report: z.object({
     id: z.string().optional(),
     reportType: z.nativeEnum(REPORT_TYPES),
-    victimStatusInternal: z.nativeEnum(VICTIM_STATUS_INTERNAL),
-    victimStatusPublic: z.nativeEnum(VICTIM_STATUS_PUBLIC),
     receiveUpdates: z.boolean().default(false),
     latitude: z.number().optional(),
     longitude: z.number().optional(),

@@ -31,7 +31,10 @@ export default function Disclaimer({
             apropiată clinică veterinară parteneră - clinica Veterinarius.
           </li>
           <li>
-            In cazul in care <span className="italic">Transylvania Wildlife Rescue</span> nu te contacteaza in cateva ore: USAMV Cluj-Napoca oferă tratament gratuit pentru animale sălbatice
+            In cazul in care{" "}
+            <span className="italic">Transylvania Wildlife Rescue</span> nu te
+            contacteaza in cateva ore: USAMV Cluj-Napoca oferă tratament gratuit
+            pentru animale sălbatice
           </li>
         </ul>
         <br />

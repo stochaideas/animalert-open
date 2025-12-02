@@ -118,16 +118,16 @@ export class S3Service {
 
     const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
 
-      // In dev, getSignedUrl uses the internal Docker host "localstack",
-      // which the browser cannot resolve. Replace it with localhost.
-      const url =
-          env.NODE_ENV === "development"
-              ? signedUrl.replace(
-                  env.AWS_ENDPOINT_URL_S3,
-                  env.AWS_S3_PUBLIC_ENDPOINT ?? "http://localhost:4566",
-              )
-              : signedUrl;
+    // In dev, getSignedUrl uses the internal Docker host "localstack",
+    // which the browser cannot resolve. Replace it with localhost.
+    const url =
+      env.NODE_ENV === "development"
+        ? signedUrl.replace(
+            env.AWS_ENDPOINT_URL_S3,
+            env.AWS_S3_PUBLIC_ENDPOINT ?? "http://localhost:4566",
+          )
+        : signedUrl;
 
-      return { key, url };
+    return { key, url };
   }
 }

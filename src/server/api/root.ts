@@ -8,6 +8,7 @@ import { geolocationRouter } from "./modules/geolocation/geolocation.router";
 import { s3Router } from "./modules/s3/s3.router";
 import { feedbackRouter } from "./modules/feedback/feedback.router";
 import { reportRouter } from "./modules/report/report.router";
+import { adminReportRouter } from "./modules/admin/report/admin-report.router";
 
 /**
  * This is the primary router for your server.
@@ -23,6 +24,7 @@ export const appRouter = createTRPCRouter({
   feedback: feedbackRouter,
   geolocation: geolocationRouter,
   s3: s3Router,
+  adminReport: adminReportRouter,
 });
 
 // export type definition of API

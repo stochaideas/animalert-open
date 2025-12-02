@@ -10,14 +10,14 @@ export enum IMPORTANCE_LEVELS {
   //WARNING = "",
   CRITICAL = "CRITICAL",
   Emergency = "EMERGENCY", // dark red
-  Alert = "Alert",  // red  
-  Critical= "Critical", // orange
-  //Warning = "", // yellow  
+  Alert = "Alert", // red
+  Critical = "Critical", // orange
+  //Warning = "", // yellow
   Problem /*[Error]*/ = "Problem", // orange pink
-  Warning = "WARNING", // violet 
+  Warning = "WARNING", // violet
   Notice = "Notice", // blue
   Information = "Information", // green
-  Debug = "Debug", // grey    
+  Debug = "Debug", // grey
 }
 
 export enum URGENCY_LEVELS {
@@ -26,7 +26,7 @@ export enum URGENCY_LEVELS {
   FUTURE = "FUTURE",
   PAST = "PAST",
   UNKNOWN = "UNKNOWN",
-} 
+}
 export enum CERTAINTY_LEVELS {
   OBSERVED = "OBSERVED",
   LIKELY = "LIKELY",
@@ -49,7 +49,7 @@ export enum PRIVACY_LEVELS {
 }
 export enum VERIFICATION_LEVELS {
   UNVERIFIED = "UNVERIFIED",
-  PENDING = "PENDING",  
+  PENDING = "PENDING",
   VERIFIED = "VERIFIED",
   REJECTED = "REJECTED",
   UNDER_REVIEW = "UNDER_REVIEW",
@@ -74,11 +74,11 @@ export enum PRIORITY_LEVELS {
 export enum SEVERITY_LEVELS {
   MINOR = "MINOR",
   MODERATE = "MODERATE",
-  SEVERE = "SEVERE",  
+  SEVERE = "SEVERE",
   CRITICAL = "CRITICAL",
   EXTREME = "EXTREME",
   CATASTROPHIC = "CATASTROPHIC",
-} 
+}
 export enum CONFIRMATION_LEVELS {
   UNCONFIRMED = "UNCONFIRMED",
   CONFIRMED = "CONFIRMED",
@@ -90,7 +90,7 @@ export enum CONFIRMATION_LEVELS {
   RESOLVED = "RESOLVED",
 }
 export enum ANIMAL_ALERT_LEVELS {
-  WATCH = "WATCH",  
+  WATCH = "WATCH",
   ADVISORY = "ADVISORY",
   WARNING = "WARNING",
   EMERGENCY = "EMERGENCY",
@@ -122,7 +122,7 @@ export enum VICTIM_STATUS_PUBLIC {
   MISSING = "DISPARUT",
   DECEASED = "DECEDAT",
   UNDER_INVESTIGATION = "IN_CURS_DE_INVESTIGARE",
-  
+
   UNKNOWN = "NECUNOSCUT",
 }
 
@@ -159,7 +159,7 @@ export enum ANIMAL_BEHAVIOR {
 }
 
 export enum ANIMAL_MEDICAL_CONDITION {
-  HEALTHY = "HEALTHY",  
+  HEALTHY = "HEALTHY",
   INJURED = "INJURED",
   SICK = "SICK",
   RECOVERING = "RECOVERING",
@@ -200,7 +200,7 @@ export enum EVENT_TYPES {
 }
 
 export enum ANIMAL_TYPES {
-  MAMMAL = "MAMMAL",  
+  MAMMAL = "MAMMAL",
   BIRD = "BIRD",
   REPTILE = "REPTILE",
   AMPHIBIAN = "AMPHIBIAN",
@@ -218,7 +218,7 @@ export enum PLANT_TYPES {
   TREE = "TREE",
   SHRUB = "SHRUB",
   HERB = "HERB",
-  GRASS = "GRASS",  
+  GRASS = "GRASS",
   FUNGUS = "FUNGUS",
   ALGAE = "ALGAE",
   OTHER_PLANT = "OTHER_PLANT",
@@ -230,13 +230,13 @@ export enum ENVIRONMENT_TYPES {
   FIRE = "FIRE",
   LAND_USE_CHANGE = "LAND_USE_CHANGE",
   OTHER_ENVIRONMENTAL = "OTHER_ENVIRONMENTAL",
-} 
+}
 export enum REPORT_CATEGORIES {
   ANIMAL = "ANIMAL",
   PLANT = "PLANT",
   ENVIRONMENT = "ENVIRONMENT",
   OTHER = "OTHER",
-} 
+}
 export enum OTHER_TYPES {
   GENERAL = "GENERAL",
   FEEDBACK = "FEEDBACK",
@@ -247,7 +247,7 @@ export enum OTHER_TYPES {
 }
 export enum ALL_TYPES {
   // Animal Types
-  MAMMAL = "MAMMAL",  
+  MAMMAL = "MAMMAL",
   BIRD = "BIRD",
   REPTILE = "REPTILE",
   AMPHIBIAN = "AMPHIBIAN",
@@ -265,7 +265,7 @@ export enum ALL_TYPES {
   TREE = "TREE",
   SHRUB = "SHRUB",
   HERB = "HERB",
-  GRASS = "GRASS",  
+  GRASS = "GRASS",
   FUNGUS = "FUNGUS",
   ALGAE = "ALGAE",
   OTHER_PLANT = "OTHER_PLANT",
@@ -285,4 +285,4 @@ export enum ALL_TYPES {
   COMPLAINT = "COMPLAINT",
   APP_ISSUE = "APP_ISSUE",
   OTHER_REPORT = "OTHER_REPORT",
-} 
+}
