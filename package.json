@@ -70,7 +70,7 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/eslintrc": "^3.3.3",
     "@tailwindcss/postcss": "^4.0.15",
     "@types/google-libphonenumber": "^7.4.30",
     "@types/lodash": "^4.17.17",
