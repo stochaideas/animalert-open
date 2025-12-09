@@ -25,6 +25,16 @@ import {
   type PostgresError,
 } from "~/server/db/postgres-error";
 import type { User } from "@clerk/nextjs/server";
+import {
+  renderAdminEmailHtml,
+  renderAdminEmailText,
+  renderUserEmailHtml,
+  renderUserEmailText,
+  renderAdminSms,
+  type AdminEmailTemplateData,
+  type UserEmailTemplateData,
+  type AdminSmsTemplateData,
+} from "./report.templates";
 
 /**
  * Service for handling report creation, updates, notifications, and file retrieval.
@@ -505,127 +515,51 @@ export class ReportService {
     const { subjectPrefix, adminTitle, userTitle, userThanks } =
       this.getEmailTemplates(reportType as REPORT_TYPES, actionType);
 
+    // Prepare template data for admin email
+    const adminTemplateData: AdminEmailTemplateData = {
+      adminTitle,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        email: user.email,
+        receiveOtherReportUpdates: user.receiveOtherReportUpdates,
+      },
+      report: {
+        reportNumber: report.reportNumber,
+        reportType,
+        receiveUpdates: report.receiveUpdates,
+        address: report.address ?? null,
+        latitude: latitude,
+        longitude: longitude,
+      },
+      hasCoordinates: !!(latitude && longitude),
+      mapsUrl,
+      imagesCount: imagesCount ?? 0,
+      actualImagesCount,
+      actualVideosCount,
+      hasImages: actualImagesCount > 0,
+      hasVideos: actualVideosCount > 0,
+      hasFiles: !!(imagesCount && imagesCount > 0),
+      singleImage: actualImagesCount === 1,
+      singleVideo: actualVideosCount === 1,
+      reportDetailsUrl,
+      createdAt: report.createdAt ? format(report.createdAt) : "N/A",
+      updatedAt: report.updatedAt ? format(report.updatedAt) : "N/A",
+      hasConversation: conversationArray.length > 0,
+      conversationArray: conversationArray.map((item) => ({
+        question: item.question,
+        answer: item.answer,
+        isArray: Array.isArray(item.answer),
+      })),
+    };
+
     /*
       EMAIL TO BE SENT TO ADMIN
     */
 
-    const adminHtml = `
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${adminTitle}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-</head>
-<body style="margin:0;padding:0;background:#f6f6f6;">
-  <div style="max-width:600px;margin:24px auto;background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);font-family:'Poppins',Arial,sans-serif;overflow:hidden;">
-    <div style="background:oklch(84.42% 0.172 84.93);padding:32px 0;text-align:center;">
-      <span style="font-family:'Baloo 2',Arial,sans-serif;font-size:2rem;font-weight:800;color:oklch(22.64% 0 0);letter-spacing:-1px;">
-        ${adminTitle}
-      </span>
-    </div>
-    <div style="padding:32px;">
-      <!-- User Info -->
-      <div style="margin-bottom:24px;">
-        <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-          👤 Informații utilizator
-        </div>
-        <ul style="padding-left:18px;margin:0;list-style-type:none;">
-          <li><strong>Nume complet:</strong> ${user.lastName} ${user.firstName}</li>
-          <li><strong>Telefon:</strong> <a href="tel:${user.phone}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">${user.phone}</a></li>
-          <li><strong>Email:</strong> ${user.email ?? "Nespecificat"}</li>
-          <li><strong>Primește alte actualizări:</strong> ${user.receiveOtherReportUpdates ? "Da" : "Nu"}</li>
-        </ul>
-      </div>
-      <!-- Report Info -->
-      <div style="margin-bottom:24px;">
-        <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-          📍 Detalii raport
-        </div>
-        <ul style="padding-left:18px;margin:0;list-style-type:none;">
-          <li><strong>Număr raport:</strong> #${report.reportNumber}</li>
-          <li><strong>Tip raport:</strong> ${reportType}</li>
-          <li><strong>Status actualizări:</strong> ${report.receiveUpdates ? "Activat" : "Dezactivat"}</li>
-          <li>
-            <strong>Adresă:</strong> ${report.address ?? "Nespecificată"}
-            ${
-              report.latitude && report.longitude
-                ? `<br><a href="https://www.google.com/maps?q=${report.latitude},${report.longitude}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">🗺️ Vezi pe Google Maps</a>`
-                : ""
-            }
-          </li>
-          <li><strong>Fișiere atașate:</strong> ${imagesCount ?? 0} total${actualImagesCount > 0 ? ` (${actualImagesCount} imagin${actualImagesCount === 1 ? "e" : "i"})` : ""}${actualVideosCount > 0 ? ` (${actualVideosCount} videoclip${actualVideosCount === 1 ? "" : "uri"})` : ""}
-            ${imagesCount && imagesCount > 0 ? `<br><a href="${reportDetailsUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">📁 Vizualizează raportul și fișierele</a>` : ""}
-          </li>
-          <li><strong>Data creării:</strong> ${report.createdAt ? format(report.createdAt) : "N/A"}</li>
-          <li><strong>Ultima actualizare:</strong> ${report.updatedAt ? format(report.updatedAt) : "N/A"}</li>
-        </ul>
-      </div>
-      <!-- Chatbot Conversation as List -->
-      <div style="margin-bottom:24px;">
-        <div style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;">
-          💬 Răspunsuri utilizator (chat-bot)
-        </div>
-        <ul style="padding-left:18px;margin:0;">
-          ${
-            conversationArray.length > 0
-              ? conversationArray
-                  .map(
-                    (item, idx) => `
-                      <li style="margin-bottom:12px;">
-                        <div style="font-weight:600;color:oklch(42.58% 0.113 130.14);margin-bottom:4px;">
-                          ${item?.question ?? `Pasul ${idx + 1}`}
-                        </div>
-                        <div>
-                          ${
-                            Array.isArray(item.answer)
-                              ? item.answer
-                                  .map(
-                                    (a) =>
-                                      `<span style="display:inline-block;margin-right:8px;">${a}</span>`,
-                                  )
-                                  .join("")
-                              : item.answer
-                          }
-                        </div>
-                      </li>
-                    `,
-                  )
-                  .join("")
-              : `<li style="padding:6px 0;">Niciun răspuns înregistrat.</li>`
-          }
-        </ul>
-      </div>
-      <div style="font-size:0.95rem;color:#888;text-align:center;margin-top:32px;">
-        Mulțumim pentru implicare!<br>Echipa AnimAlert
-      </div>
-    </div>
-  </div>
-</body>
-</html>
-`.trim();
-
-    const adminEmailText = `
-${adminTitle}
-----------------
-Utilizator: ${user.lastName} ${user.firstName}
-Telefon: ${user.phone}
-Email: ${user.email ?? "Nespecificat"}
-Actualizări: ${user.receiveOtherReportUpdates ? "Da" : "Nu"}
-
-Detalii raport
-----------------
-Număr raport: #${report.reportNumber}
-Tip raport: ${reportType}
-Coordonate: ${latitude ?? "N/A"}, ${longitude ?? "N/A"}
-${mapsUrl ? `Harta: ${mapsUrl}` : ""}
-Adresă: ${report.address ?? "Nespecificată"}
-Fișiere atașate: ${imagesCount ?? 0} total${actualImagesCount > 0 ? ` (${actualImagesCount} imagini)` : ""}${actualVideosCount > 0 ? ` (${actualVideosCount} videoclipuri)` : ""}
-${imagesCount && imagesCount > 0 ? `Link raport și fișiere: ${reportDetailsUrl}` : ""}
-Data creării: ${report.createdAt ? format(report.createdAt) : "N/A"}
-Ultima actualizare: ${report.updatedAt ? format(report.updatedAt) : "N/A"}
-          `.trim();
+    const adminHtml = renderAdminEmailHtml(adminTemplateData);
+    const adminEmailText = renderAdminEmailText(adminTemplateData);
 
     try {
       await this.emailService.sendEmail({
@@ -667,70 +601,32 @@ Ultima actualizare: ${report.updatedAt ? format(report.updatedAt) : "N/A"}
       const myReportsUrl = `${baseUrl}/incidentele-mele`;
       const contactUrl = `${baseUrl}/contact`;
 
-      const userHtml = `
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${userTitle} - AnimAlert</title>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-</head>
-<body style="margin:0;padding:0;background:#f6f6f6;">
-  <div style="max-width:600px;margin:24px auto;background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);font-family:'Poppins',Arial,sans-serif;overflow:hidden;">
-    <div style="background:oklch(84.42% 0.172 84.93);padding:32px 0;text-align:center;">
-      <span style="font-family:'Baloo 2',Arial,sans-serif;font-size:2rem;font-weight:800;color:oklch(22.64% 0 0);letter-spacing:-1px;">
-        ${userTitle}
-      </span>
-    </div>
-    <div style="padding:32px;">
-      <div style="font-size:1.1rem;margin-bottom:24px;">
-        Bună, <strong>${user.firstName}</strong>!<br><br>
-        ${userThanks} Am primit detaliile tale și vom reveni cu actualizări dacă este necesar.
-      </div>
-      <div style="margin:24px 0;padding:16px;background:#f9f9f9;border-radius:8px;">
-        <div style="font-weight:600;margin-bottom:12px;color:oklch(42.58% 0.113 130.14);">🔗 Link-uri utile:</div>
-        <ul style="margin:0;padding-left:20px;">
-          <li style="margin-bottom:8px;">
-            <a href="${myReportsUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">Vizualizează rapoartele tale</a>
-          </li>
-          <li style="margin-bottom:8px;">
-            <a href="${contactUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">Contactează-ne</a>
-          </li>
-          ${imagesCount && imagesCount > 0 ? `<li style="margin-bottom:8px;"><a href="${reportDetailsUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">Vezi raportul și fișierele atașate</a></li>` : ""}
-        </ul>
-      </div>
-      <div style="font-size:0.95rem;color:#888;text-align:center;margin-top:32px;">
-        Dacă ai întrebări sau dorești să adaugi detalii, răspunde la acest email sau <a href="${contactUrl}" style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;">contactează-ne</a>.<br>
-        Mulțumim pentru implicare!<br>
-        Echipa AnimAlert
-      </div>
-    </div>
-  </div>
-</body>
-</html>
-`.trim();
+      // Prepare template data for user email
+      const userTemplateData: UserEmailTemplateData = {
+        userTitle,
+        userThanks,
+        actionType,
+        user: {
+          firstName: user.firstName,
+        },
+        report: {
+          reportNumber: report.reportNumber,
+        },
+        myReportsUrl,
+        contactUrl,
+        reportDetailsUrl,
+        hasFiles: !!(imagesCount && imagesCount > 0),
+      };
+
+      const userHtml = renderUserEmailHtml(userTemplateData);
+      const userEmailText = renderUserEmailText(userTemplateData);
 
       try {
         await this.emailService.sendEmail({
           to: user.email,
           subject: `✅ ${subjectPrefix} ${actionType} - AnimAlert`,
           html: userHtml,
-          text: `
-Salut, ${user.firstName},
-
-${userThanks}
-Raportul tău (#${report.reportNumber}) a fost ${actionType} și va fi analizat în cel mai scurt timp.
-
-Link-uri utile:
-• Vizualizează rapoartele tale: ${myReportsUrl}
-• Contactează-ne: ${contactUrl}
-${imagesCount && imagesCount > 0 ? `• Vezi raportul și fișierele atașate: ${reportDetailsUrl}` : ""}
-
-Dacă ai nevoie de ajutor sau vrei să adaugi detalii, răspunde la acest email.
-
-Echipa AnimAlert
-    `.trim(),
+          text: userEmailText,
         });
       } catch (error) {
         console.error("Error sending user email:", error);
@@ -819,30 +715,22 @@ Echipa AnimAlert
       baseUrl = "https://stage.anim-alert.org";
     }
 
-    // Build base message
-    let message = `${typeLabel} #${data.reportNumber}\n`;
-    message += `${data.userName}\n`;
-    message += `Tel: ${data.userPhone}`;
-
+    // Truncate address if too long (keep first 30 chars)
+    let truncatedAddress: string | null = null;
     if (data.address) {
-      // Truncate address if too long (keep first 30 chars)
-      const addr =
+      truncatedAddress =
         data.address.length > 30
           ? data.address.substring(0, 27) + "..."
           : data.address;
-      message += `\nLoc: ${addr}`;
     }
 
-    // Add file counts if present
+    // Build file parts string
     const fileParts: string[] = [];
     if (data.imagesCount && data.imagesCount > 0) {
       fileParts.push(`${data.imagesCount} img`);
     }
     if (data.videosCount && data.videosCount > 0) {
       fileParts.push(`${data.videosCount} vid`);
-    }
-    if (fileParts.length > 0) {
-      message += `\n${fileParts.join(", ")}`;
     }
 
     // Generate URLs
@@ -854,20 +742,37 @@ Echipa AnimAlert
         ? `https://maps.google.com/?q=${data.latitude},${data.longitude}`
         : null;
 
+    // Prepare template data for SMS
+    const smsTemplateData: AdminSmsTemplateData = {
+      typeLabel,
+      reportNumber: data.reportNumber,
+      userName: data.userName,
+      userPhone: data.userPhone,
+      address: truncatedAddress,
+      hasFiles: fileParts.length > 0,
+      fileParts: fileParts.join(", "),
+      adminReportUrl: null,
+      mapsUrl: null,
+    };
+
+    // Render initial message to check length
+    let message = renderAdminSms(smsTemplateData);
+
     // Check if we can fit URLs (SMS limit is ~160 chars for single, ~300 for multi)
     // We'll use a limit of 280 chars to stay within 2 SMS segments
-    const currentLength = message.length;
-    const urlSpace = 280 - currentLength;
+    const urlSpace = 280 - message.length;
 
     // Add admin URL if it fits (need ~50 chars)
     if (adminReportUrl && urlSpace > 60) {
-      message += `\nAdmin: ${adminReportUrl}`;
+      smsTemplateData.adminReportUrl = adminReportUrl;
+      message = renderAdminSms(smsTemplateData);
     }
 
     // Add maps URL if it fits and there's still space (need ~50 chars)
     const remainingSpace = 280 - message.length;
     if (mapsUrl && remainingSpace > 60) {
-      message += `\nMaps: ${mapsUrl}`;
+      smsTemplateData.mapsUrl = mapsUrl;
+      message = renderAdminSms(smsTemplateData);
     }
 
     await this.smsService.sendSms({

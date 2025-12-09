@@ -1,0 +1,30 @@
+{{adminTitle}}
+---------------- Utilizator:
+{{user.lastName}}
+{{user.firstName}}
+Telefon:
+{{user.phone}}
+Email:
+{{#if user.email}}{{user.email}}{{else}}Nespecificat{{/if}}
+Actualizări:
+{{#if user.receiveOtherReportUpdates}}Da{{else}}Nu{{/if}}
+
+Detalii raport ---------------- Număr raport: #{{report.reportNumber}}
+Tip raport:
+{{report.reportType}}
+Coordonate:
+{{#if report.latitude}}{{report.latitude}}{{else}}N/A{{/if}},
+{{#if report.longitude}}{{report.longitude}}{{else}}N/A{{/if}}
+{{#if mapsUrl}}Harta: {{mapsUrl}}{{/if}}
+Adresă:
+{{#if report.address}}{{report.address}}{{else}}Nespecificată{{/if}}
+Fișiere atașate:
+{{imagesCount}}
+total{{#if hasImages}} ({{actualImagesCount}} imagini){{/if}}{{#if hasVideos}}
+  ({{actualVideosCount}}
+  videoclipuri){{/if}}
+{{#if hasFiles}}Link raport și fișiere: {{reportDetailsUrl}}{{/if}}
+Data creării:
+{{createdAt}}
+Ultima actualizare:
+{{updatedAt}}
