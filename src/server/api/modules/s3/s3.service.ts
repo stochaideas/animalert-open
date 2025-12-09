@@ -112,9 +112,8 @@ export class S3Service {
       Bucket: env.AWS_S3_BUCKET_NAME,
       Key: key,
       ContentType: input.fileType,
+      ContentLength: input.fileSize,
     });
-
-    await this.s3.send(command);
 
     const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
 
