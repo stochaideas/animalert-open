@@ -10,16 +10,16 @@ export class EmailService {
   private transporter: Transporter;
 
   constructor() {
-    if (env.NODE_ENV === "development") {
-      // If we are in dev mode, send all the mails to mailhog.
-      this.transporter = nodemailer.createTransport({
-        host: env.SMTP_HOST ?? "mailhog",
-        port: env.SMTP_PORT ?? 1025,
-        secure: false,
-        auth: undefined,
-      });
-      return;
-    }
+    // if (env.NODE_ENV === "development") {
+    //   // If we are in dev mode, send all the mails to mailhog.
+    //   this.transporter = nodemailer.createTransport({
+    //     host: env.SMTP_HOST ?? "mailhog",
+    //     port: env.SMTP_PORT ?? 1025,
+    //     secure: false,
+    //     auth: undefined,
+    //   });
+    //   return;
+    // }
     this.transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {

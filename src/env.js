@@ -20,8 +20,8 @@ export const env = createEnv({
     AWS_S3_PUBLIC_ENDPOINT: z.string().url().optional(),
 
     NODEMAILER_SERVICE: z.string(),
-    SMTP_HOST: z.string().optional(),
-    SMTP_PORT: z.coerce.number().optional(),
+    // SMTP_HOST: z.string().optional(),
+    // SMTP_PORT: z.coerce.number().optional(),
     EMAIL_ADMIN: z.string().email(),
     EMAIL_USER: z.string().email(),
     EMAIL_PASS: z.string(),
@@ -57,8 +57,8 @@ export const env = createEnv({
     AWS_S3_PUBLIC_ENDPOINT: process.env.AWS_S3_PUBLIC_ENDPOINT,
 
     NODEMAILER_SERVICE: process.env.NODEMAILER_SERVICE,
-    SMTP_HOST: process.env.SMTP_HOST,
-    SMTP_PORT: process.env.SMTP_PORT,
+    // SMTP_HOST: process.env.SMTP_HOST,
+    // SMTP_PORT: process.env.SMTP_PORT,
     EMAIL_ADMIN: process.env.EMAIL_ADMIN,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
