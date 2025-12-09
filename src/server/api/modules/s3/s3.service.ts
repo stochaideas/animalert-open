@@ -19,8 +19,11 @@ export class S3Service {
   }
 
   private createS3Client() {
+    // const isDev = env.NODE_ENV === "development";
     const config: S3ClientConfig = {
       region: env.AWS_REGION,
+      // forcePathStyle: isDev, // critical for LocalStack
+      // endpoint: isDev ? env.AWS_ENDPOINT_URL_S3 : undefined,
       credentials:
         env.NODE_ENV === "development"
           ? {
@@ -109,11 +112,20 @@ export class S3Service {
       Bucket: env.AWS_S3_BUCKET_NAME,
       Key: key,
       ContentType: input.fileType,
+      ContentLength: input.fileSize,
     });
 
-    await this.s3.send(command);
-
     const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
+
+    // In dev, getSignedUrl uses the internal Docker host "localstack",
+    // which the browser cannot resolve. Replace it with localhost.
+    // const url =
+    //   env.NODE_ENV === "development"
+    //     ? signedUrl.replace(
+    //         env.AWS_ENDPOINT_URL_S3,
+    //         env.AWS_S3_PUBLIC_ENDPOINT ?? "http://localhost:4566",
+    //       )
+    //     : signedUrl;
 
     return { key, url: signedUrl };
   }

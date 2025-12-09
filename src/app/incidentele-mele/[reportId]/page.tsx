@@ -129,6 +129,18 @@ export default function ReportDetailPage({
         )}
         <section className="mb-8 w-full max-w-2xl">
           <h2 className="text-heading-2 mt-8 mb-4">Locația raportului</h2>
+          {coordinates && (
+            <div className="mb-2">
+              <a
+                href={`https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline hover:text-blue-700"
+              >
+                Deschide în Google Maps
+              </a>
+            </div>
+          )}
           {coordinates ? (
             <div style={{ width: "100%", height: 300 }}>
               <GoogleMap
@@ -172,32 +184,76 @@ export default function ReportDetailPage({
                         </Link>
                       </span>
                     ) : (
-                      <Link
-                        href={file.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Image
-                          src={file.url}
-                          alt="Fișier încărcat"
-                          className="rounded-md"
-                          width={240}
-                          height={180}
-                          style={{ objectFit: "cover" }}
-                        />
-                      </Link>
+                      <>
+                        {file.type === "image/heic" ||
+                        file.url.endsWith(".heic") ? (
+                          <div>
+                            <span>
+                              Formatul HEIC nu este acceptat pentru
+                              previzualizare.
+                            </span>
+                            <br />
+                            <a
+                              href={file.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 underline"
+                              download
+                            >
+                              Descarcă Imagine HEIC
+                            </a>
+                          </div>
+                        ) : (
+                          <>
+                            <Link
+                              href={file.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Image
+                                src={file.url}
+                                alt="Fișier încărcat"
+                                className="rounded-md"
+                                width={240}
+                                height={180}
+                                style={{ objectFit: "cover" }}
+                              />
+                            </Link>
+                            <a
+                              href={file.url}
+                              className="text-blue-500 underline"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download
+                            >
+                              Descarcă Imagine
+                            </a>
+                          </>
+                        )}
+                      </>
                     )}
                   </>
                 ) : file.type.startsWith("video/") ? (
-                  <video
-                    src={file.url}
-                    width={240}
-                    height={180}
-                    controls
-                    className="rounded-md"
-                  >
-                    Browserul tău nu suportă tag-ul video.
-                  </video>
+                  <>
+                    <video
+                      src={file.url}
+                      width={240}
+                      height={180}
+                      controls
+                      className="rounded-md"
+                    >
+                      Browserul tău nu suportă tag-ul video.
+                    </video>
+                    <a
+                      href={file.url}
+                      className="text-blue-500 underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                    >
+                      Descarcă Video
+                    </a>
+                  </>
                 ) : (
                   <div>
                     <span>Previzualizare indisponibilă</span>
@@ -208,7 +264,7 @@ export default function ReportDetailPage({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Descarcă
+                      Descarcă Fișier
                     </a>
                   </div>
                 )}
