@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect } from "vitest";
 import { feedbackSchema } from "~/server/api/modules/feedback/feedback.schema";
 import { FEEDBACK_RATINGS } from "~/constants/feedback-ratings";

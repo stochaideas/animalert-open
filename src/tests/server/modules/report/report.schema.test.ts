@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect } from "vitest";
 import { upsertReportWithUserSchema } from "~/server/api/modules/report/report.schema";
 import { REPORT_TYPES } from "~/constants/report-types";
@@ -104,7 +105,7 @@ describe("upsertReportWithUserSchema", () => {
   });
 
   it("should accept optional user email", () => {
-    const { email, ...userRest } = validData.user;
+    const { email: _email, ...userRest } = validData.user;
     const result = upsertReportWithUserSchema.safeParse({
       ...validData,
       user: userRest,
@@ -113,7 +114,10 @@ describe("upsertReportWithUserSchema", () => {
   });
 
   it("should default receiveOtherReportUpdates to false", () => {
-    const { receiveOtherReportUpdates, ...userRest } = validData.user;
+    const {
+      receiveOtherReportUpdates: _receiveOtherReportUpdates,
+      ...userRest
+    } = validData.user;
     const result = upsertReportWithUserSchema.safeParse({
       ...validData,
       user: userRest,
@@ -125,7 +129,7 @@ describe("upsertReportWithUserSchema", () => {
   });
 
   it("should require report reportType", () => {
-    const { reportType, ...reportRest } = validData.report;
+    const { reportType: _reportType, ...reportRest } = validData.report;
     const result = upsertReportWithUserSchema.safeParse({
       ...validData,
       report: reportRest,
@@ -138,7 +142,7 @@ describe("upsertReportWithUserSchema", () => {
       ...validData,
       report: {
         ...validData.report,
-        reportType: "INVALID_TYPE" as any,
+        reportType: "INVALID_TYPE" as never,
       },
     });
     expect(result.success).toBe(false);
@@ -158,7 +162,7 @@ describe("upsertReportWithUserSchema", () => {
   });
 
   it("should default receiveUpdates to false", () => {
-    const { receiveUpdates, ...reportRest } = validData.report;
+    const { receiveUpdates: _receiveUpdates, ...reportRest } = validData.report;
     const result = upsertReportWithUserSchema.safeParse({
       ...validData,
       report: reportRest,
@@ -181,7 +185,7 @@ describe("upsertReportWithUserSchema", () => {
   });
 
   it("should accept optional latitude", () => {
-    const { latitude, ...reportRest } = validData.report;
+    const { latitude: _latitude, ...reportRest } = validData.report;
     const result = upsertReportWithUserSchema.safeParse({
       ...validData,
       report: reportRest,
@@ -190,7 +194,7 @@ describe("upsertReportWithUserSchema", () => {
   });
 
   it("should accept optional longitude", () => {
-    const { longitude, ...reportRest } = validData.report;
+    const { longitude: _longitude, ...reportRest } = validData.report;
     const result = upsertReportWithUserSchema.safeParse({
       ...validData,
       report: reportRest,
@@ -199,7 +203,7 @@ describe("upsertReportWithUserSchema", () => {
   });
 
   it("should require imageKeys array", () => {
-    const { imageKeys, ...reportRest } = validData.report;
+    const { imageKeys: _imageKeys, ...reportRest } = validData.report;
     const result = upsertReportWithUserSchema.safeParse({
       ...validData,
       report: reportRest,
@@ -219,7 +223,7 @@ describe("upsertReportWithUserSchema", () => {
   });
 
   it("should accept optional conversation", () => {
-    const { conversation, ...reportRest } = validData.report;
+    const { conversation: _conversation, ...reportRest } = validData.report;
     const result = upsertReportWithUserSchema.safeParse({
       ...validData,
       report: reportRest,
@@ -228,7 +232,7 @@ describe("upsertReportWithUserSchema", () => {
   });
 
   it("should accept optional address", () => {
-    const { address, ...reportRest } = validData.report;
+    const { address: _address, ...reportRest } = validData.report;
     const result = upsertReportWithUserSchema.safeParse({
       ...validData,
       report: reportRest,

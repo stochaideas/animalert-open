@@ -28,13 +28,15 @@ describe("useVideoThumbnail", () => {
       videoWidth: 640,
       videoHeight: 480,
       currentTime: 0,
-      addEventListener: vi.fn((event, handler) => {
-        if (event === "loadedmetadata") {
-          setTimeout(() => (handler as EventListener)(new Event(event)), 0);
-        } else if (event === "seeked") {
-          setTimeout(() => (handler as EventListener)(new Event(event)), 10);
-        }
-      }),
+      addEventListener: vi.fn(
+        (event: string, handler: EventListenerOrEventListenerObject) => {
+          if (event === "loadedmetadata") {
+            setTimeout(() => (handler as EventListener)(new Event(event)), 0);
+          } else if (event === "seeked") {
+            setTimeout(() => (handler as EventListener)(new Event(event)), 10);
+          }
+        },
+      ),
       removeEventListener: vi.fn(),
     };
 
@@ -132,9 +134,7 @@ describe("useVideoThumbnail", () => {
       mockVideo.videoWidth = dimensions.width;
       mockVideo.videoHeight = dimensions.height;
 
-      const { result } = renderHook(() =>
-        useVideoThumbnail("https://example.com/video.mp4"),
-      );
+      renderHook(() => useVideoThumbnail("https://example.com/video.mp4"));
 
       await waitFor(() => {
         expect(mockCanvas.width).toBe(dimensions.width);
@@ -176,14 +176,11 @@ describe("useVideoThumbnail", () => {
   });
 
   it("should not process if videoUrl becomes undefined", () => {
-    const { result, rerender } = renderHook(
-      ({ url }) => useVideoThumbnail(url),
-      {
-        initialProps: {
-          url: "https://example.com/video.mp4" as string | undefined,
-        },
+    const { rerender } = renderHook(({ url }) => useVideoThumbnail(url), {
+      initialProps: {
+        url: "https://example.com/video.mp4" as string | undefined,
       },
-    );
+    });
 
     rerender({ url: undefined });
 

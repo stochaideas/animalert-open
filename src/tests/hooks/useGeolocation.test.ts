@@ -49,9 +49,11 @@ describe("useGeolocation", () => {
       timestamp: Date.now(),
     };
 
-    mockGeolocation.getCurrentPosition.mockImplementation((success) => {
-      success(mockPosition);
-    });
+    mockGeolocation.getCurrentPosition.mockImplementation(
+      (success: PositionCallback) => {
+        success(mockPosition as GeolocationPosition);
+      },
+    );
 
     const { result } = renderHook(() => useGeolocation());
 
@@ -75,9 +77,11 @@ describe("useGeolocation", () => {
       TIMEOUT: 3,
     } as GeolocationPositionError;
 
-    mockGeolocation.getCurrentPosition.mockImplementation((_, error) => {
-      error(mockError);
-    });
+    mockGeolocation.getCurrentPosition.mockImplementation(
+      (_: PositionCallback, error?: PositionErrorCallback) => {
+        error?.(mockError);
+      },
+    );
 
     const { result } = renderHook(() => useGeolocation());
 
@@ -112,20 +116,22 @@ describe("useGeolocation", () => {
   });
 
   it("should use high accuracy and proper timeout", () => {
-    mockGeolocation.getCurrentPosition.mockImplementation((success) => {
-      success({
-        coords: {
-          latitude: 40.7128,
-          longitude: -74.006,
-          accuracy: 10,
-          altitude: null,
-          altitudeAccuracy: null,
-          heading: null,
-          speed: null,
-        },
-        timestamp: Date.now(),
-      });
-    });
+    mockGeolocation.getCurrentPosition.mockImplementation(
+      (success: PositionCallback) => {
+        success({
+          coords: {
+            latitude: 40.7128,
+            longitude: -74.006,
+            accuracy: 10,
+            altitude: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null,
+          },
+          timestamp: Date.now(),
+        } as GeolocationPosition);
+      },
+    );
 
     renderHook(() => useGeolocation());
 
@@ -149,20 +155,22 @@ describe("useGeolocation", () => {
     ];
 
     for (const coords of testCases) {
-      mockGeolocation.getCurrentPosition.mockImplementation((success) => {
-        success({
-          coords: {
-            latitude: coords.lat,
-            longitude: coords.lng,
-            accuracy: 10,
-            altitude: null,
-            altitudeAccuracy: null,
-            heading: null,
-            speed: null,
-          },
-          timestamp: Date.now(),
-        });
-      });
+      mockGeolocation.getCurrentPosition.mockImplementation(
+        (success: PositionCallback) => {
+          success({
+            coords: {
+              latitude: coords.lat,
+              longitude: coords.lng,
+              accuracy: 10,
+              altitude: null,
+              altitudeAccuracy: null,
+              heading: null,
+              speed: null,
+            },
+            timestamp: Date.now(),
+          } as GeolocationPosition);
+        },
+      );
 
       const { result } = renderHook(() => useGeolocation());
 

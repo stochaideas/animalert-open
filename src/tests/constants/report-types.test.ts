@@ -40,9 +40,9 @@ describe("report-types", () => {
     });
 
     it("should be accessible by key", () => {
-      expect(REPORT_TYPES["INCIDENT"]).toBeDefined();
-      expect(REPORT_TYPES["PRESENCE"]).toBeDefined();
-      expect(REPORT_TYPES["CONFLICT"]).toBeDefined();
+      expect(REPORT_TYPES.INCIDENT).toBeDefined();
+      expect(REPORT_TYPES.PRESENCE).toBeDefined();
+      expect(REPORT_TYPES.CONFLICT).toBeDefined();
     });
 
     it("should cover all animal-related report categories", () => {

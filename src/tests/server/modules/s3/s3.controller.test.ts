@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { S3Controller } from "~/server/api/modules/s3/s3.controller";
 import { S3Service } from "~/server/api/modules/s3/s3.service";
@@ -28,7 +29,8 @@ describe("S3Controller", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     controller = new S3Controller();
-    mockService = controller["s3Service"];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockService = (controller as any).s3Service as S3Service;
   });
 
   it("should instantiate with S3Service", () => {
@@ -43,10 +45,10 @@ describe("S3Controller", () => {
         $metadata: {},
         Body: undefined,
       };
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+
       const spy = vi
         .spyOn(mockService, "getObject")
-        .mockResolvedValue(mockOutput as any);
+        .mockResolvedValue(mockOutput);
 
       await controller.getObject(key);
 

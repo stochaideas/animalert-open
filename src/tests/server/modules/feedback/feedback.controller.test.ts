@@ -20,7 +20,7 @@ describe("FeedbackController", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     controller = new FeedbackController();
-    mockService = controller["feedbackService"];
+    mockService = controller.feedbackService;
   });
 
   it("should instantiate with FeedbackService", () => {
@@ -35,10 +35,7 @@ describe("FeedbackController", () => {
         text: "Great service!",
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-      const spy = vi
-        .spyOn(mockService, "insertFeedback")
-        .mockResolvedValue([] as any);
+      const spy = vi.spyOn(mockService, "insertFeedback").mockResolvedValue([]);
 
       await controller.insertFeedback(data);
 

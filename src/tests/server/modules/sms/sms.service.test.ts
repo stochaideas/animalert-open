@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { SmsService } from "~/server/api/modules/sms/sms.service";
 import { SNSClient } from "@aws-sdk/client-sns";
@@ -34,7 +33,7 @@ describe("SmsService", () => {
       () =>
         ({
           send: mockSend,
-        }) as any,
+        }) as unknown as InstanceType<typeof SNSClient>,
     );
 
     smsService = new SmsService();

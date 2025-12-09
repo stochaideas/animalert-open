@@ -19,7 +19,7 @@ describe("ContactController", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     controller = new ContactController();
-    mockService = controller["contactService"];
+    mockService = controller.contactService;
   });
 
   it("should instantiate with ContactService", () => {

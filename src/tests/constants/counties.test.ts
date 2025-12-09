@@ -49,9 +49,9 @@ describe("counties", () => {
 
     it("should be accessible by county code", () => {
       // Test that we can access counties by their codes
-      expect(COUNTIES["AB"]).toBeDefined();
-      expect(COUNTIES["MM"]).toBeDefined();
-      expect(COUNTIES["IF"]).toBeDefined();
+      expect(COUNTIES.AB).toBeDefined();
+      expect(COUNTIES.MM).toBeDefined();
+      expect(COUNTIES.IF).toBeDefined();
     });
 
     it("should include all historical regions", () => {

@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { ReportController } from "~/server/api/modules/report/report.controller";
 import { ReportService } from "~/server/api/modules/report/report.service";
+import type { EmailService } from "~/server/api/modules/email/email.service";
+import type { S3Service } from "~/server/api/modules/s3/s3.service";
+import type { SmsService } from "~/server/api/modules/sms/sms.service";
 import { REPORT_TYPES } from "~/constants/report-types";
 import type { User } from "@clerk/nextjs/server";
 
@@ -75,9 +78,9 @@ describe("ReportController", () => {
     const mockSmsService = { sendSms: vi.fn() };
 
     mockService = new ReportService(
-      mockEmailService as unknown as any,
-      mockS3Service as unknown as any,
-      mockSmsService as unknown as any,
+      mockEmailService as unknown as EmailService,
+      mockS3Service as unknown as S3Service,
+      mockSmsService as unknown as SmsService,
     );
 
     controller = new ReportController(mockService);
@@ -134,8 +137,8 @@ describe("ReportController", () => {
       const spy = vi
         .spyOn(mockService, "upsertReportWithUser")
         .mockResolvedValue({
-          user: data.user,
-          report: { ...data.report, reportNumber: 1 } as any,
+          user: data.user as never,
+          report: { ...data.report, reportNumber: 1 } as never,
           isUpdate: false,
         });
 
@@ -216,9 +219,8 @@ describe("ReportController", () => {
       const spy = vi
         .spyOn(mockService, "updateReportWithUser")
         .mockResolvedValue({
-          user: data.user,
-          report: { ...data.report, reportNumber: 2 } as any,
-          isUpdate: true,
+          user: data.user as never,
+          report: { ...data.report, reportNumber: 2 } as never,
         });
 
       await controller.updateReportWithUser(data);

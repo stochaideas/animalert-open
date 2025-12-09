@@ -233,8 +233,7 @@ describe("PhoneInput Component", () => {
   });
 
   it("should fallback to default country when invalid country code provided", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    render(<PhoneInput {...defaultProps} countryCode={"INVALID" as any} />);
+    render(<PhoneInput {...defaultProps} countryCode={"INVALID" as never} />);
 
     // Should fallback to Romanian flag (default)
     expect(screen.getByText("🇷🇴")).toBeInTheDocument();

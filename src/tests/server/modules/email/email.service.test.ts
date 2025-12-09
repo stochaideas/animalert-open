@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { EmailService } from "~/server/api/modules/email/email.service";
 import nodemailer from "nodemailer";
@@ -27,7 +27,7 @@ describe("EmailService", () => {
       sendMail: vi.fn().mockResolvedValue({ messageId: "test-id" }),
     };
     vi.mocked(nodemailer.createTransport).mockReturnValue(
-      mockTransporter as any,
+      mockTransporter as ReturnType<typeof nodemailer.createTransport>,
     );
     emailService = new EmailService();
   });

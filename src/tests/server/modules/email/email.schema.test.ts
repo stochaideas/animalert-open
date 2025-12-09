@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect } from "vitest";
 import { emailOptionsSchema } from "~/server/api/modules/email/email.schema";
 
@@ -54,7 +55,7 @@ describe("emailOptionsSchema", () => {
   });
 
   it("should require subject", () => {
-    const { subject, ...rest } = validTextEmail;
+    const { subject: _subject, ...rest } = validTextEmail;
     const result = emailOptionsSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });

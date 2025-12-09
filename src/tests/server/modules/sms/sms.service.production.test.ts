@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Mock AWS SDK
@@ -30,7 +29,9 @@ describe("SmsService - Production Mode", () => {
     };
 
     const { SNSClient } = await import("@aws-sdk/client-sns");
-    vi.mocked(SNSClient).mockImplementation(() => mockSNSClient as any);
+    vi.mocked(SNSClient).mockImplementation(
+      () => mockSNSClient as unknown as InstanceType<typeof SNSClient>,
+    );
   });
 
   afterEach(() => {

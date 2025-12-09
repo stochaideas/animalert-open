@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect } from "vitest";
 import { contactSchema } from "~/server/api/modules/contact/contact.schema";
 
@@ -18,19 +19,19 @@ describe("contactSchema", () => {
   });
 
   it("should require lastName", () => {
-    const { lastName, ...rest } = validData;
+    const { lastName: _lastName, ...rest } = validData;
     const result = contactSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
 
   it("should require firstName", () => {
-    const { firstName, ...rest } = validData;
+    const { firstName: _firstName, ...rest } = validData;
     const result = contactSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
 
   it("should require phone", () => {
-    const { phone, ...rest } = validData;
+    const { phone: _phone, ...rest } = validData;
     const result = contactSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
@@ -44,7 +45,7 @@ describe("contactSchema", () => {
   });
 
   it("should require email", () => {
-    const { email, ...rest } = validData;
+    const { email: _email, ...rest } = validData;
     const result = contactSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
@@ -58,7 +59,7 @@ describe("contactSchema", () => {
   });
 
   it("should require county", () => {
-    const { county, ...rest } = validData;
+    const { county: _county, ...rest } = validData;
     const result = contactSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
@@ -72,7 +73,7 @@ describe("contactSchema", () => {
   });
 
   it("should require solicitationType", () => {
-    const { solicitationType, ...rest } = validData;
+    const { solicitationType: _solicitationType, ...rest } = validData;
     const result = contactSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
@@ -86,7 +87,7 @@ describe("contactSchema", () => {
   });
 
   it("should require message", () => {
-    const { message, ...rest } = validData;
+    const { message: _message, ...rest } = validData;
     const result = contactSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });

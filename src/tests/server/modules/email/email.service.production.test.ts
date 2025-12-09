@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import nodemailer from "nodemailer";
 
@@ -25,7 +25,7 @@ describe("EmailService - Production Mode", () => {
       sendMail: vi.fn().mockResolvedValue({ messageId: "test-id" }),
     };
     vi.mocked(nodemailer.createTransport).mockReturnValue(
-      mockTransporter as any,
+      mockTransporter as ReturnType<typeof nodemailer.createTransport>,
     );
   });
 

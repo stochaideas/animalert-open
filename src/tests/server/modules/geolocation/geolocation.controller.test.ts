@@ -17,7 +17,7 @@ describe("GeolocationController", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     controller = new GeolocationController();
-    mockService = controller["geolocationService"];
+    mockService = controller.geolocationService;
   });
 
   it("should instantiate with GeolocationService", () => {
