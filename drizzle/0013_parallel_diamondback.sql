@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "country_code" varchar(2) DEFAULT 'RO' NOT NULL;
