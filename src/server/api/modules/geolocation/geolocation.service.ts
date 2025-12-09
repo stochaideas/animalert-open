@@ -5,7 +5,7 @@ export class GeolocationService {
   async mapsGeocode(coordinates: Coordinates) {
     const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
     url.searchParams.set("latlng", `${coordinates.lat},${coordinates.lng}`);
-    url.searchParams.set("key", env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+    url.searchParams.set("key", env.GOOGLE_GEOCODE_API_KEY);
 
     const res = await fetch(url.toString());
 
@@ -50,7 +50,7 @@ export class GeolocationService {
       "https://maps.googleapis.com/maps/api/place/autocomplete/json",
     );
     url.searchParams.set("input", input.address);
-    url.searchParams.set("key", env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+    url.searchParams.set("key", env.GOOGLE_GEOCODE_API_KEY);
     url.searchParams.set("language", "ro");
     url.searchParams.set("components", "country:ro");
     url.searchParams.set("types", "mapsGeocode");
@@ -83,7 +83,7 @@ export class GeolocationService {
     );
     url.searchParams.set("place_id", input.placeId);
     url.searchParams.set("fields", "geometry,formatted_address");
-    url.searchParams.set("key", env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+    url.searchParams.set("key", env.GOOGLE_GEOCODE_API_KEY);
     url.searchParams.set("language", "ro");
 
     const res = await fetch(url.toString());
