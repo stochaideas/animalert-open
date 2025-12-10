@@ -1,0 +1,76 @@
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{userTitle}} - AnimAlert</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Poppins:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body style="margin:0;padding:0;background:#f6f6f6;">
+    <div
+      style="max-width:600px;margin:24px auto;background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);font-family:'Poppins',Arial,sans-serif;overflow:hidden;"
+    >
+      <div
+        style="background:oklch(84.42% 0.172 84.93);padding:32px 0;text-align:center;"
+      >
+        <span
+          style="font-family:'Baloo 2',Arial,sans-serif;font-size:2rem;font-weight:800;color:oklch(22.64% 0 0);letter-spacing:-1px;"
+        >
+          {{userTitle}}
+        </span>
+      </div>
+      <div style="padding:32px;">
+        <div style="font-size:1.1rem;margin-bottom:24px;">
+          Bună,
+          <strong>{{user.firstName}}</strong>!<br /><br />
+          {{userThanks}}
+          Am primit detaliile tale și vom reveni cu actualizări dacă este
+          necesar.
+        </div>
+        <div
+          style="margin:24px 0;padding:16px;background:#f9f9f9;border-radius:8px;"
+        >
+          <div
+            style="font-weight:600;margin-bottom:12px;color:oklch(42.58% 0.113 130.14);"
+          >🔗 Link-uri utile:</div>
+          <ul style="margin:0;padding-left:20px;">
+            <li style="margin-bottom:8px;">
+              <a
+                href="{{myReportsUrl}}"
+                style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;"
+              >Vizualizează rapoartele tale</a>
+            </li>
+            <li style="margin-bottom:8px;">
+              <a
+                href="{{contactUrl}}"
+                style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;"
+              >Contactează-ne</a>
+            </li>
+            {{#if hasFiles}}
+              <li style="margin-bottom:8px;">
+                <a
+                  href="{{reportDetailsUrl}}"
+                  style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;"
+                >Vezi raportul și fișierele atașate</a>
+              </li>
+            {{/if}}
+          </ul>
+        </div>
+        <div
+          style="font-size:0.95rem;color:#888;text-align:center;margin-top:32px;"
+        >
+          Dacă ai întrebări sau dorești să adaugi detalii, răspunde la acest
+          email sau
+          <a
+            href="{{contactUrl}}"
+            style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;"
+          >contactează-ne</a>.<br />
+          Mulțumim pentru implicare!<br />
+          Echipa AnimAlert
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

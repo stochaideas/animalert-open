@@ -1,0 +1,132 @@
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{adminTitle}}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Poppins:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body style="margin:0;padding:0;background:#f6f6f6;">
+    <div
+      style="max-width:600px;margin:24px auto;background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);font-family:'Poppins',Arial,sans-serif;overflow:hidden;"
+    >
+      <div
+        style="background:oklch(84.42% 0.172 84.93);padding:32px 0;text-align:center;"
+      >
+        <span
+          style="font-family:'Baloo 2',Arial,sans-serif;font-size:2rem;font-weight:800;color:oklch(22.64% 0 0);letter-spacing:-1px;"
+        >
+          {{adminTitle}}
+        </span>
+      </div>
+      <div style="padding:32px;">
+        <!-- User Info -->
+        <div style="margin-bottom:24px;">
+          <div
+            style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;"
+          >
+            👤 Informații utilizator
+          </div>
+          <ul style="padding-left:18px;margin:0;list-style-type:none;">
+            <li><strong>Nume complet:</strong>
+              {{user.lastName}}
+              {{user.firstName}}</li>
+            <li><strong>Telefon:</strong>
+              <a
+                href="tel:{{user.phone}}"
+                style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;"
+              >{{user.phone}}</a></li>
+            <li><strong>Email:</strong>
+              {{#if user.email}}{{user.email}}{{else}}Nespecificat{{/if}}</li>
+            <li><strong>Primește alte actualizări:</strong>
+              {{#if user.receiveOtherReportUpdates}}Da{{else}}Nu{{/if}}</li>
+          </ul>
+        </div>
+        <!-- Report Info -->
+        <div style="margin-bottom:24px;">
+          <div
+            style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;"
+          >
+            📍 Detalii raport
+          </div>
+          <ul style="padding-left:18px;margin:0;list-style-type:none;">
+            <li><strong>Număr raport:</strong> #{{report.reportNumber}}</li>
+            <li><strong>Tip raport:</strong> {{report.reportType}}</li>
+            <li><strong>Status actualizări:</strong>
+              {{#if report.receiveUpdates}}Activat{{else}}Dezactivat{{/if}}</li>
+            <li>
+              <strong>Adresă:</strong>
+              {{#if
+                report.address
+              }}{{report.address}}{{else}}Nespecificată{{/if}}
+              {{#if hasCoordinates}}
+                <br /><a
+                  href="https://www.google.com/maps?q={{report.latitude}},{{report.longitude}}"
+                  style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;"
+                >🗺️ Vezi pe Google Maps</a>
+              {{/if}}
+            </li>
+            <li><strong>Fișiere atașate:</strong>
+              {{imagesCount}}
+              total{{#if hasImages}}
+                ({{actualImagesCount}}
+                imagin{{#if singleImage}}e{{else}}i{{/if}}){{/if}}{{#if
+                hasVideos
+              }}
+                ({{actualVideosCount}}
+                videoclip{{#unless singleVideo}}uri{{/unless}}){{/if}}
+              {{#if hasFiles}}
+                <br /><a
+                  href="{{reportDetailsUrl}}"
+                  style="color:oklch(84.42% 0.172 84.93);text-decoration:underline;"
+                >📁 Vizualizează raportul și fișierele</a>
+              {{/if}}
+            </li>
+            <li><strong>Data creării:</strong> {{createdAt}}</li>
+            <li><strong>Ultima actualizare:</strong> {{updatedAt}}</li>
+          </ul>
+        </div>
+        <!-- Chatbot Conversation as List -->
+        <div style="margin-bottom:24px;">
+          <div
+            style="font-family:'Baloo 2',Arial,sans-serif;font-size:1.25rem;font-weight:700;color:oklch(42.58% 0.113 130.14);padding-bottom:8px;"
+          >
+            💬 Răspunsuri utilizator (chat-bot)
+          </div>
+          <ul style="padding-left:18px;margin:0;">
+            {{#if hasConversation}}
+              {{#each conversationArray}}
+                <li style="margin-bottom:12px;">
+                  <div
+                    style="font-weight:600;color:oklch(42.58% 0.113 130.14);margin-bottom:4px;"
+                  >
+                    {{#if this.question}}{{this.question}}{{else}}Pasul
+                      {{@index}}{{/if}}
+                  </div>
+                  <div>
+                    {{#if this.isArray}}
+                      {{#each this.answer}}<span
+                          style="display:inline-block;margin-right:8px;"
+                        >{{this}}</span>{{/each}}
+                    {{else}}
+                      {{this.answer}}
+                    {{/if}}
+                  </div>
+                </li>
+              {{/each}}
+            {{else}}
+              <li style="padding:6px 0;">Niciun răspuns înregistrat.</li>
+            {{/if}}
+          </ul>
+        </div>
+        <div
+          style="font-size:0.95rem;color:#888;text-align:center;margin-top:32px;"
+        >
+          Mulțumim pentru implicare!<br />Echipa AnimAlert
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
