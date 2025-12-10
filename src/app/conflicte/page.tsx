@@ -34,6 +34,7 @@ import Recommendations from "./_components/recommendations";
 import Link from "next/link";
 import { SVGHeart, SVGStar } from "~/components/icons";
 import FeedbackDialog from "~/components/ui/complex/feedback-dialog";
+import { DEFAULT_COUNTRY_CODE } from "~/constants/country-phone-codes";
 
 export default function ConflictReport() {
   const lastSubmittedPayload = useRef<{
@@ -95,6 +96,7 @@ export default function ConflictReport() {
       lastName: "",
       firstName: "",
       phone: "",
+      countryCode: DEFAULT_COUNTRY_CODE,
       email: "",
       confidentiality: false,
       receiveUpdates: false,
@@ -271,6 +273,7 @@ export default function ConflictReport() {
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
+          countryCode: values.countryCode,
           email: email,
           receiveOtherReportUpdates: values.receiveOtherReportUpdates,
         },
