@@ -124,7 +124,7 @@ const authMiddleware = t.middleware(({ ctx, next }) => {
 
 // Admin middleware for admin procedures
 const adminMiddleware = t.middleware(({ ctx, next }) => {
-  if (!ctx.user || ctx.user.publicMetadata.role !== "admin") {
+  if (!ctx.user || ctx.user.publicMetadata?.role !== "admin") {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "User is not an admin",
